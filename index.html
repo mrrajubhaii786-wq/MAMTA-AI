@@ -865,7 +865,7 @@
         </ul>
         <div class="nav-actions" id="navActions">
             <button class="btn btn-ghost" id="langBtn"><i class="fas fa-globe"></i> EN</button>
-            <button class="btn btn-primary" id="authBtn" onclick="toggleAuthModal()"><i class="fas fa-user"></i> Sign In</button>
+            <button class="btn btn-primary" id="loginBtn" onclick="showAuthModal('login')"><i class="fas fa-user"></i> Sign In</button>
         </div>
     </nav>
 
@@ -938,7 +938,7 @@
                             <button class="chat-action-btn" title="Attach file"><i class="fas fa-paperclip"></i></button>
                             <button class="chat-action-btn" title="Voice input"><i class="fas fa-microphone"></i></button>
                         </div>
-                        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                        <button class="send-btn" onclick="sendMessage()" type="button"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
@@ -989,254 +989,226 @@
     </div>
 
     <script>
-        // ===== PARTICLES =====
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                container.appendChild(particle);
-            }
+    // ===== PARTICLES =====
+    function createParticles() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            container.appendChild(particle);
         }
-        createParticles();
+    }
+    createParticles();
 
-        // ===== CHAT FUNCTIONALITY =====
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
+    // ===== CHAT FUNCTIONALITY =====
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
 
-        function sendMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
+    function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
 
-            // Add user message
-            addMessage(text, 'user');
-            chatInput.value = '';
+        addMessage(text, 'user');
+        chatInput.value = '';
 
-            // Check if it's a build request
-            if (text.toLowerCase().includes('app') || text.toLowerCase().includes('website') || 
-                text.toLowerCase().includes('banao') || text.toLowerCase().includes('build') ||
-                text.toLowerCase().includes('chahiye')) {
-                setTimeout(() => {
-                    addMessage(`🎯 Samajh gaya! Aapko ek project chahiye: "${text}"
-
-Main aapke liye Planning Room khol raha hoon jahan hum poori planning karenge — features, tech stack, aur design. Uske baad automatic Workspace mein build ho jayega!`, 'ai');
-                    setTimeout(() => {
-                        showPlanningRoom();
-                        document.getElementById('planningInput').value = text;
-                        generatePlan();
-                    }, 2000);
-                }, 1000);
-                return;
-            }
-
-            // Simulate AI response
-            showTyping();
+        if (isBuildRequest(text)) {
             setTimeout(() => {
                 removeTyping();
-                const response = generateResponse(text);
-                addMessage(response, 'ai');
-            }, 1500);
+                addMessage(`🎯 MAMTA AI ne samajh liya! Aapko ek project chahiye: "${text}"\n\nMain aapke liye Planning Room khol raha hoon...`, 'ai');
+                setTimeout(() => {
+                    showPlanningRoom();
+                    document.getElementById('planningInput').value = text;
+                    generatePlan();
+                }, 1500);
+            }, 1000);
+            return;
         }
 
-        function addMessage(text, sender) {
-            const msg = document.createElement('div');
-            msg.className = `message ${sender}`;
-            msg.innerHTML = `
-                <div class="message-avatar">${sender === 'ai' ? '🤖' : '👤'}</div>
-                <div class="message-content">${text.replace(/
-/g, '<br>')}</div>
-            `;
-            chatMessages.appendChild(msg);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        showTyping();
+        setTimeout(() => {
+            removeTyping();
+            const response = generateResponse(text);
+            addMessage(response, 'ai');
+        }, 1500);
+    }
 
-        function showTyping() {
-            const typing = document.createElement('div');
-            typing.className = 'message ai';
-            typing.id = 'typingIndicator';
-            typing.innerHTML = `
-                <div class="message-avatar">🤖</div>
-                <div class="message-content">
-                    <div class="typing-indicator">
-                        <span></span><span></span><span></span>
+    function addMessage(text, sender) {
+        const msg = document.createElement('div');
+        msg.className = `message ${sender}`;
+        msg.innerHTML = `
+            <div class="message-avatar">${sender === 'ai' ? '🤖' : '👤'}</div>
+            <div class="message-content">${text.replace(/\n/g, '<br>')}</div>
+        `;
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'message ai';
+        typing.id = 'typingIndicator';
+        typing.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(typing);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTyping() {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+    }
+
+    function generateResponse(text) {
+        const lower = text.toLowerCase();
+        if (lower.includes('hello') || lower.includes('hi') || lower.includes('namaste')) {
+            return 'Namaste! 🙏 Main aapka MAMTA AI assistant hoon. Aap mujhse kuch bhi pooch sakte hain ya koi bhi app/website banane ki planning kar sakte hain.';
+        }
+        if (lower.includes('taj mahal')) {
+            return '🏛️ **Taj Mahal** — India ka sabse mashoor monument!\n\n• **Location:** Agra, Uttar Pradesh\n• **Built:** 1632-1653 (21 saal)\n• **By:** Mughal Emperor Shah Jahan\n• **For:** His beloved wife Mumtaz Mahal\n• **Material:** White marble from Makrana, Rajasthan\n• **UNESCO World Heritage Site:** 1983\n\nYeh mohabbat ki sabse badi misaal maani jaati hai! 💕';
+        }
+        if (lower.includes('india') || lower.includes('bharat')) {
+            return '🇮🇳 **Bharat (India)** — Vishwa ka sabse bada loktantra!\n\n• **Capital:** New Delhi\n• **Population:** 140+ Crore\n• **Languages:** 22 official languages, 19,500+ dialects\n• **States:** 28 states + 8 Union Territories\n• **Currency:** Indian Rupee (₹)\n• **Known For:** IT, Space Research (ISRO), Yoga, Bollywood, Diverse Culture\n\n"Vasudhaiva Kutumbakam" — The world is one family 🌍';
+        }
+        return `Aapne poocha: "${text}"\n\nYeh bahut interesting sawaal hai! Main aapko detail mein jawab dunga.\n\nAgar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar aapko koi app ya website banani hai toh "Planning Room" use karein — main aapki poori planning karunga! 🚀`;
+    }
+
+    function isBuildRequest(text) {
+        const keywords = ['app', 'website', 'banao', 'build', 'chahiye', 'banani', 'create', 'develop'];
+        return keywords.some(k => text.toLowerCase().includes(k));
+    }
+
+    function quickAsk(type) {
+        const questions = {
+            world: 'Duniya ke sabse bade desh kaun se hain?',
+            history: 'Mahabharat kab hui thi?',
+            smart: 'Quantum computing kya hai?',
+            build: 'Mujhe ek portfolio website chahiye'
+        };
+        chatInput.value = questions[type];
+        sendMessage();
+        scrollToChat();
+    }
+
+    function scrollToChat() {
+        document.getElementById('chatSection').scrollIntoView({ behavior: 'smooth' });
+        chatInput.focus();
+    }
+
+    // ===== PLANNING ROOM =====
+    function showPlanningRoom() {
+        document.getElementById('planningModal').classList.add('active');
+        document.getElementById('planningInput').focus();
+    }
+
+    function closePlanningRoom() {
+        document.getElementById('planningModal').classList.remove('active');
+        document.getElementById('planningResult').innerHTML = '';
+        document.getElementById('planningFooter').style.display = 'none';
+        document.getElementById('planningInput').value = '';
+    }
+
+    function generatePlan() {
+        const input = document.getElementById('planningInput').value.trim();
+        if (!input) return;
+
+        const resultDiv = document.getElementById('planningResult');
+        resultDiv.innerHTML = '<div style="text-align:center; padding:20px;"><div class="redirect-spinner" style="width:40px; height:40px; margin:0 auto 16px;"></div><p style="color:var(--text-secondary);">MAMTA AI planning generate kar raha hai...</p></div>';
+
+        setTimeout(() => {
+            const plan = generateProjectPlan(input);
+            resultDiv.innerHTML = plan;
+            document.getElementById('planningFooter').style.display = 'flex';
+        }, 2000);
+    }
+
+    function generateProjectPlan(input) {
+        const isApp = input.toLowerCase().includes('app') || input.toLowerCase().includes('mobile');
+        const isWeb = input.toLowerCase().includes('website') || input.toLowerCase().includes('web');
+        let type = 'Web Application';
+        if (isApp && !isWeb) type = 'Mobile Application';
+        if (isApp && isWeb) type = 'Web + Mobile Application';
+
+        return `
+            <div class="planning-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>🎯 Project Type Identified</h4>
+                    <p><strong>${type}</strong> — "${input}"</p>
+                    <div class="step-tags">
+                        <span class="tag">${type}</span>
+                        <span class="tag">Full-Stack</span>
+                        <span class="tag">AI-Powered</span>
                     </div>
                 </div>
-            `;
-            chatMessages.appendChild(typing);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function removeTyping() {
-            const typing = document.getElementById('typingIndicator');
-            if (typing) typing.remove();
-        }
-
-        function generateResponse(text) {
-            const lower = text.toLowerCase();
-            if (lower.includes('hello') || lower.includes('hi') || lower.includes('namaste')) {
-                return 'Namaste! 🙏 Main aapki kya madad kar sakta hoon? Aap kuch bhi pooch sakte hain ya koi bhi app/website banane ki planning kar sakte hain.';
-            }
-            if (lower.includes('taj mahal')) {
-                return '🏛️ **Taj Mahal** — India ka sabse mashoor monument!
-
-• **Location:** Agra, Uttar Pradesh
-• **Built:** 1632-1653 (21 saal)
-• **By:** Mughal Emperor Shah Jahan
-• **For:** His beloved wife Mumtaz Mahal
-• **Material:** White marble from Makrana, Rajasthan
-• **UNESCO World Heritage Site:** 1983
-
-Yeh mohabbat ki sabse badi misaal maani jaati hai! 💕';
-            }
-            if (lower.includes('india') || lower.includes('bharat')) {
-                return '🇮🇳 **Bharat (India)** — Vishwa ka sabse bada loktantra!
-
-• **Capital:** New Delhi
-• **Population:** 140+ Crore
-• **Languages:** 22 official languages, 19,500+ dialects
-• **States:** 28 states + 8 Union Territories
-• **Currency:** Indian Rupee (₹)
-• **Known For:** IT, Space Research (ISRO), Yoga, Bollywood, Diverse Culture
-
-"Vasudhaiva Kutumbakam" — The world is one family 🌍';
-            }
-            return `Aapne poocha: "${text}"
-
-Yeh bahut interesting sawaal hai! Main aapko detail mein jawab dunga.
-
-Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar aapko koi app ya website banani hai toh "Planning Room" use karein — main aapki poori planning karunga! 🚀`;
-        }
-
-        function quickAsk(type) {
-            const questions = {
-                world: 'Duniya ke sabse bade desh kaun se hain?',
-                history: 'Mahabharat kab hui thi?',
-                smart: 'Quantum computing kya hai?',
-                build: 'Mujhe ek portfolio website chahiye'
-            };
-            chatInput.value = questions[type];
-            sendMessage();
-            scrollToChat();
-        }
-
-        function scrollToChat() {
-            document.getElementById('chatSection').scrollIntoView({ behavior: 'smooth' });
-            chatInput.focus();
-        }
-
-        // ===== PLANNING ROOM =====
-        function showPlanningRoom() {
-            document.getElementById('planningModal').classList.add('active');
-            document.getElementById('planningInput').focus();
-        }
-
-        function closePlanningRoom() {
-            document.getElementById('planningModal').classList.remove('active');
-            document.getElementById('planningResult').innerHTML = '';
-            document.getElementById('planningFooter').style.display = 'none';
-            document.getElementById('planningInput').value = '';
-        }
-
-        function generatePlan() {
-            const input = document.getElementById('planningInput').value.trim();
-            if (!input) return;
-
-            const resultDiv = document.getElementById('planningResult');
-            resultDiv.innerHTML = '<div style="text-align:center; padding:20px;"><div class="redirect-spinner" style="width:40px; height:40px; margin:0 auto 16px;"></div><p style="color:var(--text-secondary);">AI planning generate kar raha hai...</p></div>';
-
-            setTimeout(() => {
-                const plan = generateProjectPlan(input);
-                resultDiv.innerHTML = plan;
-                document.getElementById('planningFooter').style.display = 'flex';
-            }, 2000);
-        }
-
-        function generateProjectPlan(input) {
-            const isApp = input.toLowerCase().includes('app') || input.toLowerCase().includes('mobile');
-            const isWeb = input.toLowerCase().includes('website') || input.toLowerCase().includes('web');
-
-            let type = 'Web Application';
-            if (isApp && !isWeb) type = 'Mobile Application';
-            if (isApp && isWeb) type = 'Web + Mobile Application';
-
-            return `
-                <div class="planning-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>🎯 Project Type Identified</h4>
-                        <p><strong>${type}</strong> — "${input}"</p>
-                        <div class="step-tags">
-                            <span class="tag">${type}</span>
-                            <span class="tag">Full-Stack</span>
-                            <span class="tag">AI-Powered</span>
-                        </div>
+            </div>
+            <div class="planning-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>📋 Core Features (Auto-Generated)</h4>
+                    <p>AI ne aapke idea ke basis par yeh features suggest kiye hain:</p>
+                    <div class="step-tags">
+                        <span class="tag">🔐 Auth System</span>
+                        <span class="tag">📊 Dashboard</span>
+                        <span class="tag">🔔 Notifications</span>
+                        <span class="tag">💳 Payments</span>
+                        <span class="tag">📱 Responsive</span>
+                        <span class="tag">🌐 Multi-language</span>
                     </div>
                 </div>
-                <div class="planning-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>📋 Core Features (Auto-Generated)</h4>
-                        <p>AI ne aapke idea ke basis par yeh features suggest kiye hain:</p>
-                        <div class="step-tags">
-                            <span class="tag">🔐 Auth System</span>
-                            <span class="tag">📊 Dashboard</span>
-                            <span class="tag">🔔 Notifications</span>
-                            <span class="tag">💳 Payments</span>
-                            <span class="tag">📱 Responsive</span>
-                            <span class="tag">🌐 Multi-language</span>
-                        </div>
+            </div>
+            <div class="planning-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>🛠️ Tech Stack Recommendation</h4>
+                    <p>Best technologies for your project:</p>
+                    <div class="step-tags">
+                        <span class="tag">⚛️ React / Next.js</span>
+                        <span class="tag">🟢 Node.js</span>
+                        <span class="tag">🟢 Supabase</span>
+                        <span class="tag">☁️ Vercel</span>
+                        <span class="tag">🤖 OpenAI API</span>
                     </div>
                 </div>
-                <div class="planning-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>🛠️ Tech Stack Recommendation</h4>
-                        <p>Best technologies for your project:</p>
-                        <div class="step-tags">
-                            <span class="tag">⚛️ React / Next.js</span>
-                            <span class="tag">🟢 Node.js</span>
-                            <span class="tag">🍃 MongoDB</span>
-                            <span class="tag">☁️ AWS / Vercel</span>
-                            <span class="tag">🤖 OpenAI API</span>
-                        </div>
-                    </div>
+            </div>
+            <div class="planning-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>⏱️ Timeline & Cost Estimate</h4>
+                    <p><strong>Development Time:</strong> 2-4 weeks (AI-powered auto-build)</p>
+                    <p><strong>Estimated Cost:</strong> $0 - $50/month (depends on scale)</p>
+                    <p><strong>Auto-Deploy:</strong> One-click to production</p>
                 </div>
-                <div class="planning-step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>⏱️ Timeline & Cost Estimate</h4>
-                        <p><strong>Development Time:</strong> 2-4 weeks (AI-powered auto-build)</p>
-                        <p><strong>Estimated Cost:</strong> $0 - $50/month (depends on scale)</p>
-                        <p><strong>Auto-Deploy:</strong> One-click to production</p>
-                    </div>
-                </div>
-            `;
-        }
+            </div>
+        `;
+    }
 
-        function redirectToWorkspace() {
-            closePlanningRoom();
-            const overlay = document.getElementById('redirectOverlay');
-            overlay.classList.add('active');
+    function redirectToWorkspace() {
+        closePlanningRoom();
+        const overlay = document.getElementById('redirectOverlay');
+        overlay.classList.add('active');
+        setTimeout(() => {
+            window.location.href = 'workspace.html';
+        }, 2500);
+    }
 
-            setTimeout(() => {
-                window.location.href = 'workspace.html';
-            }, 2500);
-        }
-
-    
     // ===== AUTH SYSTEM =====
     let authMode = 'login';
     let currentUser = null;
 
-    // Check if user is already logged in (from localStorage)
     function checkAuthState() {
         const savedUser = localStorage.getItem('mamtaUser');
         if (savedUser) {
@@ -1253,8 +1225,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
         document.getElementById('authToggleText').textContent = mode === 'login' ? "Don't have an account?" : "Already have an account?";
         document.getElementById('authToggleLink').textContent = mode === 'login' ? 'Sign Up' : 'Sign In';
-
-        // Reset form
         document.getElementById('authForm').style.display = 'flex';
         document.getElementById('authLoading').style.display = 'none';
         document.getElementById('authSuccess').style.display = 'none';
@@ -1273,72 +1243,30 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         const email = document.getElementById('authEmail').value.trim();
         const password = document.getElementById('authPassword').value;
         const name = document.getElementById('authName')?.value.trim();
-
-        if (!email || !password) {
-            alert('❌ Please fill in all fields');
-            return;
-        }
-
-        if (authMode === 'signup' && !name) {
-            alert('❌ Please enter your name');
-            return;
-        }
-
-        // Show loading
+        if (!email || !password) { alert('❌ Please fill in all fields'); return; }
+        if (authMode === 'signup' && !name) { alert('❌ Please enter your name'); return; }
         document.getElementById('authForm').style.display = 'none';
         document.getElementById('authLoading').style.display = 'block';
-
         setTimeout(() => {
-            const user = {
-                uid: 'user_' + Date.now(),
-                email: email,
-                displayName: name || email.split('@')[0],
-                photoURL: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name || email) + '&background=00F0FF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
-            // Save to localStorage
+            const user = { uid: 'user_' + Date.now(), email: email, displayName: name || email.split('@')[0], photoURL: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name || email) + '&background=00F0FF&color=fff', createdAt: new Date().toISOString() };
             localStorage.setItem('mamtaUser', JSON.stringify(user));
             currentUser = user;
-
-            // Show success
             document.getElementById('authLoading').style.display = 'none';
             document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-
-                // Personalized welcome in chat
-                addMessage(`🎉 Welcome back, ${user.displayName}! Aap MAMTA AI mein successfully login ho gaye hain. Ab aapki chat history, projects, aur SafeDrop files save hongi. Kya main aapki madad kar sakta hoon?`, 'ai');
-            }, 1500);
+            setTimeout(() => { closeAuthModal(); showUserProfile(user); }, 1500);
         }, 2000);
     }
 
     function handleGoogleSignIn() {
         document.getElementById('authForm').style.display = 'none';
         document.getElementById('authLoading').style.display = 'block';
-
         setTimeout(() => {
-            const user = {
-                uid: 'google_' + Date.now(),
-                email: 'user@gmail.com',
-                displayName: 'MAMTA User',
-                photoURL: 'https://ui-avatars.com/api/?name=MAMTA+User&background=7B2DFF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
+            const user = { uid: 'google_' + Date.now(), email: 'user@gmail.com', displayName: 'MAMTA User', photoURL: 'https://ui-avatars.com/api/?name=MAMTA+User&background=7B2DFF&color=fff', createdAt: new Date().toISOString() };
             localStorage.setItem('mamtaUser', JSON.stringify(user));
             currentUser = user;
-
             document.getElementById('authLoading').style.display = 'none';
             document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-                addMessage(`🎉 Welcome, ${user.displayName}! Google se successfully login ho gaye. MAMTA AI aapki service mein hai!`, 'ai');
-            }, 1500);
+            setTimeout(() => { closeAuthModal(); showUserProfile(user); }, 1500);
         }, 2000);
     }
 
@@ -1363,8 +1291,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
             document.getElementById('userProfile').style.display = 'none';
             document.getElementById('loginBtn').style.display = 'inline-flex';
             document.getElementById('userDropdown').style.display = 'none';
-
-            // Reset chat
             document.getElementById('chatMessages').innerHTML = `
                 <div class="message ai">
                     <div class="message-avatar">🤖</div>
@@ -1373,12 +1299,10 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
                     </div>
                 </div>
             `;
-
             addMessage('👋 Aap successfully logout ho gaye hain. Dubara login karne ke liye Sign In button click karein.', 'ai');
         }
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('userDropdown');
         const profile = document.getElementById('userProfile');
@@ -1387,19 +1311,16 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         }
     });
 
-    // Initialize auth state on page load
     checkAuthState();
 
-    // Close modal on outside click
+    document.getElementById('planningModal').addEventListener('click', function(e) {
+        if (e.target === this) closePlanningRoom();
+    });
+
     document.getElementById('authModal').addEventListener('click', function(e) {
         if (e.target === this) closeAuthModal();
     });
-
-    // Close modal on outside click
-        document.getElementById('planningModal').addEventListener('click', function(e) {
-            if (e.target === this) closePlanningRoom();
-        });
-    </script>
+</script>
 
     <!-- Auth Modal -->
     <div class="modal-overlay" id="authModal">
@@ -1457,800 +1378,4 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
     </div>
 
 
-    <script>
-        // ========== AUTH SYSTEM ==========
-        let authMode = 'login';
-        let currentUser = null;
-
-        function toggleAuthModal() {
-            const modal = document.getElementById('authModal');
-            modal.classList.add('active');
-            resetAuthForm();
-        }
-
-        function closeAuthModal() {
-            const modal = document.getElementById('authModal');
-            modal.classList.remove('active');
-        }
-
-        function toggleAuthMode() {
-            authMode = authMode === 'login' ? 'signup' : 'login';
-            const title = document.getElementById('authTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const toggleText = document.getElementById('authToggleText');
-            const toggleLink = document.getElementById('authToggleLink');
-            const nameField = document.getElementById('nameField');
-
-            if (authMode === 'signup') {
-                title.innerHTML = '✨ Join MAMTA AI';
-                submitBtn.innerHTML = 'Create Account';
-                toggleText.innerHTML = 'Already have an account?';
-                toggleLink.innerHTML = 'Sign In';
-                nameField.style.display = 'block';
-            } else {
-                title.innerHTML = '🔐 Sign In to MAMTA AI';
-                submitBtn.innerHTML = 'Sign In';
-                toggleText.innerHTML = "Don't have an account?";
-                toggleLink.innerHTML = 'Sign Up';
-                nameField.style.display = 'none';
-            }
-        }
-
-        function resetAuthForm() {
-            document.getElementById('authForm').style.display = 'flex';
-            document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('authEmail').value = '';
-            document.getElementById('authPassword').value = '';
-            if (document.getElementById('authName')) {
-                document.getElementById('authName').value = '';
-            }
-        }
-
-        function handleAuthSubmit() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-
-            if (!email || !password) {
-                alert('❌ Please fill all fields!');
-                return;
-            }
-
-            // Demo login (no backend yet)
-            if (authMode === 'login') {
-                // Check if user exists in localStorage
-                const users = JSON.parse(localStorage.getItem('mamtaUsers') || '[]');
-                const user = users.find(u => u.email === email && u.password === password);
-
-                if (user) {
-                    loginSuccess(user);
-                } else {
-                    alert('❌ Invalid email or password!');
-                }
-            } else {
-                // Sign up
-                const name = document.getElementById('authName').value;
-                if (!name) {
-                    alert('❌ Please enter your name!');
-                    return;
-                }
-
-                const users = JSON.parse(localStorage.getItem('mamtaUsers') || '[]');
-                if (users.find(u => u.email === email)) {
-                    alert('❌ Email already exists!');
-                    return;
-                }
-
-                const newUser = {
-                    name: name,
-                    email: email,
-                    password: password,
-                    createdAt: new Date().toISOString()
-                };
-
-                users.push(newUser);
-                localStorage.setItem('mamtaUsers', JSON.stringify(users));
-                loginSuccess(newUser);
-                alert('✅ Account created successfully!');
-            }
-        }
-
-        function googleSignIn() {
-            // Demo Google sign in
-            const demoUser = {
-                name: 'Google User',
-                email: 'user@gmail.com',
-                photoURL: 'https://via.placeholder.com/100'
-            };
-            loginSuccess(demoUser);
-        }
-
-        function loginSuccess(user) {
-            currentUser = user;
-            localStorage.setItem('mamtaCurrentUser', JSON.stringify(user));
-
-            // Show user profile in modal
-            document.getElementById('authForm').style.display = 'none';
-            document.getElementById('userProfile').style.display = 'block';
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('userEmail').textContent = user.email;
-
-            // Update navbar
-            updateNavForUser(user);
-
-            // Close modal after 2 seconds
-            setTimeout(() => {
-                closeAuthModal();
-            }, 2000);
-        }
-
-        function updateNavForUser(user) {
-            const navActions = document.getElementById('navActions');
-            navActions.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="color: var(--text-secondary); font-size: 14px; font-weight: 500;">${user.name}</span>
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer;" onclick="toggleAuthModal()">👤</div>
-                </div>
-            `;
-        }
-
-        function signOutUser() {
-            currentUser = null;
-            localStorage.removeItem('mamtaCurrentUser');
-
-            // Reset navbar
-            const navActions = document.getElementById('navActions');
-            navActions.innerHTML = `
-                <button class="btn btn-ghost" id="langBtn"><i class="fas fa-globe"></i> EN</button>
-                <button class="btn btn-primary" id="authBtn" onclick="toggleAuthModal()"><i class="fas fa-user"></i> Sign In</button>
-            `;
-
-            closeAuthModal();
-            resetAuthForm();
-            alert('✅ Signed out successfully!');
-        }
-
-        // Check if user is already logged in on page load
-        window.addEventListener('load', () => {
-            const savedUser = localStorage.getItem('mamtaCurrentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                updateNavForUser(currentUser);
-            }
-        });
-
     
-    // ===== AUTH SYSTEM =====
-    let authMode = 'login';
-    let currentUser = null;
-
-    // Check if user is already logged in (from localStorage)
-    function checkAuthState() {
-        const savedUser = localStorage.getItem('mamtaUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            showUserProfile(currentUser);
-        }
-    }
-
-    function showAuthModal(mode) {
-        authMode = mode;
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('authTitle').innerHTML = mode === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Create MAMTA AI Account';
-        document.getElementById('authBtnText').textContent = mode === 'login' ? 'Sign In' : 'Create Account';
-        document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
-        document.getElementById('authToggleText').textContent = mode === 'login' ? "Don't have an account?" : "Already have an account?";
-        document.getElementById('authToggleLink').textContent = mode === 'login' ? 'Sign Up' : 'Sign In';
-
-        // Reset form
-        document.getElementById('authForm').style.display = 'flex';
-        document.getElementById('authLoading').style.display = 'none';
-        document.getElementById('authSuccess').style.display = 'none';
-    }
-
-    function closeAuthModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-
-    function toggleAuthMode() {
-        authMode = authMode === 'login' ? 'signup' : 'login';
-        showAuthModal(authMode);
-    }
-
-    function handleAuthSubmit() {
-        const email = document.getElementById('authEmail').value.trim();
-        const password = document.getElementById('authPassword').value;
-        const name = document.getElementById('authName')?.value.trim();
-
-        if (!email || !password) {
-            alert('❌ Please fill in all fields');
-            return;
-        }
-
-        if (authMode === 'signup' && !name) {
-            alert('❌ Please enter your name');
-            return;
-        }
-
-        // Show loading
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-
-        setTimeout(() => {
-            const user = {
-                uid: 'user_' + Date.now(),
-                email: email,
-                displayName: name || email.split('@')[0],
-                photoURL: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name || email) + '&background=00F0FF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
-            // Save to localStorage
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-
-            // Show success
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-
-                // Personalized welcome in chat
-                addMessage(`🎉 Welcome back, ${user.displayName}! Aap MAMTA AI mein successfully login ho gaye hain. Ab aapki chat history, projects, aur SafeDrop files save hongi. Kya main aapki madad kar sakta hoon?`, 'ai');
-            }, 1500);
-        }, 2000);
-    }
-
-    function handleGoogleSignIn() {
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-
-        setTimeout(() => {
-            const user = {
-                uid: 'google_' + Date.now(),
-                email: 'user@gmail.com',
-                displayName: 'MAMTA User',
-                photoURL: 'https://ui-avatars.com/api/?name=MAMTA+User&background=7B2DFF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-                addMessage(`🎉 Welcome, ${user.displayName}! Google se successfully login ho gaye. MAMTA AI aapki service mein hai!`, 'ai');
-            }, 1500);
-        }, 2000);
-    }
-
-    function showUserProfile(user) {
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('userProfile').style.display = 'flex';
-        document.getElementById('userName').textContent = user.displayName;
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('dropdownName').textContent = user.displayName;
-        document.getElementById('dropdownEmail').textContent = user.email;
-    }
-
-    function toggleUserDropdown() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function handleLogout() {
-        if (confirm('🔐 Kya aap sach mein logout karna chahte hain?')) {
-            localStorage.removeItem('mamtaUser');
-            currentUser = null;
-            document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('loginBtn').style.display = 'inline-flex';
-            document.getElementById('userDropdown').style.display = 'none';
-
-            // Reset chat
-            document.getElementById('chatMessages').innerHTML = `
-                <div class="message ai">
-                    <div class="message-avatar">🤖</div>
-                    <div class="message-content">
-                        Namaste! Main aapka MAMTA AI assistant hoon. Aap mujhse kuch bhi pooch sakte hain — duniya ki koi bhi jankari, ya phir koi bhi app/website banane ki planning. Kya main aapki madad kar sakta hoon? 🙏
-                    </div>
-                </div>
-            `;
-
-            addMessage('👋 Aap successfully logout ho gaye hain. Dubara login karne ke liye Sign In button click karein.', 'ai');
-        }
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('userDropdown');
-        const profile = document.getElementById('userProfile');
-        if (dropdown && profile && !profile.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
-
-    // Initialize auth state on page load
-    checkAuthState();
-
-    // Close modal on outside click
-    document.getElementById('authModal').addEventListener('click', function(e) {
-        if (e.target === this) closeAuthModal();
-    });
-
-    // Close modal on outside click
-        document.getElementById('authModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAuthModal();
-        });
-    </script>
-
-
-    <!-- Login Modal -->
-    <div class="modal-overlay" id="loginModal">
-        <div class="modal" style="max-width: 420px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-user-circle"></i> Sign In to MAMTA AI</h2>
-                <button class="modal-close" onclick="closeLoginModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center; gap: 10px; padding: 14px;" onclick="demoLogin('google')">
-                        <i class="fab fa-google" style="color: #EA4335;"></i> Continue with Google
-                    </button>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px; position: relative;">
-                        <span style="background: var(--bg-card); padding: 0 12px; position: relative; z-index: 1;">— OR —</span>
-                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); z-index: 0;"></div>
-                    </div>
-                    <input type="email" id="loginEmail" placeholder="Email address" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none; transition: all 0.3s;">
-                    <input type="password" id="loginPassword" placeholder="Password" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none; transition: all 0.3s;">
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px;" onclick="demoLogin('email')">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
-                    <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: 8px;">
-                        Don't have an account? <a href="#" style="color: var(--accent-cyan); text-decoration: none;">Sign Up</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Profile Dropdown (Hidden by default) -->
-    <div class="user-profile" id="userProfile" style="display: none; position: fixed; top: 80px; right: 40px; z-index: 1001; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; min-width: 280px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
-            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">👤</div>
-            <div>
-                <h4 style="font-size: 15px; margin-bottom: 2px;" id="userName">User Name</h4>
-                <p style="font-size: 12px; color: var(--text-secondary);" id="userEmail">user@email.com</p>
-            </div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button class="btn btn-ghost" style="justify-content: flex-start; gap: 10px;" onclick="goToWorkspace()">
-                <i class="fas fa-code"></i> My Workspace
-            </button>
-            <button class="btn btn-ghost" style="justify-content: flex-start; gap: 10px;" onclick="goToSafeDrop()">
-                <i class="fas fa-shield-alt"></i> SafeDrop Vault
-            </button>
-            <button class="btn btn-ghost" style="justify-content: flex-start; gap: 10px;" onclick="showSettings()">
-                <i class="fas fa-cog"></i> Settings
-            </button>
-            <div style="height: 1px; background: var(--border); margin: 8px 0;"></div>
-            <button class="btn btn-ghost" style="justify-content: flex-start; gap: 10px; color: var(--accent-red);" onclick="demoLogout()">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
-            </button>
-        </div>
-    </div>
-
-
-    <script>
-        // ===== LOGIN SYSTEM =====
-        let currentUser = null;
-
-        function showLoginModal() {
-            document.getElementById('loginModal').classList.add('active');
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.remove('active');
-        }
-
-        function demoLogin(type) {
-            const demoUsers = {
-                google: { name: 'Rajubhai', email: 'rajubhai@gmail.com', photo: '👤' },
-                email: { name: 'MAMTA User', email: document.getElementById('loginEmail').value || 'user@mamta.ai', photo: '👤' }
-            };
-
-            currentUser = demoUsers[type] || demoUsers.email;
-
-            // Update UI
-            updateLoginUI();
-            closeLoginModal();
-
-            // Show welcome message
-            setTimeout(() => {
-                addMessage(`Welcome back, ${currentUser.name}! 🎉\n\nAap ab MAMTA AI ke sabhi features use kar sakte hain:\n• AI Chat\n• Planning Room\n• Workspace\n• SafeDrop Vault`, 'ai');
-            }, 500);
-        }
-
-        function demoLogout() {
-            currentUser = null;
-            updateLoginUI();
-            document.getElementById('userProfile').style.display = 'none';
-            addMessage('Aap safely logout ho gaye hain. Phir se login karne ke liye Sign In button click karein. 🙏', 'ai');
-        }
-
-        function updateLoginUI() {
-            const navActions = document.getElementById('navActions');
-            if (currentUser) {
-                navActions.innerHTML = `
-                    <button class="btn btn-ghost" style="gap: 8px;" onclick="toggleProfile()">
-                        <span style="color: var(--accent-green); font-size: 10px;">●</span>
-                        <span style="font-size: 14px;">${currentUser.name}</span>
-                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">${currentUser.photo}</div>
-                    </button>
-                `;
-                document.getElementById('userName').textContent = currentUser.name;
-                document.getElementById('userEmail').textContent = currentUser.email;
-            } else {
-                navActions.innerHTML = `
-                    <button class="btn btn-ghost"><i class="fas fa-globe"></i> EN</button>
-                    <button class="btn btn-primary" onclick="showLoginModal()"><i class="fas fa-user"></i> Sign In</button>
-                `;
-            }
-        }
-
-        function toggleProfile() {
-            const profile = document.getElementById('userProfile');
-            profile.style.display = profile.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function goToWorkspace() {
-            document.getElementById('userProfile').style.display = 'none';
-            window.location.href = 'workspace.html';
-        }
-
-        function goToSafeDrop() {
-            document.getElementById('userProfile').style.display = 'none';
-            window.location.href = 'safedrop.html';
-        }
-
-        function showSettings() {
-            document.getElementById('userProfile').style.display = 'none';
-            alert('⚙️ Settings:\n\n• Profile Management\n• Security Settings\n• Notification Preferences\n• Language: Hindi / English\n• Theme: Dark / Light');
-        }
-
-        // Close profile when clicking outside
-        document.addEventListener('click', function(e) {
-            const profile = document.getElementById('userProfile');
-            const navActions = document.getElementById('navActions');
-            if (profile && navActions && !profile.contains(e.target) && !navActions.contains(e.target)) {
-                profile.style.display = 'none';
-            }
-        });
-
-    
-    // ===== AUTH SYSTEM =====
-    let authMode = 'login';
-    let currentUser = null;
-
-    // Check if user is already logged in (from localStorage)
-    function checkAuthState() {
-        const savedUser = localStorage.getItem('mamtaUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            showUserProfile(currentUser);
-        }
-    }
-
-    function showAuthModal(mode) {
-        authMode = mode;
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('authTitle').innerHTML = mode === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Create MAMTA AI Account';
-        document.getElementById('authBtnText').textContent = mode === 'login' ? 'Sign In' : 'Create Account';
-        document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
-        document.getElementById('authToggleText').textContent = mode === 'login' ? "Don't have an account?" : "Already have an account?";
-        document.getElementById('authToggleLink').textContent = mode === 'login' ? 'Sign Up' : 'Sign In';
-
-        // Reset form
-        document.getElementById('authForm').style.display = 'flex';
-        document.getElementById('authLoading').style.display = 'none';
-        document.getElementById('authSuccess').style.display = 'none';
-    }
-
-    function closeAuthModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-
-    function toggleAuthMode() {
-        authMode = authMode === 'login' ? 'signup' : 'login';
-        showAuthModal(authMode);
-    }
-
-    function handleAuthSubmit() {
-        const email = document.getElementById('authEmail').value.trim();
-        const password = document.getElementById('authPassword').value;
-        const name = document.getElementById('authName')?.value.trim();
-
-        if (!email || !password) {
-            alert('❌ Please fill in all fields');
-            return;
-        }
-
-        if (authMode === 'signup' && !name) {
-            alert('❌ Please enter your name');
-            return;
-        }
-
-        // Show loading
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-
-        setTimeout(() => {
-            const user = {
-                uid: 'user_' + Date.now(),
-                email: email,
-                displayName: name || email.split('@')[0],
-                photoURL: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name || email) + '&background=00F0FF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
-            // Save to localStorage
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-
-            // Show success
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-
-                // Personalized welcome in chat
-                addMessage(`🎉 Welcome back, ${user.displayName}! Aap MAMTA AI mein successfully login ho gaye hain. Ab aapki chat history, projects, aur SafeDrop files save hongi. Kya main aapki madad kar sakta hoon?`, 'ai');
-            }, 1500);
-        }, 2000);
-    }
-
-    function handleGoogleSignIn() {
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-
-        setTimeout(() => {
-            const user = {
-                uid: 'google_' + Date.now(),
-                email: 'user@gmail.com',
-                displayName: 'MAMTA User',
-                photoURL: 'https://ui-avatars.com/api/?name=MAMTA+User&background=7B2DFF&color=fff',
-                createdAt: new Date().toISOString()
-            };
-
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-
-            setTimeout(() => {
-                closeAuthModal();
-                showUserProfile(user);
-                addMessage(`🎉 Welcome, ${user.displayName}! Google se successfully login ho gaye. MAMTA AI aapki service mein hai!`, 'ai');
-            }, 1500);
-        }, 2000);
-    }
-
-    function showUserProfile(user) {
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('userProfile').style.display = 'flex';
-        document.getElementById('userName').textContent = user.displayName;
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('dropdownName').textContent = user.displayName;
-        document.getElementById('dropdownEmail').textContent = user.email;
-    }
-
-    function toggleUserDropdown() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function handleLogout() {
-        if (confirm('🔐 Kya aap sach mein logout karna chahte hain?')) {
-            localStorage.removeItem('mamtaUser');
-            currentUser = null;
-            document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('loginBtn').style.display = 'inline-flex';
-            document.getElementById('userDropdown').style.display = 'none';
-
-            // Reset chat
-            document.getElementById('chatMessages').innerHTML = `
-                <div class="message ai">
-                    <div class="message-avatar">🤖</div>
-                    <div class="message-content">
-                        Namaste! Main aapka MAMTA AI assistant hoon. Aap mujhse kuch bhi pooch sakte hain — duniya ki koi bhi jankari, ya phir koi bhi app/website banane ki planning. Kya main aapki madad kar sakta hoon? 🙏
-                    </div>
-                </div>
-            `;
-
-            addMessage('👋 Aap successfully logout ho gaye hain. Dubara login karne ke liye Sign In button click karein.', 'ai');
-        }
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('userDropdown');
-        const profile = document.getElementById('userProfile');
-        if (dropdown && profile && !profile.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
-
-    // Initialize auth state on page load
-    checkAuthState();
-
-    // Close modal on outside click
-    document.getElementById('authModal').addEventListener('click', function(e) {
-        if (e.target === this) closeAuthModal();
-    });
-
-    // Close modal on outside click
-        document.getElementById('loginModal').addEventListener('click', function(e) {
-            if (e.target === this) closeLoginModal();
-        });
-    </script>
-
-
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal" style="max-width: 420px;">
-            <div class="modal-header">
-                <h2 id="authTitle">🔐 Sign In to MAMTA AI</h2>
-                <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <!-- Google Sign In -->
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center; gap: 12px; padding: 14px;" onclick="handleGoogleAuth()">
-                        <img src="https://www.google.com/favicon.ico" style="width: 20px; height: 20px;">
-                        Continue with Google
-                    </button>
-
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px;">— OR —</div>
-
-                    <!-- Email/Password Form -->
-                    <input type="email" id="authEmail" placeholder="📧 Email address" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none; transition: all 0.3s;">
-                    <input type="password" id="authPassword" placeholder="🔑 Password" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none; transition: all 0.3s;">
-                    <input type="text" id="authName" placeholder="👤 Your name (for signup)" style="display: none; padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none;">
-
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 16px;" id="authBtn" onclick="handleAuthSubmit()">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
-
-                    <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: 8px;">
-                        <span id="authSwitchText">Don't have an account?</span>
-                        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;" id="authSwitchLink">Sign Up</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== USER PROFILE DROPDOWN ===== -->
-    <div class="user-dropdown" id="userDropdown" style="display: none; position: fixed; top: 70px; right: 40px; z-index: 1001; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; min-width: 220px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-        <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;">
-            <img id="userAvatar" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-cyan);">
-            <div>
-                <div id="userName" style="font-weight: 600; font-size: 14px;">User</div>
-                <div id="userEmail" style="font-size: 12px; color: var(--text-secondary);">user@email.com</div>
-            </div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <a href="workspace.html" style="padding: 10px 14px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; transition: all 0.3s;"><i class="fas fa-code"></i> Workspace</a>
-            <a href="safedrop.html" style="padding: 10px 14px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px; transition: all 0.3s;"><i class="fas fa-shield-alt"></i> SafeDrop</a>
-            <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
-            <button onclick="handleLogout()" style="padding: 10px 14px; border-radius: 10px; color: var(--accent-red); background: none; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px; font-family: Inter; text-align: left;"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-        </div>
-    </div>
-
-
-    <!-- ===== AUTH MODAL (Login/Signup) ===== -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal" style="max-width: 440px;">
-            <div class="modal-header">
-                <h2 id="authTitle">🔐 Sign In to MAMTA AI</h2>
-                <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div id="authForm" style="display: flex; flex-direction: column; gap: 14px;">
-                    <!-- Google Sign In -->
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center; gap: 12px; padding: 14px;" onclick="handleGoogleSignIn()">
-                        <i class="fab fa-google" style="color: #EA4335;"></i>
-                        <span>Continue with Google</span>
-                    </button>
-
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px; position: relative;">
-                        <span style="background: var(--bg-card); padding: 0 16px; position: relative; z-index: 1;">— OR —</span>
-                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); z-index: 0;"></div>
-                    </div>
-
-                    <!-- Email/Password Form -->
-                    <div class="form-group">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Email Address</label>
-                        <input type="email" id="authEmail" placeholder="you@example.com" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none; transition: all 0.3s;">
-                    </div>
-
-                    <div class="form-group">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Password</label>
-                        <input type="password" id="authPassword" placeholder="••••••••" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none; transition: all 0.3s;">
-                    </div>
-
-                    <div id="nameField" style="display: none;">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Your Name</label>
-                        <input type="text" id="authName" placeholder="John Doe" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none; transition: all 0.3s;">
-                    </div>
-
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; margin-top: 8px;" id="authSubmitBtn" onclick="handleAuthSubmit()">
-                        <span id="authBtnText">Sign In</span>
-                    </button>
-
-                    <p style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
-                        <span id="authToggleText">Don't have an account?</span>
-                        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;" id="authToggleLink">Sign Up</a>
-                    </p>
-                </div>
-
-                <!-- Loading State -->
-                <div id="authLoading" style="display: none; text-align: center; padding: 40px 20px;">
-                    <div class="redirect-spinner" style="width: 48px; height: 48px; margin: 0 auto 20px; border-width: 3px;"></div>
-                    <p style="color: var(--text-secondary);">Authenticating...</p>
-                </div>
-
-                <!-- Success State -->
-                <div id="authSuccess" style="display: none; text-align: center; padding: 40px 20px;">
-                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent-green), #00CC6A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px;">✅</div>
-                    <h3 style="margin-bottom: 8px;">Welcome to MAMTA AI!</h3>
-                    <p style="color: var(--text-secondary);">Redirecting to your dashboard...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== USER DROPDOWN MENU ===== -->
-    <div class="user-dropdown" id="userDropdown" style="display: none; position: absolute; top: 70px; right: 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; min-width: 220px; z-index: 1001; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
-            <p style="font-weight: 600; font-size: 14px;" id="dropdownName">User Name</p>
-            <p style="font-size: 12px; color: var(--text-secondary);" id="dropdownEmail">user@email.com</p>
-        </div>
-        <a href="index.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-home" style="width: 20px;"></i> Home
-        </a>
-        <a href="workspace.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-code" style="width: 20px;"></i> Workspace
-        </a>
-        <a href="safedrop.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-shield-alt" style="width: 20px;"></i> SafeDrop
-        </a>
-        <div style="border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px;">
-            <a href="#" onclick="handleLogout()" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--accent-red); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,45,85,0.1)'" onmouseout="this.style.background='transparent'">
-                <i class="fas fa-sign-out-alt" style="width: 20px;"></i> Sign Out
-            </a>
-        </div>
-    </div>
-
-
-    <!-- 🟢 MAMTA AI — Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- 🟢 MAMTA AI — Services -->
-    <script src="supabase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="firestore.js"></script>
-    <script src="storage.js"></script>
-    <script src="security.js"></script>
-    <script src="ai-service.js"></script>
-    <script src="app.js"></script>
-
-</body>
-</html>
