@@ -1,12 +1,9 @@
-// 🗄️ MAMTA AI — Firestore Database Service
+// 🗄️ MAMTA AI — Supabase Database Service
+// PostgreSQL via Supabase Client
 
 class MAMTADB {
     constructor() {
-        this.users = db.collection('users');
-        this.chats = db.collection('chats');
-        this.projects = db.collection('projects');
-        this.files = db.collection('files');
-        this.auditLogs = db.collection('auditLogs');
+        this.tablePrefix = '';
     }
 
     // ========== CHAT FUNCTIONS ==========
@@ -14,14 +11,19 @@ class MAMTADB {
     // Save chat message
     async saveMessage(userId, message, type = 'user') {
         try {
-            await this.chats.add({
-                userId: userId,
-                message: message,
-                type: type,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return { success: true };
+            const { data, error } = await supabase
+                .from('chats')
+                .insert([{
+                    user_id: userId,
+                    message: message,
+                    type: type,
+                    created_at: new Date().toISOString()
+                }]);
+
+            if (error) throw error;
+            return { success: true, data };
         } catch (error) {
+            console.error('Save message error:', error);
             return { success: false, error: error.message };
         }
     }
@@ -29,18 +31,17 @@ class MAMTADB {
     // Get chat history
     async getChatHistory(userId, limit = 50) {
         try {
-            const snapshot = await this.chats
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'desc')
-                .limit(limit)
-                .get();
+            const { data, error } = await supabase
+                .from('chats')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            if (error) throw error;
+            return data || [];
         } catch (error) {
-            console.error('Error fetching chat:', error);
+            console.error('Get chat error:', error);
             return [];
         }
     }
@@ -50,18 +51,22 @@ class MAMTADB {
     // Create new project from Planning Room
     async createProject(userId, projectData) {
         try {
-            const projectRef = await this.projects.add({
-                userId: userId,
-                name: projectData.name,
-                type: projectData.type,
-                features: projectData.features,
-                techStack: projectData.techStack,
-                status: 'planning',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const { data, error } = await supabase
+                .from('projects')
+                .insert([{
+                    user_id: userId,
+                    name: projectData.name,
+                    type: projectData.type,
+                    features: projectData.features,
+                    tech_stack: projectData.techStack,
+                    status: 'planning',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }])
+                .select();
 
-            return { success: true, projectId: projectRef.id };
+            if (error) throw error;
+            return { success: true, projectId: data?.[0]?.id };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -70,15 +75,14 @@ class MAMTADB {
     // Get user's projects
     async getProjects(userId) {
         try {
-            const snapshot = await this.projects
-                .where('userId', '==', userId)
-                .orderBy('createdAt', 'desc')
-                .get();
+            const { data, error } = await supabase
+                .from('projects')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            if (error) throw error;
+            return data || [];
         } catch (error) {
             return [];
         }
@@ -87,10 +91,12 @@ class MAMTADB {
     // Update project status
     async updateProjectStatus(projectId, status) {
         try {
-            await this.projects.doc(projectId).update({
-                status: status,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const { error } = await supabase
+                .from('projects')
+                .update({ status: status, updated_at: new Date().toISOString() })
+                .eq('id', projectId);
+
+            if (error) throw error;
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
@@ -99,18 +105,22 @@ class MAMTADB {
 
     // ========== SAFE DROP FUNCTIONS ==========
 
-    // Save file metadata (encrypted)
+    // Save file metadata
     async saveFile(userId, fileData) {
         try {
-            await this.files.add({
-                userId: userId,
-                name: fileData.name,
-                type: fileData.type,
-                size: fileData.size,
-                encryptedUrl: fileData.encryptedUrl,
-                encryptionKey: fileData.encryptionKey, // Client-side encrypted key
-                uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            const { data, error } = await supabase
+                .from('files')
+                .insert([{
+                    user_id: userId,
+                    name: fileData.name,
+                    type: fileData.type,
+                    size: fileData.size,
+                    storage_path: fileData.storagePath,
+                    encrypted: true,
+                    uploaded_at: new Date().toISOString()
+                }]);
+
+            if (error) throw error;
 
             // Log audit
             await this.logAudit(userId, 'FILE_UPLOAD', `File uploaded: ${fileData.name}`);
@@ -124,15 +134,14 @@ class MAMTADB {
     // Get user's files
     async getFiles(userId) {
         try {
-            const snapshot = await this.files
-                .where('userId', '==', userId)
-                .orderBy('uploadedAt', 'desc')
-                .get();
+            const { data, error } = await supabase
+                .from('files')
+                .select('*')
+                .eq('user_id', userId)
+                .order('uploaded_at', { ascending: false });
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            if (error) throw error;
+            return data || [];
         } catch (error) {
             return [];
         }
@@ -143,14 +152,16 @@ class MAMTADB {
     // Log security event
     async logAudit(userId, action, details) {
         try {
-            await this.auditLogs.add({
-                userId: userId,
-                action: action,
-                details: details,
-                ip: 'client-side', // Will be populated by Cloud Function
-                userAgent: navigator.userAgent,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            await supabase
+                .from('audit_logs')
+                .insert([{
+                    user_id: userId,
+                    action: action,
+                    details: details,
+                    ip_address: 'client-side',
+                    user_agent: navigator.userAgent,
+                    created_at: new Date().toISOString()
+                }]);
         } catch (error) {
             console.error('Audit log error:', error);
         }
@@ -159,16 +170,15 @@ class MAMTADB {
     // Get audit logs
     async getAuditLogs(userId, limit = 100) {
         try {
-            const snapshot = await this.auditLogs
-                .where('userId', '==', userId)
-                .orderBy('timestamp', 'desc')
-                .limit(limit)
-                .get();
+            const { data, error } = await supabase
+                .from('audit_logs')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
 
-            return snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            if (error) throw error;
+            return data || [];
         } catch (error) {
             return [];
         }
@@ -179,26 +189,38 @@ class MAMTADB {
     // Update user security score
     async updateSecurityScore(userId, score) {
         try {
-            await this.users.doc(userId).update({
-                securityScore: score,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            await supabase
+                .from('users')
+                .update({ security_score: score, updated_at: new Date().toISOString() })
+                .eq('id', userId);
         } catch (error) {
-            console.error('Error updating score:', error);
+            console.error('Update score error:', error);
         }
     }
 
     // Get user stats
     async getUserStats(userId) {
         try {
-            const userDoc = await this.users.doc(userId).get();
-            const filesSnapshot = await this.files.where('userId', '==', userId).get();
-            const projectsSnapshot = await this.projects.where('userId', '==', userId).get();
+            const { data: userData } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            const { count: fileCount } = await supabase
+                .from('files')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
+
+            const { count: projectCount } = await supabase
+                .from('projects')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', userId);
 
             return {
-                user: userDoc.data(),
-                totalFiles: filesSnapshot.size,
-                totalProjects: projectsSnapshot.size
+                user: userData,
+                totalFiles: fileCount || 0,
+                totalProjects: projectCount || 0
             };
         } catch (error) {
             return null;

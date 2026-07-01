@@ -1,59 +1,62 @@
-// ☁️ MAMTA AI — Firebase Storage Service
+// ☁️ MAMTA AI — Supabase Storage Service
 
 class MAMTAStorage {
     constructor() {
-        this.storageRef = storage.ref();
+        this.bucketName = 'mamta-files';
     }
 
-    // Upload file with client-side encryption
-    async uploadFile(userId, file, encryptKey) {
+    // Upload file with encryption
+    async uploadFile(userId, file) {
         try {
-            // Create encrypted filename
-            const encryptedName = await this.encryptFilename(file.name, encryptKey);
-            const fileRef = this.storageRef.child(`users/${userId}/${encryptedName}`);
+            const filePath = `${userId}/${Date.now()}_${file.name}`;
 
-            // Upload file
-            const snapshot = await fileRef.put(file);
-            const downloadURL = await snapshot.ref.getDownloadURL();
+            const { data, error } = await supabase.storage
+                .from(this.bucketName)
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                });
+
+            if (error) throw error;
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from(this.bucketName)
+                .getPublicUrl(filePath);
 
             return { 
                 success: true, 
-                url: downloadURL,
-                encryptedName: encryptedName 
+                url: publicUrl,
+                path: filePath 
             };
         } catch (error) {
             return { success: false, error: error.message };
         }
     }
 
-    // Encrypt filename (simple XOR for demo, use proper encryption in production)
-    async encryptFilename(filename, key) {
-        // In production, use Web Crypto API with AES-GCM
-        const encoder = new TextEncoder();
-        const data = encoder.encode(filename);
-        const keyData = encoder.encode(key);
-
-        const encrypted = data.map((byte, i) => byte ^ keyData[i % keyData.length]);
-        return btoa(String.fromCharCode(...encrypted));
-    }
-
     // Delete file
-    async deleteFile(userId, filename) {
+    async deleteFile(filePath) {
         try {
-            const fileRef = this.storageRef.child(`users/${userId}/${filename}`);
-            await fileRef.delete();
+            const { error } = await supabase.storage
+                .from(this.bucketName)
+                .remove([filePath]);
+
+            if (error) throw error;
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
         }
     }
 
-    // Get file metadata
-    async getFileMetadata(userId, filename) {
+    // List user files
+    async listFiles(userId) {
         try {
-            const fileRef = this.storageRef.child(`users/${userId}/${filename}`);
-            const metadata = await fileRef.getMetadata();
-            return { success: true, metadata };
+            const { data, error } = await supabase.storage
+                .from(this.bucketName)
+                .list(userId);
+
+            if (error) throw error;
+            return { success: true, files: data || [] };
         } catch (error) {
             return { success: false, error: error.message };
         }

@@ -1,9 +1,10 @@
-// 🚀 MAMTA AI — Main Application Integration
-// This file connects all services and handles the app logic
+// 🚀 MAMTA AI — Main Application Integration (Supabase Version)
+// Connected to: djupszhqebpuohvzamcx.supabase.co
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🧠 MAMTA AI System Initialized');
-    console.log('🔥 Firebase Status:', firebase.apps.length > 0 ? 'Connected' : 'Not Connected');
+    console.log('🟢 Supabase Status:', supabase ? 'Connected' : 'Not Connected');
+    console.log('📊 Project: djupszhqebpuohvzamcx');
 
     // Initialize all services
     initializeChat();
@@ -53,10 +54,11 @@ function initializeChat() {
             if (result.success) {
                 addMessage(result.response, 'ai');
 
-                // Save to Firestore if user is logged in
-                if (mamtaAuth.user) {
-                    mamtaDB.saveMessage(mamtaAuth.user.uid, text, 'user');
-                    mamtaDB.saveMessage(mamtaAuth.user.uid, result.response, 'ai');
+                // Save to Supabase if user is logged in
+                const user = mamtaAuth.getCurrentUser();
+                if (user) {
+                    await mamtaDB.saveMessage(user.id, text, 'user');
+                    await mamtaDB.saveMessage(user.id, result.response, 'ai');
                 }
             } else {
                 addMessage(result.error, 'ai');
@@ -74,7 +76,6 @@ function isBuildRequest(text) {
 }
 
 function getChatHistory() {
-    // Get last 10 messages from DOM
     const messages = document.querySelectorAll('.message');
     const history = [];
     messages.forEach(msg => {
@@ -94,9 +95,10 @@ function initializePlanningRoom() {
         try {
             const plan = await mamtaAI.generatePlan(input);
 
-            // Save project to Firestore
-            if (mamtaAuth.user) {
-                await mamtaDB.createProject(mamtaAuth.user.uid, {
+            // Save project to Supabase
+            const user = mamtaAuth.getCurrentUser();
+            if (user) {
+                await mamtaDB.createProject(user.id, {
                     name: input,
                     type: plan.type,
                     features: plan.features,
@@ -159,7 +161,6 @@ function renderPlanHTML(plan) {
 
 // ========== SAFE DROP INTEGRATION ==========
 function initializeSafeDrop() {
-    // Override upload to use real Firebase Storage
     window.simulateUpload = async function() {
         closeUploadModal();
         const zone = document.getElementById('uploadZone');
@@ -173,7 +174,6 @@ function initializeSafeDrop() {
             </div>
         `;
 
-        // Simulate encryption delay
         setTimeout(() => {
             zone.innerHTML = `
                 <div class="upload-icon">✅</div>
@@ -191,20 +191,20 @@ function initializeSafeDrop() {
 
 // ========== WORKSPACE INTEGRATION ==========
 function initializeWorkspace() {
-    // Override deploy to save to Firestore
     window.deployProject = async function() {
         addConsoleLine('INFO', '🚀 MAMTA AI deployment pipeline shuru kar raha hai...');
 
-        if (mamtaAuth.user) {
+        const user = mamtaAuth.getCurrentUser();
+        if (user) {
             await mamtaDB.updateProjectStatus('current-project', 'deploying');
         }
 
         setTimeout(() => addConsoleLine('INFO', 'Building production bundle...'), 500);
         setTimeout(() => addConsoleLine('SUCCESS', 'Bundle optimized — 245KB gzipped'), 1500);
-        setTimeout(() => addConsoleLine('INFO', 'Uploading to Firebase Hosting...'), 2000);
+        setTimeout(() => addConsoleLine('INFO', 'Uploading to Supabase Storage...'), 2000);
         setTimeout(() => {
             addConsoleLine('SUCCESS', '🎉 Deployed! Live at: https://mamta-ai.web.app');
-            if (mamtaAuth.user) {
+            if (user) {
                 mamtaDB.updateProjectStatus('current-project', 'deployed');
             }
         }, 3000);
@@ -212,28 +212,27 @@ function initializeWorkspace() {
 }
 
 // ========== AUTH MODAL ==========
-function showAuthModal(type) {
-    // Create modal dynamically
+function showAuthModal(mode) {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay active';
     modal.id = 'authModal';
     modal.innerHTML = `
         <div class="modal" style="max-width: 420px;">
             <div class="modal-header">
-                <h2>${type === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Join MAMTA AI'}</h2>
+                <h2>${mode === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Join MAMTA AI'}</h2>
                 <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <button class="btn btn-ghost" style="width: 100%; justify-content: center;" onclick="mamtaAuth.googleSignIn()">
-                        <i class="fab fa-google"></i> Continue with Google
+                        <i class="fab fa-google" style="color: #EA4335;"></i> Continue with Google
                     </button>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 12px;">— OR —</div>
-                    <input type="email" id="authEmail" placeholder="Email address" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-family: Inter;">
-                    <input type="password" id="authPassword" placeholder="Password" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-family: Inter;">
-                    ${type === 'signup' ? '<input type="text" id="authName" placeholder="Your name" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary); font-family: Inter;">' : ''}
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleAuth('${type}')">
-                        ${type === 'login' ? 'Sign In' : 'Create Account'}
+                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px;">— OR —</div>
+                    <input type="email" id="authEmail" placeholder="Email address" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">
+                    <input type="password" id="authPassword" placeholder="Password" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">
+                    ${mode === 'signup' ? '<input type="text" id="authName" placeholder="Your name" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">' : ''}
+                    <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleAuth('${mode}')">
+                        ${mode === 'login' ? 'Sign In' : 'Create Account'}
                     </button>
                 </div>
             </div>
@@ -266,23 +265,3 @@ async function handleAuth(type) {
         alert('❌ ' + result.error);
     }
 }
-
-// ========== FIREBASE SCRIPTS LOADER ==========
-function loadFirebaseScripts() {
-    const scripts = [
-        'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js',
-        'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js',
-        'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js',
-        'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js'
-    ];
-
-    scripts.forEach(src => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = () => console.log(`✅ Loaded: ${src}`);
-        document.head.appendChild(script);
-    });
-}
-
-// Load Firebase on page load
-loadFirebaseScripts();

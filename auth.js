@@ -1,4 +1,5 @@
-// 🔐 MAMTA AI — Authentication Service
+// 🔐 MAMTA AI — Supabase Authentication Service
+// Using: djupszhqebpuohvzamcx.supabase.co
 
 class MAMTAAuth {
     constructor() {
@@ -7,15 +8,26 @@ class MAMTAAuth {
     }
 
     // Initialize auth state listener
-    init() {
-        auth.onAuthStateChanged(user => {
-            this.user = user;
-            if (user) {
-                console.log('✅ User logged in:', user.email);
-                this.updateUI(user);
-            } else {
-                console.log('❌ User logged out');
+    async init() {
+        // Check current session
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (session) {
+            this.user = session.user;
+            console.log('✅ User already logged in:', this.user.email);
+            this.updateUI(this.user);
+        }
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                this.user = session.user;
+                this.updateUI(this.user);
+                console.log('✅ User signed in:', this.user.email);
+            } else if (event === 'SIGNED_OUT') {
+                this.user = null;
                 this.showLogin();
+                console.log('❌ User signed out');
             }
         });
     }
@@ -23,19 +35,32 @@ class MAMTAAuth {
     // Email/Password Sign Up
     async signUp(email, password, name) {
         try {
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            await userCredential.user.updateProfile({ displayName: name });
-
-            // Create user document in Firestore
-            await db.collection('users').doc(userCredential.user.uid).set({
-                name: name,
+            const { data, error } = await supabase.auth.signUp({
                 email: email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                role: 'user',
-                securityScore: 0
+                password: password,
+                options: {
+                    data: {
+                        full_name: name,
+                        display_name: name
+                    }
+                }
             });
 
-            return { success: true, user: userCredential.user };
+            if (error) throw error;
+
+            // Create user profile in database
+            if (data.user) {
+                await supabase.from('users').insert([{
+                    id: data.user.id,
+                    email: email,
+                    name: name,
+                    created_at: new Date().toISOString(),
+                    role: 'user',
+                    security_score: 0
+                }]);
+            }
+
+            return { success: true, user: data.user };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -44,8 +69,14 @@ class MAMTAAuth {
     // Email/Password Sign In
     async signIn(email, password) {
         try {
-            const userCredential = await auth.signInWithEmailAndPassword(email, password);
-            return { success: true, user: userCredential.user };
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) throw error;
+
+            return { success: true, user: data.user };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -53,38 +84,30 @@ class MAMTAAuth {
 
     // Google Sign In
     async googleSignIn() {
-        const provider = new firebase.auth.GoogleAuthProvider();
         try {
-            const result = await auth.signInWithPopup(provider);
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
 
-            // Check if new user, create Firestore doc
-            const userDoc = await db.collection('users').doc(result.user.uid).get();
-            if (!userDoc.exists) {
-                await db.collection('users').doc(result.user.uid).set({
-                    name: result.user.displayName,
-                    email: result.user.email,
-                    photoURL: result.user.photoURL,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    role: 'user',
-                    securityScore: 0
-                });
-            }
+            if (error) throw error;
 
-            return { success: true, user: result.user };
+            return { success: true, data: data };
         } catch (error) {
             return { success: false, error: error.message };
         }
     }
 
     // Phone OTP Sign In
-    async phoneSignIn(phoneNumber, recaptchaContainer) {
+    async phoneSignIn(phone) {
         try {
-            const appVerifier = new firebase.auth.RecaptchaVerifier(recaptchaContainer, {
-                size: 'invisible'
+            const { data, error } = await supabase.auth.signInWithOtp({
+                phone: phone
             });
 
-            const confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, appVerifier);
-            window.confirmationResult = confirmationResult;
+            if (error) throw error;
 
             return { success: true, message: 'OTP sent!' };
         } catch (error) {
@@ -92,11 +115,18 @@ class MAMTAAuth {
         }
     }
 
-    // Verify OTP
-    async verifyOTP(otpCode) {
+    // Verify Phone OTP
+    async verifyPhoneOTP(phone, token) {
         try {
-            const result = await window.confirmationResult.confirm(otpCode);
-            return { success: true, user: result.user };
+            const { data, error } = await supabase.auth.verifyOtp({
+                phone: phone,
+                token: token,
+                type: 'sms'
+            });
+
+            if (error) throw error;
+
+            return { success: true, user: data.user };
         } catch (error) {
             return { success: false, error: error.message };
         }
@@ -105,39 +135,49 @@ class MAMTAAuth {
     // Sign Out
     async signOut() {
         try {
-            await auth.signOut();
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
         }
     }
 
+    // Get current user
+    getCurrentUser() {
+        return this.user;
+    }
+
     // Update UI based on auth state
     updateUI(user) {
-        // Update navbar
-        const navActions = document.querySelector('.nav-actions');
-        if (navActions) {
-            navActions.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="color: var(--text-secondary); font-size: 14px;">${user.displayName || user.email}</span>
-                    <img src="${user.photoURL || 'https://via.placeholder.com/32'}" 
-                         style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent-cyan);">
-                    <button class="btn btn-ghost btn-sm" onclick="mamtaAuth.signOut()">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            `;
-        }
+        const navActions = document.getElementById('navActions');
+        if (!navActions) return;
+
+        const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        const userPhoto = user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00F0FF&color=fff`;
+
+        navActions.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" id="userProfile" onclick="toggleUserDropdown()">
+                <span style="color: var(--text-secondary); font-size: 14px;">${userName}</span>
+                <img src="${userPhoto}" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent-cyan); object-fit: cover;">
+            </div>
+        `;
+
+        // Update dropdown
+        const dropdownName = document.getElementById('dropdownName');
+        const dropdownEmail = document.getElementById('dropdownEmail');
+        if (dropdownName) dropdownName.textContent = userName;
+        if (dropdownEmail) dropdownEmail.textContent = user.email;
     }
 
     showLogin() {
-        const navActions = document.querySelector('.nav-actions');
-        if (navActions) {
-            navActions.innerHTML = `
-                <button class="btn btn-ghost btn-sm" onclick="showAuthModal('login')"><i class="fas fa-user"></i> Sign In</button>
-                <button class="btn btn-primary btn-sm" onclick="showAuthModal('signup')"><i class="fas fa-user-plus"></i> Sign Up</button>
-            `;
-        }
+        const navActions = document.getElementById('navActions');
+        if (!navActions) return;
+
+        navActions.innerHTML = `
+            <button class="btn btn-ghost" id="langBtn"><i class="fas fa-globe"></i> EN</button>
+            <button class="btn btn-primary" id="loginBtn" onclick="showAuthModal('login')"><i class="fas fa-user"></i> Sign In</button>
+        `;
     }
 }
 
