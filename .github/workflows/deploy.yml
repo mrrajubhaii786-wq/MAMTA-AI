@@ -1,25 +1,21 @@
-name: 🧠 MAMTA AI Deploy
+name: 🧠 Deploy MAMTA AI
 
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: 📥 Checkout Code
-      uses: actions/checkout@v3
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
 
-    - name: 🔥 Deploy to Firebase
-      uses: w9jds/firebase-action@master
-      with:
-        args: deploy --only hosting
-      env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: 🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
 
-    - name: ✅ Deployment Complete
-      run: echo "🎉 MAMTA AI deployed successfully!"
+      - name: ✅ Done
+        run: echo "MAMTA AI deployed!"
