@@ -845,22 +845,8 @@
         }
     </style>
 
-    <!-- 🔥 Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-
     <!-- 🧠 MAMTA AI Services -->
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="firestore.js"></script>
-    <script src="storage.js"></script>
-    <script src="security.js"></script>
-    <script src="ai-service.js"></script>
-    <script src="app.js"></script>
-
-</head>
+    </head>
 <body>
     <!-- Background Animation -->
     <div class="bg-animation"></div>
@@ -1302,7 +1288,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         document.getElementById('authForm').style.display = 'none';
         document.getElementById('authLoading').style.display = 'block';
 
-        // Simulate authentication (replace with real Firebase auth)
         setTimeout(() => {
             const user = {
                 uid: 'user_' + Date.now(),
@@ -1690,7 +1675,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         document.getElementById('authForm').style.display = 'none';
         document.getElementById('authLoading').style.display = 'block';
 
-        // Simulate authentication (replace with real Firebase auth)
         setTimeout(() => {
             const user = {
                 uid: 'user_' + Date.now(),
@@ -1874,7 +1858,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         }
 
         function demoLogin(type) {
-            // Demo login - in production this will use Firebase Auth
             const demoUsers = {
                 google: { name: 'Rajubhai', email: 'rajubhai@gmail.com', photo: '👤' },
                 email: { name: 'MAMTA User', email: document.getElementById('loginEmail').value || 'user@mamta.ai', photo: '👤' }
@@ -2005,7 +1988,6 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
         document.getElementById('authForm').style.display = 'none';
         document.getElementById('authLoading').style.display = 'block';
 
-        // Simulate authentication (replace with real Firebase auth)
         setTimeout(() => {
             const user = {
                 uid: 'user_' + Date.now(),
@@ -2256,6 +2238,19 @@ Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar 
             </a>
         </div>
     </div>
+
+
+    <!-- 🟢 MAMTA AI — Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 🟢 MAMTA AI — Services -->
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="firestore.js"></script>
+    <script src="storage.js"></script>
+    <script src="security.js"></script>
+    <script src="ai-service.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>

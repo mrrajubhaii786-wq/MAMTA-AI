@@ -102,8 +102,8 @@ class MAMTAAI {
             techStack: {
                 frontend: 'React + Tailwind CSS',
                 backend: 'Node.js + Express',
-                database: 'Firebase Firestore',
-                hosting: 'Vercel / Firebase Hosting'
+                database: 'Supabase PostgreSQL',
+                hosting: 'Vercel / Supabase'
             },
             timeline: '2-4 weeks',
             estimatedCost: '$0 - $50/month'

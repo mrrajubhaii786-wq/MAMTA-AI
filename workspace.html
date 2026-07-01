@@ -804,8 +804,6 @@
         }
     </style>
 
-    <!-- 🔥 Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
     // ===== AUTH SYSTEM =====
     let authMode = 'login';
     let currentUser = null;
@@ -911,20 +909,8 @@
     });
 
 </script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-
     <!-- 🧠 MAMTA AI Services -->
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="firestore.js"></script>
-    <script src="storage.js"></script>
-    <script src="security.js"></script>
-    <script src="ai-service.js"></script>
-    <script src="app.js"></script>
-
-</head>
+    </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -1427,6 +1413,19 @@
             </a>
         </div>
     </div>
+
+
+    <!-- 🟢 MAMTA AI — Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- 🟢 MAMTA AI — Services -->
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="firestore.js"></script>
+    <script src="storage.js"></script>
+    <script src="security.js"></script>
+    <script src="ai-service.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>

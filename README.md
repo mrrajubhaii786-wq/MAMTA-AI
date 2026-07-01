@@ -17,33 +17,33 @@ MAMTA-AI/
 ├── index.html              # 🏠 Home Page (Chat + Planning Room)
 ├── workspace.html          # ⚡ Workspace (Developer Studio)
 ├── safedrop.html           # 🛡️ SafeDrop (Security Vault)
-├── firebase-config.js      # 🔥 Firebase Configuration
+├── supabase-config.js      # 🟢 Supabase Configuration
 ├── auth.js                 # 🔐 Authentication Service
-├── firestore.js            # 🗄️ Firestore Database Service
-├── storage.js              # ☁️ Firebase Storage Service
+├── PostgreSQL.js            # 🗄️ Supabase Database Service
+├── storage.js              # ☁️ Supabase Storage Service
 ├── ai-service.js           # 🤖 OpenAI/Gemini API Integration
 ├── security.js             # 🔐 Client-Side Encryption Utils
 ├── app.js                  # 🚀 Main App Integration
 └── README.md               # 📋 This file
 ```
 
-## 🔥 Firebase Setup
+## 🟢 Supabase Setup
 
-### 1. Create Firebase Project
+### 1. Create Supabase Project
 ```bash
-# Go to: https://console.firebase.google.com/
+# Go to: https://app.supabase.com/
 # Create new project: "MAMTA-AI"
 ```
 
 ### 2. Enable Services
 - **Authentication**: Email/Password, Google, Phone
-- **Firestore Database**: Start in test mode
+- **PostgreSQL Database**: Start in test mode
 - **Storage**: Create default bucket
 
 ### 3. Get Config
 ```javascript
-// Copy from Firebase Console → Project Settings → General
-// Paste in firebase-config.js
+// Copy from Supabase Console → Project Settings → General
+// Paste in Supabase-config.js
 ```
 
 ### 4. Update API Key
@@ -54,12 +54,12 @@ const API_KEY = 'your-api-key-here';
 
 ## 🚀 Deployment
 
-### Option 1: Firebase Hosting (Recommended)
+### Option 1: Supabase Hosting (Recommended)
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase init hosting
-firebase deploy
+npm install -g Supabase-tools
+Supabase login
+Supabase init hosting
+Supabase deploy
 ```
 
 ### Option 2: Vercel
@@ -91,10 +91,10 @@ vercel
 |-------|-----------|
 | Frontend | HTML5, CSS3, Vanilla JS |
 | UI Framework | Custom (Glassmorphism + Dark Theme) |
-| Backend | Firebase (Auth, Firestore, Storage) |
+| Backend | Supabase (Auth, PostgreSQL, Storage) |
 | AI API | OpenAI GPT-4 / Google Gemini |
 | Encryption | Web Crypto API (AES-256-GCM) |
-| Hosting | Firebase Hosting / Vercel |
+| Hosting | Vercel / Netlify |
 
 ## 📱 Responsive Breakpoints
 
