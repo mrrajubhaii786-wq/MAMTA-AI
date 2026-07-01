@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous AI - Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0F;
+            --bg-secondary: #12121F;
+            --bg-card: #1A1A2E;
+            --bg-hover: #252540;
+            --bg-code: #0D0D1A;
+            --accent-cyan: #00F0FF;
+            --accent-purple: #7B2DFF;
+            --accent-green: #00FF88;
+            --accent-orange: #FF6B35;
+            --accent-yellow: #FFD700;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8B8B9A;
+            --border: #2A2A3E;
+            --success: #00FF88;
+            --warning: #FFB800;
+            --error: #FF2D55;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            -webkit-text-fill-color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #00CC6A);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .workspace-layout {
+            display: flex;
+            height: 100vh;
+            padding-top: 70px;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .sidebar-item.active {
+            border: 1px solid var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .sidebar-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            background: var(--accent-purple);
+            color: white;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .new-project-btn {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        /* ===== MAIN CONTENT AREA ===== */
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== WORKSPACE HEADER ===== */
+        .workspace-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-secondary);
+        }
+
+        .workspace-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .workspace-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .workspace-title .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-green);
+        }
+
+        .workspace-title .status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .workspace-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 0 30px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+
+        .tab {
+            padding: 14px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent-cyan);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        .tab-close {
+            margin-left: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tab:hover .tab-close {
+            opacity: 1;
+        }
+
+        /* ===== WORKSPACE BODY ===== */
+        .workspace-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== EDITOR PANEL ===== */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-toolbar {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-toolbar-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .file-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .file-breadcrumb span {
+            color: var(--accent-cyan);
+        }
+
+        .editor-toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .toolbar-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .code-editor {
+            flex: 1;
+            background: var(--bg-code);
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .code-line {
+            display: flex;
+            gap: 16px;
+        }
+
+        .line-number {
+            color: var(--text-secondary);
+            opacity: 0.4;
+            min-width: 30px;
+            text-align: right;
+            user-select: none;
+        }
+
+        .code-content {
+            color: var(--text-primary);
+        }
+
+        .code-keyword { color: var(--accent-purple); }
+        .code-string { color: var(--accent-green); }
+        .code-comment { color: var(--text-secondary); opacity: 0.6; }
+        .code-function { color: var(--accent-cyan); }
+        .code-tag { color: #FF6B9D; }
+        .code-attr { color: var(--accent-yellow); }
+
+        /* ===== PREVIEW PANEL ===== */
+        .preview-panel {
+            width: 50%;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-secondary);
+        }
+
+        .preview-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-header h3 i {
+            color: var(--accent-green);
+        }
+
+        .preview-device-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 2px;
+        }
+
+        .device-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device-btn.active {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .preview-frame {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+
+        .preview-content {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .preview-content.desktop {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .preview-content.tablet {
+            max-width: 768px;
+            border-radius: 16px;
+        }
+
+        /* Simulated App Preview */
+        .app-preview {
+            background: #f5f5f5;
+            min-height: 500px;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .app-header h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .app-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .app-body {
+            padding: 20px;
+        }
+
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .app-card h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .app-card p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .app-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* ===== CONSOLE PANEL ===== */
+        .console-panel {
+            height: 180px;
+            background: var(--bg-code);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .console-header {
+            padding: 8px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-header h4 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .console-header h4 i {
+            color: var(--accent-green);
+        }
+
+        .console-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .console-body {
+            flex: 1;
+            padding: 12px 20px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .console-line {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .console-time {
+            color: var(--text-secondary);
+            opacity: 0.5;
+            min-width: 60px;
+        }
+
+        .console-info { color: var(--accent-cyan); }
+        .console-success { color: var(--accent-green); }
+        .console-warning { color: var(--warning); }
+        .console-error { color: var(--error); }
+
+        /* ===== AI AGENT PANEL (Right Sidebar) ===== */
+        .agent-panel {
+            width: 300px;
+            border-left: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .agent-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .agent-header h3 {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .agent-header h3 i {
+            color: var(--accent-purple);
+        }
+
+        .agent-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .agent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateX(4px);
+        }
+
+        .agent-card.active {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+
+        .agent-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .agent-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .agent-card:nth-child(1) .agent-icon { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); }
+        .agent-card:nth-child(2) .agent-icon { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
+        .agent-card:nth-child(3) .agent-icon { background: rgba(123, 45, 255, 0.1); color: var(--accent-purple); }
+        .agent-card:nth-child(4) .agent-icon { background: rgba(255, 107, 53, 0.1); color: var(--accent-orange); }
+
+        .agent-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .agent-card p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .agent-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .agent-status .dot.active { background: var(--accent-green); }
+        .agent-status .dot.idle { background: var(--text-secondary); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .agent-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .workspace-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+
+            .workspace-body {
+                flex-direction: column;
+            }
+
+            .preview-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                height: 300px;
+            }
+
+            .console-panel {
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">
+            <div class="logo-icon">🧠</div>
+            Autonomous AI
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">🏠 Home</a></li>
+            <li><a href="workspace.html" class="active">⚡ Workspace</a></li>
+            <li><a href="safedrop.html">🛡️ SafeDrop</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="btn btn-ghost btn-sm"><i class="fas fa-play"></i> Run</button>
+            <button class="btn btn-success btn-sm" onclick="deployProject()"><i class="fas fa-rocket"></i> Deploy</button>
+        </div>
+    </nav>
+
+    <!-- Workspace Layout -->
+    <div class="workspace-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title"><i class="fas fa-folder"></i> Projects</div>
+                <div class="sidebar-item active">
+                    <i class="fas fa-mobile-alt"></i>
+                    FoodDelivery App
+                    <span class="sidebar-badge">NEW</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-globe"></i>
+                    Portfolio Website
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    E-Commerce Store
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-chart-line"></i>
+                    Analytics Dashboard
+                </div>
+                <button class="btn btn-primary btn-sm new-project-btn" onclick="newProject()">
+                    <i class="fas fa-plus"></i> New Project
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title"><i class="fas fa-code-branch"></i> Files</div>
+                <div class="sidebar-item active">
+                    <i class="fab fa-react"></i>
+                    App.jsx
+                </div>
+                <div class="sidebar-item">
+                    <i class="fab fa-css3"></i>
+                    styles.css
+                </div>
+                <div class="sidebar-item">
+                    <i class="fab fa-js"></i>
+                    api.js
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-database"></i>
+                    models/
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-cog"></i>
+                    config.js
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title"><i class="fas fa-tools"></i> Tools</div>
+                <div class="sidebar-item">
+                    <i class="fas fa-terminal"></i>
+                    Terminal
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-bug"></i>
+                    Debugger
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-database"></i>
+                    Database
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-cloud"></i>
+                    Deploy
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Workspace Header -->
+            <div class="workspace-header">
+                <div class="workspace-title">
+                    <h1>🚀 FoodDelivery App</h1>
+                    <span class="status">Building</span>
+                </div>
+                <div class="workspace-actions">
+                    <button class="btn btn-ghost btn-sm"><i class="fas fa-code-branch"></i> main</button>
+                    <button class="btn btn-ghost btn-sm"><i class="fas fa-save"></i> Save</button>
+                    <button class="btn btn-ghost btn-sm"><i class="fas fa-share"></i> Share</button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active"><i class="fab fa-react"></i> App.jsx <span class="tab-close">×</span></button>
+                <button class="tab"><i class="fab fa-css3"></i> styles.css <span class="tab-close">×</span></button>
+                <button class="tab"><i class="fab fa-js"></i> api.js <span class="tab-close">×</span></button>
+                <button class="tab"><i class="fas fa-file"></i> README.md <span class="tab-close">×</span></button>
+            </div>
+
+            <!-- Workspace Body -->
+            <div class="workspace-body">
+                <!-- Editor Panel -->
+                <div class="editor-panel">
+                    <div class="editor-toolbar">
+                        <div class="editor-toolbar-left">
+                            <div class="file-breadcrumb">
+                                <i class="fas fa-folder"></i> src / components / <span>App.jsx</span>
+                            </div>
+                        </div>
+                        <div class="editor-toolbar-right">
+                            <button class="toolbar-btn"><i class="fas fa-magic"></i> AI Assist</button>
+                            <button class="toolbar-btn"><i class="fas fa-copy"></i> Copy</button>
+                            <button class="toolbar-btn"><i class="fas fa-download"></i> Export</button>
+                        </div>
+                    </div>
+                    <div class="code-editor" id="codeEditor">
+                        <div class="code-line"><span class="line-number">1</span><span class="code-content"><span class="code-keyword">import</span> React, { useState, useEffect } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">2</span><span class="code-content"><span class="code-keyword">import</span> { BrowserRouter <span class="code-keyword">as</span> Router, Routes, Route } <span class="code-keyword">from</span> <span class="code-string">'react-router-dom'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">3</span><span class="code-content"><span class="code-keyword">import</span> { ThemeProvider } <span class="code-keyword">from</span> <span class="code-string">'styled-components'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">4</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">5</span><span class="code-content"><span class="code-comment">// 🎯 Autonomous AI Generated — Food Delivery App</span></span></div>
+                        <div class="code-line"><span class="line-number">6</span><span class="code-content"><span class="code-comment">// Generated from Planning Room — Auto-build enabled</span></span></div>
+                        <div class="code-line"><span class="line-number">7</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">8</span><span class="code-content"><span class="code-keyword">import</span> Home <span class="code-keyword">from</span> <span class="code-string">'./pages/Home'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">9</span><span class="code-content"><span class="code-keyword">import</span> Restaurant <span class="code-keyword">from</span> <span class="code-string">'./pages/Restaurant'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">10</span><span class="code-content"><span class="code-keyword">import</span> Cart <span class="code-keyword">from</span> <span class="code-string">'./pages/Cart'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">11</span><span class="code-content"><span class="code-keyword">import</span> Checkout <span class="code-keyword">from</span> <span class="code-string">'./pages/Checkout'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">12</span><span class="code-content"><span class="code-keyword">import</span> Profile <span class="code-keyword">from</span> <span class="code-string">'./pages/Profile'</span>;</span></div>
+                        <div class="code-line"><span class="line-number">13</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">14</span><span class="code-content"><span class="code-keyword">const</span> <span class="code-function">App</span> = () => {</span></div>
+                        <div class="code-line"><span class="line-number">15</span><span class="code-content">  <span class="code-keyword">const</span> [user, setUser] = <span class="code-function">useState</span>(<span class="code-keyword">null</span>);</span></div>
+                        <div class="code-line"><span class="line-number">16</span><span class="code-content">  <span class="code-keyword">const</span> [cart, setCart] = <span class="code-function">useState</span>([]);</span></div>
+                        <div class="code-line"><span class="line-number">17</span><span class="code-content">  <span class="code-keyword">const</span> [loading, setLoading] = <span class="code-function">useState</span>(<span class="code-keyword">true</span>);</span></div>
+                        <div class="code-line"><span class="line-number">18</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">19</span><span class="code-content">  <span class="code-function">useEffect</span>(() => {</span></div>
+                        <div class="code-line"><span class="line-number">20</span><span class="code-content">    <span class="code-comment">// 🔐 SafeDrop: Secure auth check</span></span></div>
+                        <div class="code-line"><span class="line-number">21</span><span class="code-content">    <span class="code-function">checkAuth</span>().<span class="code-function">then</span>(user => {</span></div>
+                        <div class="code-line"><span class="line-number">22</span><span class="code-content">      <span class="code-function">setUser</span>(user);</span></div>
+                        <div class="code-line"><span class="line-number">23</span><span class="code-content">      <span class="code-function">setLoading</span>(<span class="code-keyword">false</span>);</span></div>
+                        <div class="code-line"><span class="line-number">24</span><span class="code-content">    });</span></div>
+                        <div class="code-line"><span class="line-number">25</span><span class="code-content">  }, []);</span></div>
+                        <div class="code-line"><span class="line-number">26</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">27</span><span class="code-content">  <span class="code-keyword">if</span> (loading) <span class="code-keyword">return</span> <span class="code-tag">&lt;LoadingScreen /&gt;</span>;</span></div>
+                        <div class="code-line"><span class="line-number">28</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">29</span><span class="code-content">  <span class="code-keyword">return</span> (</span></div>
+                        <div class="code-line"><span class="line-number">30</span><span class="code-content">    <span class="code-tag">&lt;ThemeProvider</span> <span class="code-attr">theme</span>={theme}<span class="code-tag">&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">31</span><span class="code-content">      <span class="code-tag">&lt;Router&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">32</span><span class="code-content">        <span class="code-tag">&lt;Routes&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">33</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Home</span> <span class="code-attr">user</span>={user} <span class="code-attr">cart</span>={cart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">34</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/restaurant/:id"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Restaurant</span> <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">35</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/cart"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Cart</span> <span class="code-attr">cart</span>={cart} <span class="code-attr">setCart</span>={setCart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">36</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/checkout"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Checkout</span> <span class="code-attr">cart</span>={cart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">37</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/profile"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Profile</span> <span class="code-attr">user</span>={user} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">38</span><span class="code-content">        <span class="code-tag">&lt;/Routes&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">39</span><span class="code-content">      <span class="code-tag">&lt;/Router&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">40</span><span class="code-content">    <span class="code-tag">&lt;/ThemeProvider&gt;</span></span></div>
+                        <div class="code-line"><span class="line-number">41</span><span class="code-content">  );</span></div>
+                        <div class="code-line"><span class="line-number">42</span><span class="code-content">};</span></div>
+                        <div class="code-line"><span class="line-number">43</span><span class="code-content"></span></div>
+                        <div class="code-line"><span class="line-number">44</span><span class="code-content"><span class="code-keyword">export default</span> App;</span></div>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="preview-panel">
+                    <div class="preview-header">
+                        <h3><i class="fas fa-eye"></i> Live Preview</h3>
+                        <div class="preview-device-toggle">
+                            <button class="device-btn active" onclick="setDevice('mobile')" title="Mobile"><i class="fas fa-mobile-alt"></i></button>
+                            <button class="device-btn" onclick="setDevice('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
+                            <button class="device-btn" onclick="setDevice('desktop')" title="Desktop"><i class="fas fa-desktop"></i></button>
+                        </div>
+                    </div>
+                    <div class="preview-frame">
+                        <div class="preview-content" id="previewContent">
+                            <div class="app-preview">
+                                <div class="app-header">
+                                    <h2>🍔 FoodDelivery</h2>
+                                    <p>Fresh food, delivered fast</p>
+                                </div>
+                                <div class="app-body">
+                                    <div class="app-card">
+                                        <h4>🔥 Popular Restaurants</h4>
+                                        <p>12 restaurants near you</p>
+                                    </div>
+                                    <div class="app-card">
+                                        <h4>🛒 Your Cart</h4>
+                                        <p>3 items — ₹450</p>
+                                    </div>
+                                    <div class="app-card">
+                                        <h4>📍 Delivery Address</h4>
+                                        <p>123 Main Street, Delhi</p>
+                                    </div>
+                                    <button class="app-btn">Order Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Agent Panel -->
+                <div class="agent-panel">
+                    <div class="agent-header">
+                        <h3><i class="fas fa-robot"></i> AI Agents</h3>
+                    </div>
+                    <div class="agent-list">
+                        <div class="agent-card active" onclick="selectAgent(this)">
+                            <div class="agent-card-header">
+                                <div class="agent-icon">⚛️</div>
+                                <h4>Code Agent</h4>
+                            </div>
+                            <p>Auto-generates React, Node.js, and mobile app code</p>
+                            <div class="agent-status">
+                                <span class="dot active"></span>
+                                <span>Building App.jsx...</span>
+                            </div>
+                        </div>
+                        <div class="agent-card" onclick="selectAgent(this)">
+                            <div class="agent-card-header">
+                                <div class="agent-icon">🎨</div>
+                                <h4>Design Agent</h4>
+                            </div>
+                            <p>Generates UI/UX designs and responsive layouts</p>
+                            <div class="agent-status">
+                                <span class="dot idle"></span>
+                                <span>Waiting for code...</span>
+                            </div>
+                        </div>
+                        <div class="agent-card" onclick="selectAgent(this)">
+                            <div class="agent-card-header">
+                                <div class="agent-icon">🧪</div>
+                                <h4>Test Agent</h4>
+                            </div>
+                            <p>Auto-tests code, finds bugs, and suggests fixes</p>
+                            <div class="agent-status">
+                                <span class="dot idle"></span>
+                                <span>Queued</span>
+                            </div>
+                        </div>
+                        <div class="agent-card" onclick="selectAgent(this)">
+                            <div class="agent-card-header">
+                                <div class="agent-icon">🚀</div>
+                                <h4>Deploy Agent</h4>
+                            </div>
+                            <p>One-click deploy to AWS, Vercel, or Play Store</p>
+                            <div class="agent-status">
+                                <span class="dot idle"></span>
+                                <span>Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Panel -->
+            <div class="console-panel">
+                <div class="console-header">
+                    <h4><i class="fas fa-terminal"></i> Build Console</h4>
+                    <div class="console-actions">
+                        <button class="toolbar-btn"><i class="fas fa-trash"></i> Clear</button>
+                        <button class="toolbar-btn"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="console-body" id="consoleBody">
+                    <div class="console-line">
+                        <span class="console-time">09:21:15</span>
+                        <span class="console-info">[INFO]</span>
+                        <span>Project "FoodDelivery App" initialized from Planning Room</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:16</span>
+                        <span class="console-info">[INFO]</span>
+                        <span>Code Agent: Generating React components...</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:18</span>
+                        <span class="console-success">[SUCCESS]</span>
+                        <span>App.jsx generated — 44 lines, 0 errors</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:19</span>
+                        <span class="console-info">[INFO]</span>
+                        <span>Design Agent: Applying theme and responsive styles...</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:22</span>
+                        <span class="console-success">[SUCCESS]</span>
+                        <span>styles.css generated — Mobile + Tablet + Desktop ready</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:23</span>
+                        <span class="console-warning">[WARN]</span>
+                        <span>Test Agent: 2 minor accessibility issues found — auto-fixing...</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:25</span>
+                        <span class="console-success">[SUCCESS]</span>
+                        <span>All issues resolved. Build successful! ✅</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="console-time">09:21:26</span>
+                        <span class="console-info">[INFO]</span>
+                        <span>Ready for deployment. Click "Deploy" to go live! 🚀</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DEVICE TOGGLE =====
+        function setDevice(device) {
+            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.device-btn').classList.add('active');
+
+            const preview = document.getElementById('previewContent');
+            preview.className = 'preview-content ' + device;
+        }
+
+        // ===== AGENT SELECTION =====
+        function selectAgent(card) {
+            document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+        }
+
+        // ===== NEW PROJECT =====
+        function newProject() {
+            const name = prompt('Project name bataiye:');
+            if (name) {
+                addConsoleLine('INFO', `New project "${name}" created from template`);
+                addConsoleLine('SUCCESS', 'AI agents initialized — Ready to build!');
+            }
+        }
+
+        // ===== DEPLOY =====
+        function deployProject() {
+            addConsoleLine('INFO', '🚀 Starting deployment pipeline...');
+            setTimeout(() => addConsoleLine('INFO', 'Building production bundle...'), 500);
+            setTimeout(() => addConsoleLine('SUCCESS', 'Bundle optimized — 245KB gzipped'), 1500);
+            setTimeout(() => addConsoleLine('INFO', 'Uploading to CDN...'), 2000);
+            setTimeout(() => addConsoleLine('SUCCESS', '🎉 Deployed! Live at: https://foodelivery-ai.vercel.app'), 3000);
+        }
+
+        // ===== CONSOLE HELPERS =====
+        function addConsoleLine(type, message) {
+            const consoleBody = document.getElementById('consoleBody');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.innerHTML = `
+                <span class="console-time">${time}</span>
+                <span class="console-${type.toLowerCase()}">[${type}]</span>
+                <span>${message}</span>
+            `;
+            consoleBody.appendChild(line);
+            consoleBody.scrollTop = consoleBody.scrollHeight;
+        }
+
+        // ===== AUTO-SCROLL CONSOLE =====
+        setInterval(() => {
+            const consoleBody = document.getElementById('consoleBody');
+            consoleBody.scrollTop = consoleBody.scrollHeight;
+        }, 1000);
+    </script>
+</body>
+</html>

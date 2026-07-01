@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous AI - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0A0A0F;
+            --bg-secondary: #12121F;
+            --bg-card: #1A1A2E;
+            --bg-hover: #252540;
+            --accent-cyan: #00F0FF;
+            --accent-purple: #7B2DFF;
+            --accent-green: #00FF88;
+            --accent-orange: #FF6B35;
+            --text-primary: #FFFFFF;
+            --text-secondary: #8B8B9A;
+            --border: #2A2A3E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(123, 45, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 80%, rgba(0, 255, 136, 0.02) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(1deg); }
+            66% { transform: translate(-20px, 20px) rotate(-1deg); }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: particleFloat 15s infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            50% { transform: translateY(-100vh) translateX(50px); }
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            -webkit-text-fill-color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            padding-top: 90px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 13px;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+        }
+
+        .hero-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 48px;
+        }
+
+        .hero-actions .btn {
+            padding: 14px 32px;
+            font-size: 16px;
+        }
+
+        /* ===== FEATURE CARDS ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 8px 32px rgba(0, 240, 255, 0.1);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 12px;
+        }
+
+        .feature-card:nth-child(1) .feature-icon { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); }
+        .feature-card:nth-child(2) .feature-icon { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
+        .feature-card:nth-child(3) .feature-icon { background: rgba(123, 45, 255, 0.1); color: var(--accent-purple); }
+        .feature-card:nth-child(4) .feature-icon { background: rgba(255, 107, 53, 0.1); color: var(--accent-orange); }
+
+        .feature-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== CHAT INTERFACE ===== */
+        .chat-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px 40px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .chat-header-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .chat-header-info span {
+            font-size: 12px;
+            color: var(--accent-green);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        }
+
+        .message.user .message-avatar {
+            background: var(--bg-hover);
+        }
+
+        .message-content {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(123, 45, 255, 0.1));
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+
+        .message.ai .message-content {
+            background: var(--bg-secondary);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* ===== CHAT INPUT ===== */
+        .chat-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 4px 4px 4px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-wrapper:focus-within {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            padding: 10px 0;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: none;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-action-btn:hover {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4);
+        }
+
+        /* ===== PLANNING ROOM MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h2 i {
+            color: var(--accent-cyan);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 45, 85, 0.2);
+            color: #FF2D55;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .planning-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: stepSlide 0.5s ease forwards;
+        }
+
+        .planning-step:nth-child(1) { animation-delay: 0.1s; }
+        .planning-step:nth-child(2) { animation-delay: 0.3s; }
+        .planning-step:nth-child(3) { animation-delay: 0.5s; }
+        .planning-step:nth-child(4) { animation-delay: 0.7s; }
+
+        @keyframes stepSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .step-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-cyan);
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer .btn {
+            padding: 12px 28px;
+        }
+
+        /* ===== REDIRECT OVERLAY ===== */
+        .redirect-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .redirect-overlay.active {
+            display: flex;
+        }
+
+        .redirect-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .redirect-text {
+            text-align: center;
+        }
+
+        .redirect-text h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .redirect-text p {
+            color: var(--text-secondary);
+        }
+
+        .redirect-progress {
+            width: 300px;
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .redirect-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+            animation: progressFill 2s ease forwards;
+        }
+
+        @keyframes progressFill {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        .footer p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chat-container {
+                height: 400px;
+            }
+
+            .modal {
+                max-height: 90vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-container {
+                border-radius: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">🧠</div>
+            Autonomous AI
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">🏠 Home</a></li>
+            <li><a href="workspace.html">⚡ Workspace</a></li>
+            <li><a href="safedrop.html">🛡️ SafeDrop</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="btn btn-ghost"><i class="fas fa-globe"></i> EN</button>
+            <button class="btn btn-primary"><i class="fas fa-user"></i> Sign In</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="pulse"></span>
+                Autonomous AI v2.0 — Now Live
+            </div>
+            <h1>Think. Plan. Build.<br>Autonomously.</h1>
+            <p>Kuch bhi poochho, kuch bhi banao. AI aapki planning karega, code likhega, aur app deploy karega — sab automatic.</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" onclick="scrollToChat()">
+                    <i class="fas fa-comments"></i> Start Chatting
+                </button>
+                <button class="btn btn-ghost" onclick="showPlanningRoom()">
+                    <i class="fas fa-lightbulb"></i> Planning Room
+                </button>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card" onclick="quickAsk('world')">
+                <div class="feature-icon">🌍</div>
+                <h3>World Info</h3>
+                <p>Duniya ke kisi bhi kone ki jankari</p>
+            </div>
+            <div class="feature-card" onclick="quickAsk('history')">
+                <div class="feature-icon">📚</div>
+                <h3>History & Facts</h3>
+                <p>Purani se purani history</p>
+            </div>
+            <div class="feature-card" onclick="quickAsk('smart')">
+                <div class="feature-icon">💡</div>
+                <h3>Smart Answers</h3>
+                <p>Complex problems solved</p>
+            </div>
+            <div class="feature-card" onclick="quickAsk('build')">
+                <div class="feature-icon">🚀</div>
+                <h3>Auto Build</h3>
+                <p>App planning se deploy tak</p>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <section class="chat-section" id="chatSection">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-header-info">
+                        <h4>Autonomous AI Assistant</h4>
+                        <span>● Online — Ready to help</span>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            Namaste! Main aapka Autonomous AI assistant hoon. Aap mujhse kuch bhi pooch sakte hain — duniya ki koi bhi jankari, ya phir koi bhi app/website banane ki planning. Kya main aapki madad kar sakta hoon? 🙏
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="chat-input-wrapper">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Kuch bhi poochho... (jaise: 'Mujhe ek food delivery app chahiye')" onkeypress="handleKeyPress(event)">
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" title="Attach file"><i class="fas fa-paperclip"></i></button>
+                            <button class="chat-action-btn" title="Voice input"><i class="fas fa-microphone"></i></button>
+                        </div>
+                        <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2026 Autonomous AI. Built with 🤖 for humans.</p>
+        </footer>
+    </main>
+
+    <!-- Planning Room Modal -->
+    <div class="modal-overlay" id="planningModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-lightbulb"></i> Planning Room</h2>
+                <button class="modal-close" onclick="closePlanningRoom()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="planningBody">
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Apne project ka idea bataiye. AI aapki poori planning karega — features, tech stack, timeline, aur cost estimate.
+                </p>
+                <div class="chat-input-wrapper" style="margin-bottom: 20px;">
+                    <input type="text" class="chat-input" id="planningInput" placeholder="Mujhe ek... (e.g., food delivery app, portfolio website, etc.)" style="width: 100%;">
+                    <button class="send-btn" onclick="generatePlan()" style="margin-right: 4px;"><i class="fas fa-wand-magic-sparkles"></i></button>
+                </div>
+                <div id="planningResult"></div>
+            </div>
+            <div class="modal-footer" id="planningFooter" style="display: none;">
+                <button class="btn btn-ghost" onclick="closePlanningRoom()">Cancel</button>
+                <button class="btn btn-primary" onclick="redirectToWorkspace()">
+                    <i class="fas fa-rocket"></i> Auto-Build in Workspace
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Redirect Overlay -->
+    <div class="redirect-overlay" id="redirectOverlay">
+        <div class="redirect-spinner"></div>
+        <div class="redirect-text">
+            <h3>🚀 Auto-Building Your Project</h3>
+            <p>AI aapki planning ke hisaab se Workspace mein code generate kar raha hai...</p>
+        </div>
+        <div class="redirect-progress">
+            <div class="redirect-progress-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== PARTICLES =====
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // ===== CHAT FUNCTIONALITY =====
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Add user message
+            addMessage(text, 'user');
+            chatInput.value = '';
+
+            // Check if it's a build request
+            if (text.toLowerCase().includes('app') || text.toLowerCase().includes('website') || 
+                text.toLowerCase().includes('banao') || text.toLowerCase().includes('build') ||
+                text.toLowerCase().includes('chahiye')) {
+                setTimeout(() => {
+                    addMessage(`🎯 Samajh gaya! Aapko ek project chahiye: "${text}"
+
+Main aapke liye Planning Room khol raha hoon jahan hum poori planning karenge — features, tech stack, aur design. Uske baad automatic Workspace mein build ho jayega!`, 'ai');
+                    setTimeout(() => {
+                        showPlanningRoom();
+                        document.getElementById('planningInput').value = text;
+                        generatePlan();
+                    }, 2000);
+                }, 1000);
+                return;
+            }
+
+            // Simulate AI response
+            showTyping();
+            setTimeout(() => {
+                removeTyping();
+                const response = generateResponse(text);
+                addMessage(response, 'ai');
+            }, 1500);
+        }
+
+        function addMessage(text, sender) {
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.innerHTML = `
+                <div class="message-avatar">${sender === 'ai' ? '🤖' : '👤'}</div>
+                <div class="message-content">${text.replace(/
+/g, '<br>')}</div>
+            `;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const typing = document.createElement('div');
+            typing.className = 'message ai';
+            typing.id = 'typingIndicator';
+            typing.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typing);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function generateResponse(text) {
+            const lower = text.toLowerCase();
+            if (lower.includes('hello') || lower.includes('hi') || lower.includes('namaste')) {
+                return 'Namaste! 🙏 Main aapki kya madad kar sakta hoon? Aap kuch bhi pooch sakte hain ya koi bhi app/website banane ki planning kar sakte hain.';
+            }
+            if (lower.includes('taj mahal')) {
+                return '🏛️ **Taj Mahal** — India ka sabse mashoor monument!
+
+• **Location:** Agra, Uttar Pradesh
+• **Built:** 1632-1653 (21 saal)
+• **By:** Mughal Emperor Shah Jahan
+• **For:** His beloved wife Mumtaz Mahal
+• **Material:** White marble from Makrana, Rajasthan
+• **UNESCO World Heritage Site:** 1983
+
+Yeh mohabbat ki sabse badi misaal maani jaati hai! 💕';
+            }
+            if (lower.includes('india') || lower.includes('bharat')) {
+                return '🇮🇳 **Bharat (India)** — Vishwa ka sabse bada loktantra!
+
+• **Capital:** New Delhi
+• **Population:** 140+ Crore
+• **Languages:** 22 official languages, 19,500+ dialects
+• **States:** 28 states + 8 Union Territories
+• **Currency:** Indian Rupee (₹)
+• **Known For:** IT, Space Research (ISRO), Yoga, Bollywood, Diverse Culture
+
+"Vasudhaiva Kutumbakam" — The world is one family 🌍';
+            }
+            return `Aapne poocha: "${text}"
+
+Yeh bahut interesting sawaal hai! Main aapko detail mein jawab dunga.
+
+Agar aapko koi specific topic chahiye toh aur detail mein bataiye. Ya phir agar aapko koi app ya website banani hai toh "Planning Room" use karein — main aapki poori planning karunga! 🚀`;
+        }
+
+        function quickAsk(type) {
+            const questions = {
+                world: 'Duniya ke sabse bade desh kaun se hain?',
+                history: 'Mahabharat kab hui thi?',
+                smart: 'Quantum computing kya hai?',
+                build: 'Mujhe ek portfolio website chahiye'
+            };
+            chatInput.value = questions[type];
+            sendMessage();
+            scrollToChat();
+        }
+
+        function scrollToChat() {
+            document.getElementById('chatSection').scrollIntoView({ behavior: 'smooth' });
+            chatInput.focus();
+        }
+
+        // ===== PLANNING ROOM =====
+        function showPlanningRoom() {
+            document.getElementById('planningModal').classList.add('active');
+            document.getElementById('planningInput').focus();
+        }
+
+        function closePlanningRoom() {
+            document.getElementById('planningModal').classList.remove('active');
+            document.getElementById('planningResult').innerHTML = '';
+            document.getElementById('planningFooter').style.display = 'none';
+            document.getElementById('planningInput').value = '';
+        }
+
+        function generatePlan() {
+            const input = document.getElementById('planningInput').value.trim();
+            if (!input) return;
+
+            const resultDiv = document.getElementById('planningResult');
+            resultDiv.innerHTML = '<div style="text-align:center; padding:20px;"><div class="redirect-spinner" style="width:40px; height:40px; margin:0 auto 16px;"></div><p style="color:var(--text-secondary);">AI planning generate kar raha hai...</p></div>';
+
+            setTimeout(() => {
+                const plan = generateProjectPlan(input);
+                resultDiv.innerHTML = plan;
+                document.getElementById('planningFooter').style.display = 'flex';
+            }, 2000);
+        }
+
+        function generateProjectPlan(input) {
+            const isApp = input.toLowerCase().includes('app') || input.toLowerCase().includes('mobile');
+            const isWeb = input.toLowerCase().includes('website') || input.toLowerCase().includes('web');
+
+            let type = 'Web Application';
+            if (isApp && !isWeb) type = 'Mobile Application';
+            if (isApp && isWeb) type = 'Web + Mobile Application';
+
+            return `
+                <div class="planning-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>🎯 Project Type Identified</h4>
+                        <p><strong>${type}</strong> — "${input}"</p>
+                        <div class="step-tags">
+                            <span class="tag">${type}</span>
+                            <span class="tag">Full-Stack</span>
+                            <span class="tag">AI-Powered</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="planning-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>📋 Core Features (Auto-Generated)</h4>
+                        <p>AI ne aapke idea ke basis par yeh features suggest kiye hain:</p>
+                        <div class="step-tags">
+                            <span class="tag">🔐 Auth System</span>
+                            <span class="tag">📊 Dashboard</span>
+                            <span class="tag">🔔 Notifications</span>
+                            <span class="tag">💳 Payments</span>
+                            <span class="tag">📱 Responsive</span>
+                            <span class="tag">🌐 Multi-language</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="planning-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>🛠️ Tech Stack Recommendation</h4>
+                        <p>Best technologies for your project:</p>
+                        <div class="step-tags">
+                            <span class="tag">⚛️ React / Next.js</span>
+                            <span class="tag">🟢 Node.js</span>
+                            <span class="tag">🍃 MongoDB</span>
+                            <span class="tag">☁️ AWS / Vercel</span>
+                            <span class="tag">🤖 OpenAI API</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="planning-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>⏱️ Timeline & Cost Estimate</h4>
+                        <p><strong>Development Time:</strong> 2-4 weeks (AI-powered auto-build)</p>
+                        <p><strong>Estimated Cost:</strong> $0 - $50/month (depends on scale)</p>
+                        <p><strong>Auto-Deploy:</strong> One-click to production</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function redirectToWorkspace() {
+            closePlanningRoom();
+            const overlay = document.getElementById('redirectOverlay');
+            overlay.classList.add('active');
+
+            setTimeout(() => {
+                window.location.href = 'workspace.html';
+            }, 2500);
+        }
+
+        // Close modal on outside click
+        document.getElementById('planningModal').addEventListener('click', function(e) {
+            if (e.target === this) closePlanningRoom();
+        });
+    </script>
+</body>
+</html>
