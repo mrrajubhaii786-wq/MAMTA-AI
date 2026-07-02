@@ -1,91 +1,107 @@
-// 🔐 MAMTA AI — Supabase Authentication Service
-// Using: djupszhqebpuohvzamcx.supabase.co
+// MAMTA AI - Authentication Service
+// TASK 1: Authentication Foundation
 
-class MAMTAAuth {
+class AuthService {
     constructor() {
-        this.user = null;
-        this.init();
+        this.supabase = null;
+        this.currentUser = null;
+        this.session = null;
+        this.initialized = false;
     }
 
-    // Initialize auth state listener
+    // Initialize auth service
     async init() {
-        // Check current session
-        const { data: { session }, error } = await supabase.auth.getSession();
+        if (this.initialized) return true;
+
+        this.supabase = window.getSupabase ? window.getSupabase() : null;
+        if (!this.supabase) {
+            console.error('❌ MAMTA AI: Supabase not available');
+            return false;
+        }
+
+        // Check existing session
+        const { data: { session }, error } = await this.supabase.auth.getSession();
+        if (error) {
+            console.error('❌ MAMTA AI: Session error:', error.message);
+        }
 
         if (session) {
-            this.user = session.user;
-            console.log('✅ User already logged in:', this.user.email);
-            this.updateUI(this.user);
+            this.session = session;
+            this.currentUser = session.user;
+            console.log('✅ MAMTA AI: Session restored for', this.currentUser.email);
+            this.updateUI(true);
+        } else {
+            console.log('ℹ️ MAMTA AI: No active session');
+            this.updateUI(false);
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange((event, session) => {
+        this.supabase.auth.onAuthStateChange((event, session) => {
+            console.log('🔄 MAMTA AI: Auth event:', event);
             if (event === 'SIGNED_IN' && session) {
-                this.user = session.user;
-                this.updateUI(this.user);
-                console.log('✅ User signed in:', this.user.email);
+                this.currentUser = session.user;
+                this.session = session;
+                this.updateUI(true);
             } else if (event === 'SIGNED_OUT') {
-                this.user = null;
-                this.showLogin();
-                console.log('❌ User signed out');
+                this.currentUser = null;
+                this.session = null;
+                this.updateUI(false);
             }
         });
+
+        this.initialized = true;
+        return true;
     }
 
-    // Email/Password Sign Up
-    async signUp(email, password, name) {
+    // Sign Up
+    async signUp(email, password, name = '') {
         try {
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
+            console.log('📝 MAMTA AI: Signing up...', email);
+            const { data, error } = await this.supabase.auth.signUp({
+                email,
+                password,
                 options: {
-                    data: {
-                        full_name: name,
-                        display_name: name
-                    }
+                    data: { name }
                 }
             });
 
             if (error) throw error;
 
-            // Create user profile in database
-            if (data.user) {
-                await supabase.from('users').insert([{
-                    id: data.user.id,
-                    email: email,
-                    name: name,
-                    created_at: new Date().toISOString(),
-                    role: 'user',
-                    security_score: 0
-                }]);
-            }
-
+            console.log('✅ MAMTA AI: Sign up successful');
             return { success: true, user: data.user };
         } catch (error) {
+            console.error('❌ MAMTA AI: Sign up failed:', error.message);
             return { success: false, error: error.message };
         }
     }
 
-    // Email/Password Sign In
+    // Sign In
     async signIn(email, password) {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
+            console.log('🔐 MAMTA AI: Signing in...', email);
+            const { data, error } = await this.supabase.auth.signInWithPassword({
+                email,
+                password
             });
 
             if (error) throw error;
 
+            this.currentUser = data.user;
+            this.session = data.session;
+            console.log('✅ MAMTA AI: Sign in successful');
+            this.updateUI(true);
             return { success: true, user: data.user };
         } catch (error) {
+            console.error('❌ MAMTA AI: Sign in failed:', error.message);
             return { success: false, error: error.message };
         }
     }
 
-    // Google Sign In
-    async googleSignIn() {
+    // Sign In with Google
+    async signInWithGoogle() {
         try {
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            console.log('🔐 MAMTA AI: Google sign in...');
+            const { data, error } = await this.supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: window.location.origin
@@ -93,41 +109,9 @@ class MAMTAAuth {
             });
 
             if (error) throw error;
-
-            return { success: true, data: data };
+            return { success: true };
         } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
-
-    // Phone OTP Sign In
-    async phoneSignIn(phone) {
-        try {
-            const { data, error } = await supabase.auth.signInWithOtp({
-                phone: phone
-            });
-
-            if (error) throw error;
-
-            return { success: true, message: 'OTP sent!' };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
-
-    // Verify Phone OTP
-    async verifyPhoneOTP(phone, token) {
-        try {
-            const { data, error } = await supabase.auth.verifyOtp({
-                phone: phone,
-                token: token,
-                type: 'sms'
-            });
-
-            if (error) throw error;
-
-            return { success: true, user: data.user };
-        } catch (error) {
+            console.error('❌ MAMTA AI: Google sign in failed:', error.message);
             return { success: false, error: error.message };
         }
     }
@@ -135,51 +119,63 @@ class MAMTAAuth {
     // Sign Out
     async signOut() {
         try {
-            const { error } = await supabase.auth.signOut();
+            console.log('🚪 MAMTA AI: Signing out...');
+            const { error } = await this.supabase.auth.signOut();
             if (error) throw error;
+
+            this.currentUser = null;
+            this.session = null;
+            console.log('✅ MAMTA AI: Signed out');
+            this.updateUI(false);
             return { success: true };
         } catch (error) {
+            console.error('❌ MAMTA AI: Sign out failed:', error.message);
             return { success: false, error: error.message };
         }
     }
 
     // Get current user
-    getCurrentUser() {
-        return this.user;
+    getUser() {
+        return this.currentUser;
+    }
+
+    // Check if logged in
+    isLoggedIn() {
+        return !!this.currentUser;
     }
 
     // Update UI based on auth state
-    updateUI(user) {
-        const navActions = document.getElementById('navActions');
-        if (!navActions) return;
+    updateUI(isLoggedIn) {
+        const loginBtn = document.getElementById('auth-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userName = document.getElementById('user-name');
 
-        const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-        const userPhoto = user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00F0FF&color=fff`;
+        if (loginBtn) {
+            if (isLoggedIn && this.currentUser) {
+                loginBtn.innerHTML = `<span>👤 ${this.currentUser.user_metadata?.name || this.currentUser.email}</span>`;
+                loginBtn.onclick = () => this.toggleUserMenu();
+                if (userName) userName.textContent = this.currentUser.user_metadata?.name || this.currentUser.email;
+            } else {
+                loginBtn.innerHTML = '<span>🔐 Sign In</span>';
+                loginBtn.onclick = () => window.showAuthModal && window.showAuthModal();
+            }
+        }
 
-        navActions.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" id="userProfile" onclick="toggleUserDropdown()">
-                <span style="color: var(--text-secondary); font-size: 14px;">${userName}</span>
-                <img src="${userPhoto}" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent-cyan); object-fit: cover;">
-            </div>
-        `;
-
-        // Update dropdown
-        const dropdownName = document.getElementById('dropdownName');
-        const dropdownEmail = document.getElementById('dropdownEmail');
-        if (dropdownName) dropdownName.textContent = userName;
-        if (dropdownEmail) dropdownEmail.textContent = user.email;
+        if (userMenu) {
+            userMenu.style.display = isLoggedIn ? 'block' : 'none';
+        }
     }
 
-    showLogin() {
-        const navActions = document.getElementById('navActions');
-        if (!navActions) return;
-
-        navActions.innerHTML = `
-            <button class="btn btn-ghost" id="langBtn"><i class="fas fa-globe"></i> EN</button>
-            <button class="btn btn-primary" id="loginBtn" onclick="showAuthModal('login')"><i class="fas fa-user"></i> Sign In</button>
-        `;
+    // Toggle user menu
+    toggleUserMenu() {
+        const menu = document.getElementById('user-dropdown');
+        if (menu) {
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
     }
 }
 
-// Global instance
-const mamtaAuth = new MAMTAAuth();
+// Create global instance
+window.authService = new AuthService();
+
+console.log('📦 MAMTA AI: auth.js loaded');
