@@ -1,1431 +1,300 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAMTA AI - Workspace</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0A0A0F;
-            --bg-secondary: #12121F;
-            --bg-card: #1A1A2E;
-            --bg-hover: #252540;
-            --bg-code: #0D0D1A;
-            --accent-cyan: #00F0FF;
-            --accent-purple: #7B2DFF;
-            --accent-green: #00FF88;
-            --accent-orange: #FF6B35;
-            --accent-yellow: #FFD700;
-            --text-primary: #FFFFFF;
-            --text-secondary: #8B8B9A;
-            --border: #2A2A3E;
-            --success: #00FF88;
-            --warning: #FFB800;
-            --error: #FF2D55;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: rgba(10, 10, 15, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 0 40px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            -webkit-text-fill-color: white;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-secondary);
-            padding: 10px 24px;
-            border-radius: 10px;
-            font-weight: 500;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--text-primary);
-            background: var(--bg-card);
-        }
-
-        .nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 20%;
-            width: 60%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-ghost:hover {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--accent-green), #00CC6A);
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(0, 255, 136, 0.5);
-        }
-
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
-
-        /* ===== MAIN LAYOUT ===== */
-        .workspace-layout {
-            display: flex;
-            height: 100vh;
-            padding-top: 70px;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 280px;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .sidebar-section {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .sidebar-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 4px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .sidebar-item:hover,
-        .sidebar-item.active {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-
-        .sidebar-item.active {
-            border: 1px solid var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
-        }
-
-        .sidebar-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-badge {
-            margin-left: auto;
-            padding: 2px 8px;
-            background: var(--accent-purple);
-            color: white;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-        .new-project-btn {
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        /* ===== MAIN CONTENT AREA ===== */
-        .main-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* ===== WORKSPACE HEADER ===== */
-        .workspace-header {
-            padding: 20px 30px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-secondary);
-        }
-
-        .workspace-title {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .workspace-title h1 {
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        .workspace-title .status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 12px;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 20px;
-            font-size: 12px;
-            color: var(--accent-green);
-        }
-
-        .workspace-title .status::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .workspace-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* ===== TABS ===== */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            padding: 0 30px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-secondary);
-        }
-
-        .tab {
-            padding: 14px 24px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .tab:hover {
-            color: var(--text-primary);
-        }
-
-        .tab.active {
-            color: var(--accent-cyan);
-            border-bottom-color: var(--accent-cyan);
-        }
-
-        .tab-close {
-            margin-left: 8px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .tab:hover .tab-close {
-            opacity: 1;
-        }
-
-        /* ===== WORKSPACE BODY ===== */
-        .workspace-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        /* ===== EDITOR PANEL ===== */
-        .editor-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .editor-toolbar {
-            padding: 10px 20px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .editor-toolbar-left {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .file-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        .file-breadcrumb span {
-            color: var(--accent-cyan);
-        }
-
-        .editor-toolbar-right {
-            display: flex;
-            gap: 8px;
-        }
-
-        .toolbar-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .toolbar-btn:hover {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .code-editor {
-            flex: 1;
-            background: var(--bg-code);
-            padding: 20px;
-            overflow-y: auto;
-            font-family: 'Fira Code', monospace;
-            font-size: 14px;
-            line-height: 1.8;
-        }
-
-        .code-line {
-            display: flex;
-            gap: 16px;
-        }
-
-        .line-number {
-            color: var(--text-secondary);
-            opacity: 0.4;
-            min-width: 30px;
-            text-align: right;
-            user-select: none;
-        }
-
-        .code-content {
-            color: var(--text-primary);
-        }
-
-        .code-keyword { color: var(--accent-purple); }
-        .code-string { color: var(--accent-green); }
-        .code-comment { color: var(--text-secondary); opacity: 0.6; }
-        .code-function { color: var(--accent-cyan); }
-        .code-tag { color: #FF6B9D; }
-        .code-attr { color: var(--accent-yellow); }
-
-        /* ===== PREVIEW PANEL ===== */
-        .preview-panel {
-            width: 50%;
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-secondary);
-        }
-
-        .preview-header {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .preview-header h3 {
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .preview-header h3 i {
-            color: var(--accent-green);
-        }
-
-        .preview-device-toggle {
-            display: flex;
-            gap: 4px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            padding: 2px;
-        }
-
-        .device-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .device-btn.active {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-        }
-
-        .preview-frame {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-        }
-
-        .preview-content {
-            width: 100%;
-            max-width: 400px;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-        }
-
-        .preview-content.desktop {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .preview-content.tablet {
-            max-width: 768px;
-            border-radius: 16px;
-        }
-
-        /* Simulated App Preview */
-        .app-preview {
-            background: #f5f5f5;
-            min-height: 500px;
-        }
-
-        .app-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            padding: 40px 20px;
-            text-align: center;
-            color: white;
-        }
-
-        .app-header h2 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .app-header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .app-body {
-            padding: 20px;
-        }
-
-        .app-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .app-card h4 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .app-card p {
-            color: #666;
-            font-size: 13px;
-        }
-
-        .app-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        /* ===== CONSOLE PANEL ===== */
-        .console-panel {
-            height: 180px;
-            background: var(--bg-code);
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .console-header {
-            padding: 8px 20px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .console-header h4 {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .console-header h4 i {
-            color: var(--accent-green);
-        }
-
-        .console-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .console-body {
-            flex: 1;
-            padding: 12px 20px;
-            overflow-y: auto;
-            font-family: 'Fira Code', monospace;
-            font-size: 12px;
-            line-height: 1.8;
-        }
-
-        .console-line {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 4px;
-        }
-
-        .console-time {
-            color: var(--text-secondary);
-            opacity: 0.5;
-            min-width: 60px;
-        }
-
-        .console-info { color: var(--accent-cyan); }
-        .console-success { color: var(--accent-green); }
-        .console-warning { color: var(--warning); }
-        .console-error { color: var(--error); }
-
-        /* ===== AI AGENT PANEL (Right Sidebar) ===== */
-        .agent-panel {
-            width: 300px;
-            border-left: 1px solid var(--border);
-            background: var(--bg-secondary);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .agent-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .agent-header h3 {
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .agent-header h3 i {
-            color: var(--accent-purple);
-        }
-
-        .agent-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-        }
-
-        .agent-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .agent-card:hover {
-            border-color: var(--accent-cyan);
-            transform: translateX(4px);
-        }
-
-        .agent-card.active {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
-        }
-
-        .agent-card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .agent-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .agent-card:nth-child(1) .agent-icon { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); }
-        .agent-card:nth-child(2) .agent-icon { background: rgba(0, 255, 136, 0.1); color: var(--accent-green); }
-        .agent-card:nth-child(3) .agent-icon { background: rgba(123, 45, 255, 0.1); color: var(--accent-purple); }
-        .agent-card:nth-child(4) .agent-icon { background: rgba(255, 107, 53, 0.1); color: var(--accent-orange); }
-
-        .agent-card h4 {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .agent-card p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .agent-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            font-size: 11px;
-        }
-
-        .agent-status .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
-        .agent-status .dot.active { background: var(--accent-green); }
-        .agent-status .dot.idle { background: var(--text-secondary); }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1200px) {
-            .agent-panel {
-                display: none;
-            }
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0A0A0F; color: #FFFFFF; min-height: 100vh; }
+
+        /* Navbar - Same as index.html */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(10, 10, 15, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); position: fixed; width: 100%; top: 0; z-index: 1000; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #00F0FF; }
+        .logo a { color: #00F0FF; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: #8B8B9A; text-decoration: none; transition: color 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: #00F0FF; }
+        .auth-btn { background: linear-gradient(135deg, #00F0FF, #7B2DFF); border: none; padding: 0.6rem 1.5rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; }
+
+        /* Main Content */
+        .main-content { padding-top: 80px; padding: 100px 2rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .page-header h1 span { color: #00F0FF; }
+        .page-header p { color: #8B8B9A; font-size: 1.1rem; }
+
+        /* Workspace Grid */
+        .workspace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+
+        .panel { background: rgba(26, 26, 46, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 2rem; }
+        .panel h3 { color: #00F0FF; margin-bottom: 1rem; font-size: 1.2rem; }
+        .panel p { color: #8B8B9A; margin-bottom: 1.5rem; }
+
+        /* Project Cards */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+
+        .project-card { 
+            background: rgba(26, 26, 46, 0.8); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            padding: 1.5rem; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+        }
+        .project-card:hover { border-color: #00F0FF; transform: translateY(-4px); }
+        .project-card .icon { font-size: 2rem; margin-bottom: 1rem; }
+        .project-card h4 { margin-bottom: 0.5rem; }
+        .project-card p { color: #8B8B9A; font-size: 0.9rem; }
+        .project-card .tags { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .project-card .tag { 
+            background: rgba(0, 240, 255, 0.1); 
+            color: #00F0FF; 
+            padding: 0.3rem 0.8rem; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+        }
+
+        /* New Project Button */
+        .new-project-btn { 
+            background: linear-gradient(135deg, #00F0FF, #7B2DFF); 
+            border: none; 
+            padding: 1rem 2rem; 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            margin: 0 auto 3rem; 
+            transition: transform 0.2s; 
+        }
+        .new-project-btn:hover { transform: scale(1.05); }
+
+        /* Planning Room Modal */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            z-index: 2000; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .modal-overlay.active { display: flex; }
+        .modal { 
+            background: #1A1A2E; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 16px; 
+            padding: 2rem; 
+            width: 90%; 
+            max-width: 600px; 
+            max-height: 80vh; 
+            overflow-y: auto; 
+        }
+        .modal h2 { color: #00F0FF; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #8B8B9A; }
+        .form-group input, .form-group textarea, .form-group select { 
+            width: 100%; 
+            padding: 0.8rem; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            color: #FFFFFF; 
+            outline: none; 
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: #00F0FF; }
+        .submit-btn { 
+            width: 100%; 
+            padding: 0.8rem; 
+            background: linear-gradient(135deg, #00F0FF, #7B2DFF); 
+            border: none; 
+            border-radius: 8px; 
+            color: white; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 1rem; 
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .navbar {
-                padding: 0 16px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .workspace-layout {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 200px;
-            }
-
-            .workspace-body {
-                flex-direction: column;
-            }
-
-            .preview-panel {
-                width: 100%;
-                border-left: none;
-                border-top: 1px solid var(--border);
-                height: 300px;
-            }
-
-            .console-panel {
-                height: 120px;
-            }
+            .workspace-grid { grid-template-columns: 1fr; }
+            .project-grid { grid-template-columns: 1fr; }
         }
     </style>
-
-    // ===== AUTH SYSTEM =====
-    let authMode = 'login';
-    let currentUser = null;
-
-    function checkAuthState() {
-        const savedUser = localStorage.getItem('mamtaUser');
-        if (savedUser) {
-            currentUser = JSON.parse(savedUser);
-            showUserProfile(currentUser);
-        }
-    }
-
-    function showAuthModal(mode) {
-        authMode = mode;
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('authTitle').innerHTML = mode === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Create MAMTA AI Account';
-        document.getElementById('authBtnText').textContent = mode === 'login' ? 'Sign In' : 'Create Account';
-        document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
-        document.getElementById('authToggleText').textContent = mode === 'login' ? "Don't have an account?" : "Already have an account?";
-        document.getElementById('authToggleLink').textContent = mode === 'login' ? 'Sign Up' : 'Sign In';
-        document.getElementById('authForm').style.display = 'flex';
-        document.getElementById('authLoading').style.display = 'none';
-        document.getElementById('authSuccess').style.display = 'none';
-    }
-
-    function closeAuthModal() {
-        document.getElementById('authModal').classList.remove('active');
-    }
-
-    function toggleAuthMode() {
-        authMode = authMode === 'login' ? 'signup' : 'login';
-        showAuthModal(authMode);
-    }
-
-    function handleAuthSubmit() {
-        const email = document.getElementById('authEmail').value.trim();
-        const password = document.getElementById('authPassword').value;
-        const name = document.getElementById('authName')?.value.trim();
-        if (!email || !password) { alert('❌ Please fill in all fields'); return; }
-        if (authMode === 'signup' && !name) { alert('❌ Please enter your name'); return; }
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-        setTimeout(() => {
-            const user = { uid: 'user_' + Date.now(), email: email, displayName: name || email.split('@')[0], photoURL: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name || email) + '&background=00F0FF&color=fff', createdAt: new Date().toISOString() };
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-            setTimeout(() => { closeAuthModal(); showUserProfile(user); }, 1500);
-        }, 2000);
-    }
-
-    function handleGoogleSignIn() {
-        document.getElementById('authForm').style.display = 'none';
-        document.getElementById('authLoading').style.display = 'block';
-        setTimeout(() => {
-            const user = { uid: 'google_' + Date.now(), email: 'user@gmail.com', displayName: 'MAMTA User', photoURL: 'https://ui-avatars.com/api/?name=MAMTA+User&background=7B2DFF&color=fff', createdAt: new Date().toISOString() };
-            localStorage.setItem('mamtaUser', JSON.stringify(user));
-            currentUser = user;
-            document.getElementById('authLoading').style.display = 'none';
-            document.getElementById('authSuccess').style.display = 'block';
-            setTimeout(() => { closeAuthModal(); showUserProfile(user); }, 1500);
-        }, 2000);
-    }
-
-    function showUserProfile(user) {
-        document.getElementById('loginBtn').style.display = 'none';
-        document.getElementById('userProfile').style.display = 'flex';
-        document.getElementById('userName').textContent = user.displayName;
-        document.getElementById('userAvatar').src = user.photoURL;
-        document.getElementById('dropdownName').textContent = user.displayName;
-        document.getElementById('dropdownEmail').textContent = user.email;
-    }
-
-    function toggleUserDropdown() {
-        const dropdown = document.getElementById('userDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function handleLogout() {
-        if (confirm('🔐 Kya aap sach mein logout karna chahte hain?')) {
-            localStorage.removeItem('mamtaUser');
-            currentUser = null;
-            document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('loginBtn').style.display = 'inline-flex';
-            document.getElementById('userDropdown').style.display = 'none';
-            window.location.href = 'index.html';
-        }
-    }
-
-    document.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('userDropdown');
-        const profile = document.getElementById('userProfile');
-        if (dropdown && profile && !profile.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
-
-    checkAuthState();
-
-    document.getElementById('authModal').addEventListener('click', function(e) {
-        if (e.target === this) closeAuthModal();
-    });
-
-</script>
-    <!-- 🧠 MAMTA AI Services -->
-    </head>
+</head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon">🧠</div>
-            MAMTA AI
-        </a>
-        <ul class="nav-links">
-            <li><a href="index.html">🏠 Home</a></li>
-            <li><a href="workspace.html" class="active">⚡ Workspace</a></li>
-            <li><a href="safedrop.html">🛡️ SafeDrop</a></li>
-        </ul>
-        <div class="nav-actions" id="navActions">
-            <button class="btn btn-ghost btn-sm"><i class="fas fa-play"></i> Run</button>
-            <button class="btn btn-success btn-sm" onclick="deployProject()"><i class="fas fa-rocket"></i> Deploy</button>
-            <button class="btn btn-primary btn-sm" id="loginBtn" onclick="showAuthModal('login')" style="margin-left: 8px;"><i class="fas fa-user"></i> Sign In</button>
-            <div id="userProfile" style="display: none; align-items: center; gap: 10px; cursor: pointer; margin-left: 8px;" onclick="toggleUserDropdown()">
-                <img id="navUserAvatar" src="" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent-cyan);">
-            </div>
+        <div class="logo"><a href="index.html">🧠 MAMTA AI</a></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="workspace.html" class="active">Workspace</a>
+            <a href="safedrop.html">SafeDrop</a>
+            <button class="auth-btn" id="auth-btn" onclick="checkAuth()">🔐 Sign In</button>
         </div>
     </nav>
 
-    <!-- Workspace Layout -->
-    <div class="workspace-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title"><i class="fas fa-folder"></i> Projects</div>
-                <div class="sidebar-item active">
-                    <i class="fas fa-mobile-alt"></i>
-                    FoodDelivery App
-                    <span class="sidebar-badge">NEW</span>
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-globe"></i>
-                    Portfolio Website
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-shopping-cart"></i>
-                    E-Commerce Store
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-chart-line"></i>
-                    Analytics Dashboard
-                </div>
-                <button class="btn btn-primary btn-sm new-project-btn" onclick="newProject()">
-                    <i class="fas fa-plus"></i> New Project
-                </button>
-            </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1>⚡ <span>MAMTA AI</span> Workspace</h1>
+            <p>Build web apps, mobile apps, and more with AI-powered development</p>
+        </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-title"><i class="fas fa-code-branch"></i> Files</div>
-                <div class="sidebar-item active">
-                    <i class="fab fa-react"></i>
-                    App.jsx
-                </div>
-                <div class="sidebar-item">
-                    <i class="fab fa-css3"></i>
-                    styles.css
-                </div>
-                <div class="sidebar-item">
-                    <i class="fab fa-js"></i>
-                    api.js
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-database"></i>
-                    models/
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-cog"></i>
-                    config.js
-                </div>
-            </div>
+        <button class="new-project-btn" onclick="showPlanningModal()">
+            <i class="fas fa-plus"></i> New Project
+        </button>
 
-            <div class="sidebar-section">
-                <div class="sidebar-title"><i class="fas fa-tools"></i> Tools</div>
-                <div class="sidebar-item">
-                    <i class="fas fa-terminal"></i>
-                    Terminal
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-bug"></i>
-                    Debugger
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-database"></i>
-                    Database
-                </div>
-                <div class="sidebar-item">
-                    <i class="fas fa-cloud"></i>
-                    Deploy
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Area -->
-        <div class="main-area">
-            <!-- Workspace Header -->
-            <div class="workspace-header">
-                <div class="workspace-title">
-                    <h1>🚀 FoodDelivery App</h1>
-                    <span class="status">Building</span>
-                </div>
-                <div class="workspace-actions">
-                    <button class="btn btn-ghost btn-sm"><i class="fas fa-code-branch"></i> main</button>
-                    <button class="btn btn-ghost btn-sm"><i class="fas fa-save"></i> Save</button>
-                    <button class="btn btn-ghost btn-sm"><i class="fas fa-share"></i> Share</button>
-                </div>
-            </div>
-
-            <!-- Tabs -->
-            <div class="tabs">
-                <button class="tab active"><i class="fab fa-react"></i> App.jsx <span class="tab-close">×</span></button>
-                <button class="tab"><i class="fab fa-css3"></i> styles.css <span class="tab-close">×</span></button>
-                <button class="tab"><i class="fab fa-js"></i> api.js <span class="tab-close">×</span></button>
-                <button class="tab"><i class="fas fa-file"></i> README.md <span class="tab-close">×</span></button>
-            </div>
-
-            <!-- Workspace Body -->
-            <div class="workspace-body">
-                <!-- Editor Panel -->
-                <div class="editor-panel">
-                    <div class="editor-toolbar">
-                        <div class="editor-toolbar-left">
-                            <div class="file-breadcrumb">
-                                <i class="fas fa-folder"></i> src / components / <span>App.jsx</span>
-                            </div>
-                        </div>
-                        <div class="editor-toolbar-right">
-                            <button class="toolbar-btn"><i class="fas fa-magic"></i> AI Assist</button>
-                            <button class="toolbar-btn"><i class="fas fa-copy"></i> Copy</button>
-                            <button class="toolbar-btn"><i class="fas fa-download"></i> Export</button>
-                        </div>
+        <div class="workspace-grid">
+            <div class="panel">
+                <h3>🚀 Quick Start</h3>
+                <p>Start building instantly with AI-generated templates</p>
+                <div class="project-grid">
+                    <div class="project-card" onclick="createProject('web')">
+                        <div class="icon">🌐</div>
+                        <h4>Web App</h4>
+                        <p>React, Vue, or vanilla HTML/CSS/JS</p>
+                        <div class="tags"><span class="tag">Frontend</span></div>
                     </div>
-                    <div class="code-editor" id="codeEditor">
-                        <div class="code-line"><span class="line-number">1</span><span class="code-content"><span class="code-keyword">import</span> React, { useState, useEffect } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">2</span><span class="code-content"><span class="code-keyword">import</span> { BrowserRouter <span class="code-keyword">as</span> Router, Routes, Route } <span class="code-keyword">from</span> <span class="code-string">'react-router-dom'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">3</span><span class="code-content"><span class="code-keyword">import</span> { ThemeProvider } <span class="code-keyword">from</span> <span class="code-string">'styled-components'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">4</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">5</span><span class="code-content"><span class="code-comment">// 🎯 MAMTA AI Generated — Food Delivery App</span></span></div>
-                        <div class="code-line"><span class="line-number">6</span><span class="code-content"><span class="code-comment">// Generated from Planning Room — Auto-build enabled</span></span></div>
-                        <div class="code-line"><span class="line-number">7</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">8</span><span class="code-content"><span class="code-keyword">import</span> Home <span class="code-keyword">from</span> <span class="code-string">'./pages/Home'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">9</span><span class="code-content"><span class="code-keyword">import</span> Restaurant <span class="code-keyword">from</span> <span class="code-string">'./pages/Restaurant'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">10</span><span class="code-content"><span class="code-keyword">import</span> Cart <span class="code-keyword">from</span> <span class="code-string">'./pages/Cart'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">11</span><span class="code-content"><span class="code-keyword">import</span> Checkout <span class="code-keyword">from</span> <span class="code-string">'./pages/Checkout'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">12</span><span class="code-content"><span class="code-keyword">import</span> Profile <span class="code-keyword">from</span> <span class="code-string">'./pages/Profile'</span>;</span></div>
-                        <div class="code-line"><span class="line-number">13</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">14</span><span class="code-content"><span class="code-keyword">const</span> <span class="code-function">App</span> = () => {</span></div>
-                        <div class="code-line"><span class="line-number">15</span><span class="code-content">  <span class="code-keyword">const</span> [user, setUser] = <span class="code-function">useState</span>(<span class="code-keyword">null</span>);</span></div>
-                        <div class="code-line"><span class="line-number">16</span><span class="code-content">  <span class="code-keyword">const</span> [cart, setCart] = <span class="code-function">useState</span>([]);</span></div>
-                        <div class="code-line"><span class="line-number">17</span><span class="code-content">  <span class="code-keyword">const</span> [loading, setLoading] = <span class="code-function">useState</span>(<span class="code-keyword">true</span>);</span></div>
-                        <div class="code-line"><span class="line-number">18</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">19</span><span class="code-content">  <span class="code-function">useEffect</span>(() => {</span></div>
-                        <div class="code-line"><span class="line-number">20</span><span class="code-content">    <span class="code-comment">// 🔐 SafeDrop: Secure auth check</span></span></div>
-                        <div class="code-line"><span class="line-number">21</span><span class="code-content">    <span class="code-function">checkAuth</span>().<span class="code-function">then</span>(user => {</span></div>
-                        <div class="code-line"><span class="line-number">22</span><span class="code-content">      <span class="code-function">setUser</span>(user);</span></div>
-                        <div class="code-line"><span class="line-number">23</span><span class="code-content">      <span class="code-function">setLoading</span>(<span class="code-keyword">false</span>);</span></div>
-                        <div class="code-line"><span class="line-number">24</span><span class="code-content">    });</span></div>
-                        <div class="code-line"><span class="line-number">25</span><span class="code-content">  }, []);</span></div>
-                        <div class="code-line"><span class="line-number">26</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">27</span><span class="code-content">  <span class="code-keyword">if</span> (loading) <span class="code-keyword">return</span> <span class="code-tag">&lt;LoadingScreen /&gt;</span>;</span></div>
-                        <div class="code-line"><span class="line-number">28</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">29</span><span class="code-content">  <span class="code-keyword">return</span> (</span></div>
-                        <div class="code-line"><span class="line-number">30</span><span class="code-content">    <span class="code-tag">&lt;ThemeProvider</span> <span class="code-attr">theme</span>={theme}<span class="code-tag">&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">31</span><span class="code-content">      <span class="code-tag">&lt;Router&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">32</span><span class="code-content">        <span class="code-tag">&lt;Routes&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">33</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Home</span> <span class="code-attr">user</span>={user} <span class="code-attr">cart</span>={cart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">34</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/restaurant/:id"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Restaurant</span> <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">35</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/cart"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Cart</span> <span class="code-attr">cart</span>={cart} <span class="code-attr">setCart</span>={setCart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">36</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/checkout"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Checkout</span> <span class="code-attr">cart</span>={cart} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">37</span><span class="code-content">          <span class="code-tag">&lt;Route</span> <span class="code-attr">path</span>=<span class="code-string">"/profile"</span> <span class="code-attr">element</span>={<span class="code-tag">&lt;Profile</span> <span class="code-attr">user</span>={user} <span class="code-tag">/&gt;</span>} <span class="code-tag">/&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">38</span><span class="code-content">        <span class="code-tag">&lt;/Routes&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">39</span><span class="code-content">      <span class="code-tag">&lt;/Router&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">40</span><span class="code-content">    <span class="code-tag">&lt;/ThemeProvider&gt;</span></span></div>
-                        <div class="code-line"><span class="line-number">41</span><span class="code-content">  );</span></div>
-                        <div class="code-line"><span class="line-number">42</span><span class="code-content">};</span></div>
-                        <div class="code-line"><span class="line-number">43</span><span class="code-content"></span></div>
-                        <div class="code-line"><span class="line-number">44</span><span class="code-content"><span class="code-keyword">export default</span> App;</span></div>
-                    </div>
-                </div>
-
-                <!-- Preview Panel -->
-                <div class="preview-panel">
-                    <div class="preview-header">
-                        <h3><i class="fas fa-eye"></i> Live Preview</h3>
-                        <div class="preview-device-toggle">
-                            <button class="device-btn active" onclick="setDevice('mobile')" title="Mobile"><i class="fas fa-mobile-alt"></i></button>
-                            <button class="device-btn" onclick="setDevice('tablet')" title="Tablet"><i class="fas fa-tablet-alt"></i></button>
-                            <button class="device-btn" onclick="setDevice('desktop')" title="Desktop"><i class="fas fa-desktop"></i></button>
-                        </div>
-                    </div>
-                    <div class="preview-frame">
-                        <div class="preview-content" id="previewContent">
-                            <div class="app-preview">
-                                <div class="app-header">
-                                    <h2>🍔 FoodDelivery</h2>
-                                    <p>Fresh food, delivered fast</p>
-                                </div>
-                                <div class="app-body">
-                                    <div class="app-card">
-                                        <h4>🔥 Popular Restaurants</h4>
-                                        <p>12 restaurants near you</p>
-                                    </div>
-                                    <div class="app-card">
-                                        <h4>🛒 Your Cart</h4>
-                                        <p>3 items — ₹450</p>
-                                    </div>
-                                    <div class="app-card">
-                                        <h4>📍 Delivery Address</h4>
-                                        <p>123 Main Street, Delhi</p>
-                                    </div>
-                                    <button class="app-btn">Order Now</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AI Agent Panel -->
-                <div class="agent-panel">
-                    <div class="agent-header">
-                        <h3><i class="fas fa-robot"></i> AI Agents</h3>
-                    </div>
-                    <div class="agent-list">
-                        <div class="agent-card active" onclick="selectAgent(this)">
-                            <div class="agent-card-header">
-                                <div class="agent-icon">⚛️</div>
-                                <h4>Code Agent</h4>
-                            </div>
-                            <p>Auto-generates React, Node.js, and mobile app code</p>
-                            <div class="agent-status">
-                                <span class="dot active"></span>
-                                <span>Building App.jsx...</span>
-                            </div>
-                        </div>
-                        <div class="agent-card" onclick="selectAgent(this)">
-                            <div class="agent-card-header">
-                                <div class="agent-icon">🎨</div>
-                                <h4>Design Agent</h4>
-                            </div>
-                            <p>Generates UI/UX designs and responsive layouts</p>
-                            <div class="agent-status">
-                                <span class="dot idle"></span>
-                                <span>Waiting for code...</span>
-                            </div>
-                        </div>
-                        <div class="agent-card" onclick="selectAgent(this)">
-                            <div class="agent-card-header">
-                                <div class="agent-icon">🧪</div>
-                                <h4>Test Agent</h4>
-                            </div>
-                            <p>Auto-tests code, finds bugs, and suggests fixes</p>
-                            <div class="agent-status">
-                                <span class="dot idle"></span>
-                                <span>Queued</span>
-                            </div>
-                        </div>
-                        <div class="agent-card" onclick="selectAgent(this)">
-                            <div class="agent-card-header">
-                                <div class="agent-icon">🚀</div>
-                                <h4>Deploy Agent</h4>
-                            </div>
-                            <p>One-click deploy to AWS, Vercel, or Play Store</p>
-                            <div class="agent-status">
-                                <span class="dot idle"></span>
-                                <span>Ready</span>
-                            </div>
-                        </div>
+                    <div class="project-card" onclick="createProject('mobile')">
+                        <div class="icon">📱</div>
+                        <h4>Mobile App</h4>
+                        <p>React Native or Flutter</p>
+                        <div class="tags"><span class="tag">Mobile</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Console Panel -->
-            <div class="console-panel">
-                <div class="console-header">
-                    <h4><i class="fas fa-terminal"></i> Build Console</h4>
-                    <div class="console-actions">
-                        <button class="toolbar-btn"><i class="fas fa-trash"></i> Clear</button>
-                        <button class="toolbar-btn"><i class="fas fa-expand"></i></button>
-                    </div>
-                </div>
-                <div class="console-body" id="consoleBody">
-                    <div class="console-line">
-                        <span class="console-time">09:21:15</span>
-                        <span class="console-info">[INFO]</span>
-                        <span>Project "FoodDelivery App" initialized from Planning Room</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:16</span>
-                        <span class="console-info">[INFO]</span>
-                        <span>Code Agent: Generating React components...</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:18</span>
-                        <span class="console-success">[SUCCESS]</span>
-                        <span>App.jsx generated — 44 lines, 0 errors</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:19</span>
-                        <span class="console-info">[INFO]</span>
-                        <span>Design Agent: Applying theme and responsive styles...</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:22</span>
-                        <span class="console-success">[SUCCESS]</span>
-                        <span>styles.css generated — Mobile + Tablet + Desktop ready</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:23</span>
-                        <span class="console-warning">[WARN]</span>
-                        <span>Test Agent: 2 minor accessibility issues found — auto-fixing...</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:25</span>
-                        <span class="console-success">[SUCCESS]</span>
-                        <span>All issues resolved. Build successful! ✅</span>
-                    </div>
-                    <div class="console-line">
-                        <span class="console-time">09:21:26</span>
-                        <span class="console-info">[INFO]</span>
-                        <span>Ready for deployment. Click "Deploy" to go live! 🚀</span>
-                    </div>
+            <div class="panel">
+                <h3>📊 Recent Projects</h3>
+                <p>Your recently worked on projects</p>
+                <div id="recent-projects">
+                    <p style="color: #8B8B9A; text-align: center; padding: 2rem;">No projects yet. Create your first project!</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Planning Modal -->
+    <div class="modal-overlay" id="planning-modal">
+        <div class="modal">
+            <h2>📝 Project Planning Room</h2>
+            <div class="form-group">
+                <label>Project Name</label>
+                <input type="text" id="project-name" placeholder="e.g., E-Commerce Website">
+            </div>
+            <div class="form-group">
+                <label>Project Type</label>
+                <select id="project-type">
+                    <option value="web">Web Application</option>
+                    <option value="mobile">Mobile Application</option>
+                    <option value="both">Web + Mobile</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description (Optional)</label>
+                <textarea id="project-desc" rows="3" placeholder="Brief description of your project..."></textarea>
+            </div>
+            <button class="submit-btn" onclick="startPlanning()">Start Planning with AI</button>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="auth.js"></script>
     <script>
-        // ===== DEVICE TOGGLE =====
-        function setDevice(device) {
-            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.device-btn').classList.add('active');
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            initSupabase();
+            if (window.authService) await window.authService.init();
+            updateAuthUI();
+        });
 
-            const preview = document.getElementById('previewContent');
-            preview.className = 'preview-content ' + device;
-        }
-
-        // ===== AGENT SELECTION =====
-        function selectAgent(card) {
-            document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-        }
-
-        // ===== NEW PROJECT =====
-        function newProject() {
-            const name = prompt('Project name bataiye:');
-            if (name) {
-                addConsoleLine('INFO', `New project "${name}" created from template`);
-                addConsoleLine('SUCCESS', 'AI agents initialized — Ready to build!');
+        function checkAuth() {
+            if (window.authService && window.authService.isLoggedIn()) {
+                // Show user menu
+                alert('User menu coming soon!');
+            } else {
+                window.location.href = 'index.html?auth=login';
             }
         }
 
-        // ===== DEPLOY =====
-        function deployProject() {
-            addConsoleLine('INFO', '🚀 Starting deployment pipeline...');
-            setTimeout(() => addConsoleLine('INFO', 'Building production bundle...'), 500);
-            setTimeout(() => addConsoleLine('SUCCESS', 'Bundle optimized — 245KB gzipped'), 1500);
-            setTimeout(() => addConsoleLine('INFO', 'Uploading to CDN...'), 2000);
-            setTimeout(() => addConsoleLine('SUCCESS', '🎉 Deployed! Live at: https://foodelivery-ai.vercel.app'), 3000);
+        function updateAuthUI() {
+            const btn = document.getElementById('auth-btn');
+            if (window.authService && window.authService.isLoggedIn()) {
+                const user = window.authService.getUser();
+                btn.textContent = '👤 ' + (user.user_metadata?.name || user.email);
+            }
         }
 
-        // ===== CONSOLE HELPERS =====
-        function addConsoleLine(type, message) {
-            const consoleBody = document.getElementById('consoleBody');
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            const line = document.createElement('div');
-            line.className = 'console-line';
-            line.innerHTML = `
-                <span class="console-time">${time}</span>
-                <span class="console-${type.toLowerCase()}">[${type}]</span>
-                <span>${message}</span>
-            `;
-            consoleBody.appendChild(line);
-            consoleBody.scrollTop = consoleBody.scrollHeight;
+        function showPlanningModal() {
+            document.getElementById('planning-modal').classList.add('active');
         }
 
-        // ===== AUTO-SCROLL CONSOLE =====
-        setInterval(() => {
-            const consoleBody = document.getElementById('consoleBody');
-            consoleBody.scrollTop = consoleBody.scrollHeight;
-        }, 1000);
+        function createProject(type) {
+            showPlanningModal();
+            document.getElementById('project-type').value = type;
+        }
+
+        async function startPlanning() {
+            const name = document.getElementById('project-name').value;
+            const type = document.getElementById('project-type').value;
+            const desc = document.getElementById('project-desc').value;
+
+            if (!name) {
+                alert('Please enter a project name!');
+                return;
+            }
+
+            // Save to localStorage for now
+            const projects = JSON.parse(localStorage.getItem('mamta_projects') || '[]');
+            projects.push({
+                id: Date.now(),
+                name,
+                type,
+                description: desc,
+                status: 'planning',
+                created_at: new Date().toISOString()
+            });
+            localStorage.setItem('mamta_projects', JSON.stringify(projects));
+
+            alert('Project created! AI planning coming soon...');
+            document.getElementById('planning-modal').classList.remove('active');
+            loadRecentProjects();
+        }
+
+        function loadRecentProjects() {
+            const container = document.getElementById('recent-projects');
+            const projects = JSON.parse(localStorage.getItem('mamta_projects') || '[]');
+
+            if (projects.length === 0) return;
+
+            container.innerHTML = projects.slice(-3).map(p => `
+                <div class="project-card">
+                    <div class="icon">${p.type === 'web' ? '🌐' : p.type === 'mobile' ? '📱' : '🚀'}</div>
+                    <h4>${p.name}</h4>
+                    <p>${p.description || 'No description'}</p>
+                    <div class="tags"><span class="tag">${p.status}</span></div>
+                </div>
+            `).join('');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('planning-modal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+
+        loadRecentProjects();
     </script>
-
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal" style="max-width: 420px;">
-            <div class="modal-header">
-                <h2 id="authTitle">🔐 Sign In to MAMTA AI</h2>
-                <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center; gap: 12px; padding: 14px;" onclick="handleGoogleAuth()">
-                        <img src="https://www.google.com/favicon.ico" style="width: 20px; height: 20px;">
-                        Continue with Google
-                    </button>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px;">— OR —</div>
-                    <input type="email" id="authEmail" placeholder="📧 Email address" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none;">
-                    <input type="password" id="authPassword" placeholder="🔑 Password" style="padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none;">
-                    <input type="text" id="authName" placeholder="👤 Your name (for signup)" style="display: none; padding: 14px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-family: Inter; font-size: 14px; outline: none;">
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 16px;" id="authBtn" onclick="handleAuthSubmit()">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </button>
-                    <p style="text-align: center; color: var(--text-secondary); font-size: 13px; margin-top: 8px;">
-                        <span id="authSwitchText">Don't have an account?</span>
-                        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;" id="authSwitchLink">Sign Up</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== USER PROFILE DROPDOWN ===== -->
-    <div class="user-dropdown" id="userDropdown" style="display: none; position: fixed; top: 70px; right: 40px; z-index: 1001; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; min-width: 220px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-        <div style="display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;">
-            <img id="userAvatar" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-cyan);">
-            <div>
-                <div id="userName" style="font-weight: 600; font-size: 14px;">User</div>
-                <div id="userEmail" style="font-size: 12px; color: var(--text-secondary);">user@email.com</div>
-            </div>
-        </div>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-            <a href="index.html" style="padding: 10px 14px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-home"></i> Home</a>
-            <a href="safedrop.html" style="padding: 10px 14px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-shield-alt"></i> SafeDrop</a>
-            <div style="height: 1px; background: var(--border); margin: 4px 0;"></div>
-            <button onclick="handleLogout()" style="padding: 10px 14px; border-radius: 10px; color: var(--accent-red); background: none; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 10px; font-family: Inter; text-align: left;"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
-        </div>
-    </div>
-
-
-    <!-- ===== AUTH MODAL ===== -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal" style="max-width: 440px;">
-            <div class="modal-header">
-                <h2 id="authTitle">🔐 Sign In to MAMTA AI</h2>
-                <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div id="authForm" style="display: flex; flex-direction: column; gap: 14px;">
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center; gap: 12px; padding: 14px;" onclick="handleGoogleSignIn()">
-                        <i class="fab fa-google" style="color: #EA4335;"></i>
-                        <span>Continue with Google</span>
-                    </button>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px; position: relative;">
-                        <span style="background: var(--bg-card); padding: 0 16px; position: relative; z-index: 1;">— OR —</span>
-                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); z-index: 0;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Email Address</label>
-                        <input type="email" id="authEmail" placeholder="you@example.com" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none;">
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Password</label>
-                        <input type="password" id="authPassword" placeholder="••••••••" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none;">
-                    </div>
-                    <div id="nameField" style="display: none;">
-                        <label style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Your Name</label>
-                        <input type="text" id="authName" placeholder="John Doe" style="width: 100%; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 14px; font-family: Inter; outline: none;">
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; margin-top: 8px;" id="authSubmitBtn" onclick="handleAuthSubmit()">
-                        <span id="authBtnText">Sign In</span>
-                    </button>
-                    <p style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 8px;">
-                        <span id="authToggleText">Don't have an account?</span>
-                        <a href="#" onclick="toggleAuthMode()" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;" id="authToggleLink">Sign Up</a>
-                    </p>
-                </div>
-                <div id="authLoading" style="display: none; text-align: center; padding: 40px 20px;">
-                    <div class="redirect-spinner" style="width: 48px; height: 48px; margin: 0 auto 20px; border-width: 3px;"></div>
-                    <p style="color: var(--text-secondary);">Authenticating...</p>
-                </div>
-                <div id="authSuccess" style="display: none; text-align: center; padding: 40px 20px;">
-                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--accent-green), #00CC6A); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px;">✅</div>
-                    <h3 style="margin-bottom: 8px;">Welcome to MAMTA AI!</h3>
-                    <p style="color: var(--text-secondary);">Redirecting...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== USER DROPDOWN ===== -->
-    <div class="user-dropdown" id="userDropdown" style="display: none; position: fixed; top: 70px; right: 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 8px; min-width: 220px; z-index: 1001; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
-        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); margin-bottom: 4px;">
-            <p style="font-weight: 600; font-size: 14px;" id="dropdownName">User Name</p>
-            <p style="font-size: 12px; color: var(--text-secondary);" id="dropdownEmail">user@email.com</p>
-        </div>
-        <a href="index.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-home" style="width: 20px;"></i> Home
-        </a>
-        <a href="workspace.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-code" style="width: 20px;"></i> Workspace
-        </a>
-        <a href="safedrop.html" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='var(--bg-hover)';this.style.color='var(--text-primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-secondary)'">
-            <i class="fas fa-shield-alt" style="width: 20px;"></i> SafeDrop
-        </a>
-        <div style="border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px;">
-            <a href="#" onclick="handleLogout()" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; color: var(--accent-red); text-decoration: none; font-size: 14px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,45,85,0.1)'" onmouseout="this.style.background='transparent'">
-                <i class="fas fa-sign-out-alt" style="width: 20px;"></i> Sign Out
-            </a>
-        </div>
-    </div>
-
-
-    <!-- 🟢 MAMTA AI — Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- 🟢 MAMTA AI — Services -->
-    <script src="supabase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="firestore.js"></script>
-    <script src="storage.js"></script>
-    <script src="security.js"></script>
-    <script src="ai-service.js"></script>
-    <script src="app.js"></script>
-
 </body>
 </html>
