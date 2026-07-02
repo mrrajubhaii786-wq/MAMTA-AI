@@ -1,267 +1,368 @@
-// 🚀 MAMTA AI — Main Application Integration (Supabase Version)
-// Connected to: djupszhqebpuohvzamcx.supabase.co
+// MAMTA AI - Main Application V4
+// Version: 4.0.0 - TASK 5: Production Readiness Certification
+// Features: Loading states, session recovery, button states, validation
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🧠 MAMTA AI System Initialized');
-    console.log('🟢 Supabase Status:', supabase ? 'Connected' : 'Not Connected');
-    console.log('📊 Project: djupszhqebpuohvzamcx');
+class MAMTAApp {
+    constructor() {
+        this.initialized = false;
+        this.chatHistory = [];
+        this.isProcessing = false;
+    }
 
-    // Initialize all services
-    initializeChat();
-    initializePlanningRoom();
-    initializeSafeDrop();
-    initializeWorkspace();
-});
+    async init() {
+        console.log('🚀 MAMTA AI V4 initializing...');
 
-// ========== CHAT INTEGRATION ==========
-function initializeChat() {
-    const chatInput = document.getElementById('chatInput');
-    if (!chatInput) return;
+        // Initialize services in order
+        await this.initServices();
 
-    // Override sendMessage to use real AI
-    window.sendMessage = async function() {
-        const text = chatInput.value.trim();
+        // Setup UI
+        this.setupEventListeners();
+        this.setupChatInput();
+
+        // Check session
+        await this.checkSession();
+
+        // Load chat history if logged in
+        await this.loadChatHistory();
+
+        this.initialized = true;
+        console.log('✅ MAMTA AI V4 ready!');
+
+        if (window.errorHandler) {
+            window.errorHandler.showToast('MAMTA AI ready!', 'success');
+        }
+    }
+
+    async initServices() {
+        // Initialize Supabase
+        if (window.initSupabase) {
+            window.initSupabase();
+        }
+
+        // Initialize auth
+        if (window.authService && window.authService.init) {
+            await window.authService.init();
+        }
+
+        // Initialize database
+        if (window.dbService && window.dbService.init) {
+            await window.dbService.init();
+        }
+
+        // Initialize AI
+        if (window.aiService && window.aiService.init) {
+            await window.aiService.init();
+        }
+    }
+
+    setupEventListeners() {
+        // Send button
+        const sendBtn = document.getElementById('send-btn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', () => this.handleSend());
+        }
+
+        // Chat input
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.handleSend();
+                }
+            });
+        }
+
+        // Auth button
+        const authBtn = document.getElementById('auth-btn');
+        if (authBtn) {
+            authBtn.addEventListener('click', () => this.handleAuthClick());
+        }
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const text = e.target.textContent.trim();
+                this.setChatInput(text);
+            });
+        });
+    }
+
+    setupChatInput() {
+        const input = document.getElementById('chat-input');
+        if (!input) return;
+
+        // Auto-resize
+        input.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    }
+
+    async checkSession() {
+        if (window.authService && window.authService.isLoggedIn) {
+            const isLoggedIn = window.authService.isLoggedIn();
+            this.updateAuthUI(isLoggedIn);
+
+            if (isLoggedIn) {
+                console.log('✅ Session restored');
+                if (window.errorHandler) {
+                    window.errorHandler.showToast('Welcome back!', 'success');
+                }
+            }
+        }
+    }
+
+    async loadChatHistory() {
+        if (!window.dbService) return;
+
+        try {
+            const result = await window.dbService.getChatHistory(50);
+            if (result.success && result.data) {
+                this.chatHistory = result.data;
+                this.renderChatHistory();
+            }
+        } catch (error) {
+            console.warn('⚠️ Could not load chat history:', error.message);
+        }
+    }
+
+    renderChatHistory() {
+        const container = document.getElementById('chat-container');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        this.chatHistory.forEach(msg => {
+            const sender = msg.type === 'user' ? 'user' : 'ai';
+            this.addMessageToUI(msg.message, sender, false);
+        });
+
+        this.scrollToBottom();
+    }
+
+    async handleSend() {
+        if (this.isProcessing) return;
+
+        const input = document.getElementById('chat-input');
+        if (!input) return;
+
+        const text = input.value.trim();
         if (!text) return;
 
-        // Add user message
-        addMessage(text, 'user');
-        chatInput.value = '';
-
-        // Show typing
-        showTyping();
-
-        // Check if build request
-        if (isBuildRequest(text)) {
-            setTimeout(() => {
-                removeTyping();
-                addMessage(`🎯 MAMTA AI ne samajh liya! Aapko ek project chahiye: "${text}"\n\nMain aapke liye Planning Room khol raha hoon...`, 'ai');
-                setTimeout(() => {
-                    showPlanningRoom();
-                    document.getElementById('planningInput').value = text;
-                    generateRealPlan(text);
-                }, 1500);
-            }, 1000);
-            return;
-        }
-
-        // Get AI response
-        try {
-            const history = getChatHistory();
-            const result = await mamtaAI.sendMessage(text, history);
-
-            removeTyping();
-
-            if (result.success) {
-                addMessage(result.response, 'ai');
-
-                // Save to Supabase if user is logged in
-                const user = mamtaAuth.getCurrentUser();
-                if (user) {
-                    await mamtaDB.saveMessage(user.id, text, 'user');
-                    await mamtaDB.saveMessage(user.id, result.response, 'ai');
+        // Validate
+        if (window.dbService && window.dbService.validateChatMessage) {
+            const validation = window.dbService.validateChatMessage(text);
+            if (!validation.valid) {
+                if (window.errorHandler) {
+                    window.errorHandler.showToast(validation.error, 'warning');
                 }
-            } else {
-                addMessage(result.error, 'ai');
+                return;
             }
-        } catch (error) {
-            removeTyping();
-            addMessage('Maaf kijiye, MAMTA AI abhi available nahi hai. Kripya baad mein try karein. 🙏', 'ai');
         }
-    };
-}
 
-function isBuildRequest(text) {
-    const keywords = ['app', 'website', 'banao', 'build', 'chahiye', 'banani', 'create', 'develop'];
-    return keywords.some(k => text.toLowerCase().includes(k));
-}
+        this.isProcessing = true;
+        this.setLoadingState(true);
 
-function getChatHistory() {
-    const messages = document.querySelectorAll('.message');
-    const history = [];
-    messages.forEach(msg => {
-        const type = msg.classList.contains('user') ? 'user' : 'assistant';
-        const content = msg.querySelector('.message-content').textContent;
-        history.push({ role: type, content: content });
-    });
-    return history.slice(-10);
-}
+        // Add user message
+        this.addMessageToUI(text, 'user', true);
+        input.value = '';
+        input.style.height = 'auto';
 
-// ========== PLANNING ROOM INTEGRATION ==========
-function initializePlanningRoom() {
-    window.generateRealPlan = async function(input) {
-        const resultDiv = document.getElementById('planningResult');
-        resultDiv.innerHTML = '<div style="text-align:center; padding:20px;"><div class="redirect-spinner" style="width:40px; height:40px; margin:0 auto 16px;"></div><p style="color:var(--text-secondary);">MAMTA AI planning generate kar raha hai...</p></div>';
+        // Show typing indicator
+        this.showTypingIndicator();
 
         try {
-            const plan = await mamtaAI.generatePlan(input);
+            // Get AI response
+            let response;
 
-            // Save project to Supabase
-            const user = mamtaAuth.getCurrentUser();
-            if (user) {
-                await mamtaDB.createProject(user.id, {
-                    name: input,
-                    type: plan.type,
-                    features: plan.features,
-                    techStack: plan.techStack
+            if (window.aiService) {
+                const context = this.getChatContext();
+                response = await window.aiService.generateResponse(text, context);
+            } else {
+                response = { success: true, text: 'AI service not available.', provider: 'fallback' };
+            }
+
+            this.removeTypingIndicator();
+
+            if (response.success) {
+                this.addMessageToUI(response.text, 'ai', true);
+
+                // Save to database
+                await this.saveChat(text, response.text);
+            } else {
+                this.addMessageToUI(response.text || 'Sorry, I could not process that.', 'ai', true);
+            }
+
+        } catch (error) {
+            console.error('❌ Chat error:', error);
+            this.removeTypingIndicator();
+            this.addMessageToUI('माफ़ करना, कुछ गलती हुई। फिर से कोशिश करें।', 'ai', true);
+
+            if (window.errorHandler) {
+                window.errorHandler.showToast('Message failed to send. Please try again.', 'error');
+            }
+        } finally {
+            this.isProcessing = false;
+            this.setLoadingState(false);
+        }
+    }
+
+    async saveChat(userMessage, aiMessage) {
+        if (!window.dbService) return;
+
+        try {
+            await window.dbService.saveChat(userMessage, 'user');
+            await window.dbService.saveChat(aiMessage, 'ai');
+        } catch (error) {
+            console.warn('⚠️ Could not save chat:', error.message);
+        }
+    }
+
+    getChatContext() {
+        const messages = document.querySelectorAll('.message');
+        const context = [];
+
+        messages.forEach(msg => {
+            const isUser = msg.classList.contains('user-message');
+            const content = msg.querySelector('.message-content');
+            if (content) {
+                context.push({
+                    role: isUser ? 'user' : 'assistant',
+                    content: content.textContent
                 });
             }
+        });
 
-            resultDiv.innerHTML = renderPlanHTML(plan);
-            document.getElementById('planningFooter').style.display = 'flex';
-        } catch (error) {
-            resultDiv.innerHTML = renderPlanHTML(mamtaAI.getDefaultPlan(input));
-            document.getElementById('planningFooter').style.display = 'flex';
+        return context.slice(-10); // Last 10 messages
+    }
+
+    addMessageToUI(text, sender, animate = true) {
+        const container = document.getElementById('chat-container');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}-message`;
+
+        if (animate) {
+            msgDiv.style.animation = 'fadeIn 0.3s ease';
         }
-    };
-}
 
-function renderPlanHTML(plan) {
-    return `
-        <div class="planning-step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-                <h4>🎯 Project Type Identified</h4>
-                <p><strong>${plan.type.toUpperCase()}</strong></p>
-                <div class="step-tags">
-                    <span class="tag">${plan.type}</span>
-                    <span class="tag">Full-Stack</span>
-                    <span class="tag">AI-Powered</span>
-                </div>
-            </div>
-        </div>
-        <div class="planning-step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-                <h4>📋 Core Features</h4>
-                <div class="step-tags">
-                    ${plan.features.map(f => `<span class="tag">${f}</span>`).join('')}
-                </div>
-            </div>
-        </div>
-        <div class="planning-step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-                <h4>🛠️ Tech Stack</h4>
-                <p>Frontend: ${plan.techStack.frontend}</p>
-                <p>Backend: ${plan.techStack.backend}</p>
-                <p>Database: ${plan.techStack.database}</p>
-                <p>Hosting: ${plan.techStack.hosting}</p>
-            </div>
-        </div>
-        <div class="planning-step">
-            <div class="step-number">4</div>
-            <div class="step-content">
-                <h4>⏱️ Timeline & Cost</h4>
-                <p><strong>Development:</strong> ${plan.timeline}</p>
-                <p><strong>Estimated Cost:</strong> ${plan.estimatedCost}</p>
-            </div>
-        </div>
-    `;
-}
+        const time = new Date().toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
 
-// ========== SAFE DROP INTEGRATION ==========
-function initializeSafeDrop() {
-    window.simulateUpload = async function() {
-        closeUploadModal();
-        const zone = document.getElementById('uploadZone');
-
-        zone.innerHTML = `
-            <div class="upload-icon">🔐</div>
-            <h3>Encrypting & Uploading...</h3>
-            <p>File ko AES-256 se encrypt kiya ja raha hai...</p>
-            <div style="width: 200px; height: 4px; background: var(--border); border-radius: 2px; margin: 16px auto; overflow: hidden;">
-                <div style="height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); border-radius: 2px; animation: progressFill 2s ease forwards;"></div>
-            </div>
+        msgDiv.innerHTML = `
+            <div class="message-content">${this.escapeHtml(text)}</div>
+            <div class="message-time">${time}</div>
         `;
 
-        setTimeout(() => {
-            zone.innerHTML = `
-                <div class="upload-icon">✅</div>
-                <h3>Upload Complete!</h3>
-                <p>File successfully encrypted and stored.</p>
-                <div class="upload-encryption">
-                    <i class="fas fa-check-circle"></i>
-                    Zero-Knowledge Verified
-                </div>
-            `;
-            addFileToGrid();
-        }, 2500);
-    };
-}
+        container.appendChild(msgDiv);
+        this.scrollToBottom();
+    }
 
-// ========== WORKSPACE INTEGRATION ==========
-function initializeWorkspace() {
-    window.deployProject = async function() {
-        addConsoleLine('INFO', '🚀 MAMTA AI deployment pipeline shuru kar raha hai...');
+    showTypingIndicator() {
+        const container = document.getElementById('chat-container');
+        if (!container) return;
 
-        const user = mamtaAuth.getCurrentUser();
-        if (user) {
-            await mamtaDB.updateProjectStatus('current-project', 'deploying');
+        const indicator = document.createElement('div');
+        indicator.id = 'typing-indicator';
+        indicator.className = 'message ai-message';
+        indicator.innerHTML = `
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        `;
+        container.appendChild(indicator);
+        this.scrollToBottom();
+    }
+
+    removeTypingIndicator() {
+        const indicator = document.getElementById('typing-indicator');
+        if (indicator) indicator.remove();
+    }
+
+    scrollToBottom() {
+        const container = document.getElementById('chat-container');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    setLoadingState(loading) {
+        const sendBtn = document.getElementById('send-btn');
+        const chatInput = document.getElementById('chat-input');
+
+        if (sendBtn) {
+            sendBtn.disabled = loading;
+            sendBtn.style.opacity = loading ? '0.5' : '1';
+            sendBtn.innerHTML = loading ? '⏳' : '➤';
         }
 
-        setTimeout(() => addConsoleLine('INFO', 'Building production bundle...'), 500);
-        setTimeout(() => addConsoleLine('SUCCESS', 'Bundle optimized — 245KB gzipped'), 1500);
-        setTimeout(() => addConsoleLine('INFO', 'Uploading to Supabase Storage...'), 2000);
-        setTimeout(() => {
-            addConsoleLine('SUCCESS', '🎉 Deployed! Live at: https://mamta-ai.web.app');
-            if (user) {
-                mamtaDB.updateProjectStatus('current-project', 'deployed');
+        if (chatInput) {
+            chatInput.disabled = loading;
+        }
+    }
+
+    setChatInput(text) {
+        const input = document.getElementById('chat-input');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    handleAuthClick() {
+        if (window.authService && window.authService.isLoggedIn && window.authService.isLoggedIn()) {
+            // Logout
+            window.authService.signOut().then(() => {
+                this.updateAuthUI(false);
+                if (window.errorHandler) {
+                    window.errorHandler.showToast('Logged out successfully', 'info');
+                }
+            });
+        } else {
+            // Show login modal
+            if (window.showAuthModal) {
+                window.showAuthModal('login');
             }
-        }, 3000);
-    };
-}
-
-// ========== AUTH MODAL ==========
-function showAuthModal(mode) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay active';
-    modal.id = 'authModal';
-    modal.innerHTML = `
-        <div class="modal" style="max-width: 420px;">
-            <div class="modal-header">
-                <h2>${mode === 'login' ? '🔐 Sign In to MAMTA AI' : '✨ Join MAMTA AI'}</h2>
-                <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <button class="btn btn-ghost" style="width: 100%; justify-content: center;" onclick="mamtaAuth.googleSignIn()">
-                        <i class="fab fa-google" style="color: #EA4335;"></i> Continue with Google
-                    </button>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 13px;">— OR —</div>
-                    <input type="email" id="authEmail" placeholder="Email address" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">
-                    <input type="password" id="authPassword" placeholder="Password" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">
-                    ${mode === 'signup' ? '<input type="text" id="authName" placeholder="Your name" style="padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">' : ''}
-                    <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="handleAuth('${mode}')">
-                        ${mode === 'login' ? 'Sign In' : 'Create Account'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-function closeAuthModal() {
-    const modal = document.getElementById('authModal');
-    if (modal) modal.remove();
-}
-
-async function handleAuth(type) {
-    const email = document.getElementById('authEmail').value;
-    const password = document.getElementById('authPassword').value;
-
-    let result;
-    if (type === 'login') {
-        result = await mamtaAuth.signIn(email, password);
-    } else {
-        const name = document.getElementById('authName').value;
-        result = await mamtaAuth.signUp(email, password, name);
+        }
     }
 
-    if (result.success) {
-        closeAuthModal();
-        alert('✅ Welcome to MAMTA AI!');
-    } else {
-        alert('❌ ' + result.error);
+    updateAuthUI(isLoggedIn) {
+        const authBtn = document.getElementById('auth-btn');
+        const userInfo = document.getElementById('user-info');
+
+        if (authBtn) {
+            if (isLoggedIn && window.authService) {
+                const user = window.authService.getUser();
+                authBtn.textContent = user?.email || 'Logout';
+            } else {
+                authBtn.textContent = 'Sign In';
+            }
+        }
+
+        if (userInfo) {
+            userInfo.style.display = isLoggedIn ? 'block' : 'none';
+        }
     }
+}
+
+// Initialize when DOM is ready
+let mamtaApp = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    mamtaApp = new MAMTAApp();
+    mamtaApp.init();
+});
+
+if (typeof window !== 'undefined') {
+    window.mamtaApp = mamtaApp;
 }
