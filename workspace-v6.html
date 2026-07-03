@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAMTA AI V6 — Workspace IDE</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155;
+      --primary: #6366f1; --secondary: #8b5cf6;
+      --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+      --text: #f8fafc; --text-dim: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+    .ide { display: grid; grid-template-columns: 260px 1fr 320px; grid-template-rows: 48px 1fr 200px; height: 100vh; }
+    .toolbar { grid-column: 1 / -1; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+    .toolbar h1 { font-size: 1rem; color: var(--primary); }
+    .toolbar .status { margin-left: auto; display: flex; gap: 12px; font-size: 0.8rem; }
+    .status-pill { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot.green { background: var(--success); } .dot.yellow { background: var(--warning); } .dot.red { background: var(--error); }
+    .sidebar { background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; padding: 12px; }
+    .sidebar h3 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin: 16px 0 8px; letter-spacing: 1px; }
+    .nav-item { padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
+    .nav-item:hover, .nav-item.active { background: rgba(99,102,241,0.15); color: var(--primary); }
+    .main { display: grid; grid-template-rows: 1fr 1fr; gap: 1px; background: var(--border); overflow: hidden; }
+    .panel { background: var(--bg); padding: 16px; overflow: auto; }
+    .panel h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .code-editor { background: #0a0f1a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: 'Fira Code', monospace; font-size: 0.85rem; min-height: 200px; white-space: pre; overflow: auto; color: var(--text); }
+    .rightbar { background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; padding: 12px; }
+    .metric-card { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .metric-card h4 { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; }
+    .metric-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .metric-sub { font-size: 0.75rem; color: var(--text-dim); }
+    .console { grid-column: 1 / -1; background: #0a0f1a; border-top: 1px solid var(--border); padding: 12px; font-family: 'Fira Code', monospace; font-size: 0.8rem; overflow-y: auto; }
+    .console-line { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    .console-line.error { color: var(--error); }
+    .console-line.success { color: var(--success); }
+    .console-line.info { color: var(--primary); }
+    .console-line.warn { color: var(--warning); }
+    .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .btn:hover { background: var(--secondary); }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+    .tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; background: rgba(255,255,255,0.05); }
+    .tab.active { background: var(--primary); }
+    .graph-viz { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 16px; min-height: 150px; font-family: monospace; font-size: 0.8rem; color: var(--text-dim); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--text-dim); font-weight: 500; }
+    .badge { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; }
+    .badge.success { background: rgba(16,185,129,0.2); color: var(--success); }
+    .badge.warning { background: rgba(245,158,11,0.2); color: var(--warning); }
+    .badge.error { background: rgba(239,68,68,0.2); color: var(--error); }
+    @media (max-width: 1024px) { .ide { grid-template-columns: 200px 1fr; } .rightbar { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="ide">
+    <div class="toolbar">
+      <h1>🧠 MAMTA AI V6 — Workspace IDE</h1>
+      <div class="status">
+        <div class="status-pill"><span class="dot green" id="db-status"></span>Database</div>
+        <div class="status-pill"><span class="dot yellow" id="ai-status"></span>AI Engine</div>
+        <div class="status-pill"><span class="dot green" id="auto-status"></span>Autonomous</div>
+        <button class="btn btn-sm" onclick="refreshData()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <div class="nav-item active" onclick="showPanel('dashboard')">📊 Dashboard</div>
+      <div class="nav-item" onclick="showPanel('architecture')">🏗️ Architecture</div>
+      <div class="nav-item" onclick="showPanel('engines')">⚙️ Engines</div>
+      <div class="nav-item" onclick="showPanel('tasks')">📋 Tasks</div>
+      <div class="nav-item" onclick="showPanel('memory')">🧠 Memory</div>
+      <div class="nav-item" onclick="showPanel('database')">🗄️ Database</div>
+      <div class="nav-item" onclick="showPanel('ai-console')">🤖 AI Console</div>
+      <div class="nav-item" onclick="showPanel('build')">🔨 Build Monitor</div>
+      <div class="nav-item" onclick="showPanel('tests')">🧪 Tests</div>
+      <div class="nav-item" onclick="showPanel('docs')">📝 Documentation</div>
+
+      <h3>Quick Actions</h3>
+      <div class="nav-item" onclick="runCommand('/plan')">➕ New Plan</div>
+      <div class="nav-item" onclick="runCommand('/build')">➕ New Build</div>
+      <div class="nav-item" onclick="runCommand('/auto')">🤖 Toggle Auto</div>
+      <div class="nav-item" onclick="runCommand('/sync')">🔄 Sync DB</div>
+    </div>
+
+    <div class="main" id="main-content">
+      <div class="panel" id="panel-top">
+        <h3>📊 System Dashboard</h3>
+        <div id="dashboard-content">
+          <p style="color: var(--text-dim);">Loading system data from Supabase...</p>
+        </div>
+      </div>
+      <div class="panel" id="panel-bottom">
+        <h3>🤖 AI Console</h3>
+        <div id="ai-console-content">
+          <p style="color: var(--text-dim);">AI engine status will appear here...</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="rightbar">
+      <h3 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 12px;">Live Metrics</h3>
+      <div class="metric-card">
+        <h4>Active Engines</h4>
+        <div class="metric-value" id="metric-engines">0</div>
+        <div class="metric-sub">of 16 total</div>
+      </div>
+      <div class="metric-card">
+        <h4>Tasks in Queue</h4>
+        <div class="metric-value" id="metric-tasks">0</div>
+        <div class="metric-sub">autonomous queue</div>
+      </div>
+      <div class="metric-card">
+        <h4>Memory Items</h4>
+        <div class="metric-value" id="metric-memory">0</div>
+        <div class="metric-sub">in Supabase</div>
+      </div>
+      <div class="metric-card">
+        <h4>AI Calls Today</h4>
+        <div class="metric-value" id="metric-ai">0</div>
+        <div class="metric-sub">tokens used</div>
+      </div>
+      <div class="metric-card">
+        <h4>System Health</h4>
+        <div class="metric-value" id="metric-health" style="color: var(--success);">100%</div>
+        <div class="metric-sub">all systems operational</div>
+      </div>
+    </div>
+
+    <div class="console" id="console">
+      <div class="console-line info">[SYSTEM] MAMTA AI V6 Workspace IDE initialized</div>
+      <div class="console-line info">[SYSTEM] Waiting for Supabase connection...</div>
+    </div>
+  </div>
+
+  <script>
+    // ── Console Logger ──
+    function log(msg, type = 'info') {
+      const consoleDiv = document.getElementById('console');
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      consoleDiv.appendChild(line);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    // ── Panel Switcher ──
+    function showPanel(name) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const top = document.getElementById('panel-top');
+      const bottom = document.getElementById('panel-bottom');
+
+      if (name === 'dashboard') {
+        top.innerHTML = '<h3>📊 System Dashboard</h3><div id="dashboard-content"><p style="color: var(--text-dim);">Loading...</p></div>';
+        bottom.innerHTML = '<h3>🤖 AI Console</h3><div id="ai-console-content"><p style="color: var(--text-dim);">AI status...</p></div>';
+        loadDashboard();
+      } else if (name === 'architecture') {
+        top.innerHTML = '<h3>🏗️ Visual Architecture</h3><div class="graph-viz" id="arch-graph">Loading dependency graph...</div>';
+        bottom.innerHTML = '<h3>📐 Architecture Details</h3><div id="arch-details"><p style="color: var(--text-dim);">Select a node to view details...</p></div>';
+        loadArchitecture();
+      } else if (name === 'engines') {
+        top.innerHTML = '<h3>⚙️ Engine Status</h3><div id="engine-status"><p style="color: var(--text-dim);">Loading engine data...</p></div>';
+        bottom.innerHTML = '<h3>📈 Engine Metrics</h3><div id="engine-metrics"><p style="color: var(--text-dim);">Performance metrics...</p></div>';
+        loadEngines();
+      } else if (name === 'tasks') {
+        top.innerHTML = '<h3>📋 Task Queue</h3><div id="task-queue"><p style="color: var(--text-dim);">Loading tasks...</p></div>';
+        bottom.innerHTML = '<h3>📅 Sprint Board</h3><div id="sprint-board"><p style="color: var(--text-dim);">Sprint data...</p></div>';
+        loadTasks();
+      } else if (name === 'memory') {
+        top.innerHTML = '<h3>🧠 Memory Explorer</h3><div id="memory-explorer"><p style="color: var(--text-dim);">Loading memory...</p></div>';
+        bottom.innerHTML = '<h3>🔍 Memory Search</h3><div><input type="text" placeholder="Search memory..." style="width: 100%; padding: 8px; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 6px;"></div>';
+        loadMemory();
+      } else if (name === 'database') {
+        top.innerHTML = '<h3>🗄️ Database Viewer</h3><div id="db-viewer"><p style="color: var(--text-dim);">Loading tables...</p></div>';
+        bottom.innerHTML = '<h3>📊 Table Stats</h3><div id="db-stats"><p style="color: var(--text-dim);">Table statistics...</p></div>';
+        loadDatabase();
+      } else if (name === 'ai-console') {
+        top.innerHTML = '<h3>🤖 AI Console</h3><div id="ai-console-main"><p style="color: var(--text-dim);">AI engine logs...</p></div>';
+        bottom.innerHTML = '<h3>🎛️ AI Settings</h3><div id="ai-settings"><p style="color: var(--text-dim);">Configure AI providers...</p></div>';
+        loadAIConsole();
+      } else if (name === 'build') {
+        top.innerHTML = '<h3>🔨 Build Monitor</h3><div id="build-monitor"><p style="color: var(--text-dim);">Build status...</p></div>';
+        bottom.innerHTML = '<h3>📦 Deployments</h3><div id="deployments"><p style="color: var(--text-dim);">Deployment history...</p></div>';
+        loadBuildMonitor();
+      } else if (name === 'tests') {
+        top.innerHTML = '<h3>🧪 Test Results</h3><div id="test-results"><p style="color: var(--text-dim);">Test data...</p></div>';
+        bottom.innerHTML = '<h3>📊 Coverage</h3><div id="coverage"><p style="color: var(--text-dim);">Coverage report...</p></div>';
+        loadTests();
+      } else if (name === 'docs') {
+        top.innerHTML = '<h3>📝 Documentation</h3><div id="docs-viewer"><p style="color: var(--text-dim);">Documentation files...</p></div>';
+        bottom.innerHTML = '<h3>📋 Changelog</h3><div id="changelog"><p style="color: var(--text-dim);">Version history...</p></div>';
+        loadDocs();
+      }
+    }
+
+    // ── Data Loaders (Supabase integration) ──
+    async function loadDashboard() {
+      if (!window.mamtaOS) { log('MAMTA OS not loaded', 'warn'); return; }
+      try {
+        const status = await window.mamtaOS.engines.orchestrator.getSystemStatus();
+        const html = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            ${Object.entries(status.engines).map(([name, s]) => `
+              <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                <div style="font-size: 0.8rem; color: var(--text-dim);">${name}</div>
+                <div style="font-size: 1.2rem; font-weight: 600; color: ${s.status === 'ready' ? 'var(--success)' : 'var(--warning)'};">${s.status}</div>
+                <div style="font-size: 0.7rem; color: var(--text-dim);">v${s.version} | ${s.metrics?.calls || 0} calls</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        document.getElementById('dashboard-content').innerHTML = html;
+        document.getElementById('metric-engines').textContent = Object.keys(status.engines).length;
+        document.getElementById('metric-tasks').textContent = status.queueLength;
+        log('Dashboard loaded', 'success');
+      } catch (e) { log('Dashboard error: ' + e.message, 'error'); }
+    }
+
+    async function loadArchitecture() {
+      document.getElementById('arch-graph').innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <div style="font-size: 2rem; margin-bottom: 16px;">🏗️</div>
+          <p>Visual Architecture Viewer</p>
+          <p style="color: var(--text-dim); font-size: 0.8rem;">Dependency graph will render here when Knowledge Graph Engine is active</p>
+        </div>
+      `;
+    }
+
+    async function loadEngines() {
+      if (!window.mamtaOS) return;
+      const status = await window.mamtaOS.engines.orchestrator.getSystemStatus();
+      const html = `
+        <table>
+          <tr><th>Engine</th><th>Status</th><th>Version</th><th>Calls</th><th>Errors</th></tr>
+          ${Object.entries(status.engines).map(([name, s]) => `
+            <tr>
+              <td>${name}</td>
+              <td><span class="badge ${s.status === 'ready' ? 'success' : s.status === 'error' ? 'error' : 'warning'}">${s.status}</span></td>
+              <td>${s.version}</td>
+              <td>${s.metrics?.calls || 0}</td>
+              <td>${s.metrics?.failures || 0}</td>
+            </tr>
+          `).join('')}
+        </table>
+      `;
+      document.getElementById('engine-status').innerHTML = html;
+    }
+
+    async function loadTasks() {
+      if (!window.mamtaOS || !window.mamtaOS.supabase) return;
+      try {
+        const tasks = await window.mamtaOS.supabase.select('tasks', { limit: 20, order: 'created_at.desc' });
+        const html = `
+          <table>
+            <tr><th>Task</th><th>Status</th><th>Priority</th><th>Assigned</th></tr>
+            ${tasks.map(t => `
+              <tr>
+                <td>${t.name}</td>
+                <td><span class="badge ${t.status === 'completed' ? 'success' : t.status === 'in_progress' ? 'warning' : 'error'}">${t.status}</span></td>
+                <td>${t.priority}</td>
+                <td>${t.assigned_agent || 'Unassigned'}</td>
+              </tr>
+            `).join('')}
+          </table>
+        `;
+        document.getElementById('task-queue').innerHTML = html;
+      } catch (e) { log('Tasks error: ' + e.message, 'error'); }
+    }
+
+    async function loadMemory() {
+      if (!window.mamtaOS || !window.mamtaOS.engines.memory) return;
+      try {
+        const stats = await window.mamtaOS.engines.memory.getStats();
+        document.getElementById('memory-explorer').innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            ${Object.entries(stats).filter(([k]) => k !== 'supabase_connected').map(([k, v]) => `
+              <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;">
+                <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">${k}</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">${v}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        document.getElementById('metric-memory').textContent = stats.total || 0;
+      } catch (e) { log('Memory error: ' + e.message, 'error'); }
+    }
+
+    async function loadDatabase() {
+      if (!window.mamtaOS || !window.mamtaOS.supabase) return;
+      const tables = ['memory', 'knowledge', 'tasks', 'plans', 'errors', 'solutions', 'versions', 'deployments', 'agent_logs', 'learning_history', 'project_graph', 'reasoning_chain'];
+      try {
+        const counts = await Promise.all(tables.map(async t => {
+          try { return await window.mamtaOS.supabase.count(t); } catch (e) { return 0; }
+        }));
+        const html = `
+          <table>
+            <tr><th>Table</th><th>Rows</th><th>Status</th></tr>
+            ${tables.map((t, i) => `
+              <tr>
+                <td>${t}</td>
+                <td>${counts[i]}</td>
+                <td><span class="badge success">Active</span></td>
+              </tr>
+            `).join('')}
+          </table>
+        `;
+        document.getElementById('db-viewer').innerHTML = html;
+      } catch (e) { log('DB error: ' + e.message, 'error'); }
+    }
+
+    async function loadAIConsole() {
+      if (!window.mamtaOS || !window.mamtaOS.services.ai) return;
+      const metrics = window.mamtaOS.services.ai.getMetrics();
+      document.getElementById('ai-console-main').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+          <div class="metric-card"><h4>Total Calls</h4><div class="metric-value">${metrics.calls}</div></div>
+          <div class="metric-card"><h4>Success</h4><div class="metric-value" style="color: var(--success);">${metrics.success}</div></div>
+          <div class="metric-card"><h4>Failures</h4><div class="metric-value" style="color: var(--error);">${metrics.failures}</div></div>
+        </div>
+        <div style="margin-top: 12px; color: var(--text-dim); font-size: 0.8rem;">
+          Tokens used: ${metrics.tokens} | Provider: ${window.mamtaOS.services.ai.preferredProvider}
+        </div>
+      `;
+      document.getElementById('metric-ai').textContent = metrics.tokens;
+    }
+
+    async function loadBuildMonitor() {
+      document.getElementById('build-monitor').innerHTML = '<p style="color: var(--text-dim);">Build monitor active. No builds in progress.</p>';
+    }
+
+    async function loadTests() {
+      document.getElementById('test-results').innerHTML = '<p style="color: var(--text-dim);">Testing Engine ready. Run /test to execute.</p>';
+    }
+
+    async function loadDocs() {
+      document.getElementById('docs-viewer').innerHTML = '<p style="color: var(--text-dim);">Documentation Engine ready. Auto-generation enabled.</p>';
+    }
+
+    function runCommand(cmd) {
+      log(`Executing: ${cmd}`, 'info');
+      if (window.mamtaOS) {
+        window.mamtaOS.handleCommand(cmd).then(r => {
+          log(r.message, 'success');
+        }).catch(e => log(e.message, 'error'));
+      }
+    }
+
+    function refreshData() {
+      log('Refreshing all data...', 'info');
+      loadDashboard();
+      loadEngines();
+      loadTasks();
+      loadMemory();
+      loadDatabase();
+    }
+
+    // Auto-refresh every 10 seconds
+    setInterval(refreshData, 10000);
+
+    // Initial load
+    setTimeout(() => {
+      log('Workspace IDE fully loaded', 'success');
+      refreshData();
+    }, 2000);
+  </script>
+
+  <!-- Load V6 Engines -->
+  <script src="engines/engine-core.js"></script>
+  <script src="services/service-supabase.js"></script>
+  <script src="service-ai.js"></script>
+  <script src="engines/engine-context.js"></script>
+  <script src="engines/engine-reasoning.js"></script>
+  <script src="engines/engine-knowledge-graph.js"></script>
+  <script src="engines/engine-testing.js"></script>
+  <script src="engines/engine-documentation.js"></script>
+  <script src="engines/engine-analytics.js"></script>
+  <script src="engines/engine-memory-v6.js"></script>
+  <script src="engines/engine-planner-v6.js"></script>
+  <script src="engines/engine-builder-v6.js"></script>
+  <script src="engines/engine-reviewer-v6.js"></script>
+  <script src="engines/engine-repair-v6.js"></script>
+  <script src="engines/engine-orchestrator-v6.js"></script>
+  <script src="app-v6.js"></script>
+</body>
+</html>
