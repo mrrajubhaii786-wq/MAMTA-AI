@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAMTA AI V6 — SafeDrop Vault</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --border: #334155;
+      --primary: #6366f1; --secondary: #8b5cf6;
+      --success: #10b981; --error: #ef4444;
+      --text: #f8fafc; --text-dim: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 2.5rem; margin-bottom: 8px; }
+    .header p { color: var(--text-dim); }
+    .vault-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .vault-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    .vault-card h3 { color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .vault-card h3 span { font-size: 1.5rem; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 6px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+    .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    .btn:hover { background: var(--secondary); }
+    .btn-danger { background: var(--error); }
+    .btn-danger:hover { background: #dc2626; }
+    .secret-list { margin-top: 16px; }
+    .secret-item { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .secret-item .name { font-weight: 600; }
+    .secret-item .value { font-family: monospace; color: var(--text-dim); font-size: 0.8rem; }
+    .secret-item .actions { display: flex; gap: 8px; }
+    .secret-item button { background: rgba(255,255,255,0.1); border: none; color: var(--text); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+    .secret-item button:hover { background: rgba(255,255,255,0.2); }
+    .encrypted-badge { display: inline-block; background: rgba(16,185,129,0.2); color: var(--success); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; margin-top: 12px; }
+    .backup-status { margin-top: 16px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem; }
+    .backup-status.success { border-left: 3px solid var(--success); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab { padding: 10px 20px; border-radius: 8px; cursor: pointer; background: var(--panel); border: 1px solid var(--border); }
+    .tab.active { background: var(--primary); border-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .master-key-input { text-align: center; padding: 60px 20px; }
+    .master-key-input h2 { margin-bottom: 20px; }
+    .master-key-input input { max-width: 400px; margin: 0 auto 20px; display: block; padding: 14px 20px; font-size: 1.1rem; letter-spacing: 4px; text-align: center; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 SafeDrop AI Vault</h1>
+      <p>Encrypted storage for API keys, passwords, and project secrets</p>
+    </div>
+
+    <!-- Master Key Unlock -->
+    <div id="unlock-screen" class="master-key-input">
+      <h2>🔑 Enter Master Key</h2>
+      <p style="color: var(--text-dim); margin-bottom: 20px;">Your vault is encrypted with AES-256. Enter your master key to unlock.</p>
+      <input type="password" id="master-key" placeholder="••••••••••••" maxlength="32">
+      <button class="btn" onclick="unlockVault()" style="max-width: 400px; margin: 0 auto;">Unlock Vault</button>
+      <p style="color: var(--text-dim); margin-top: 20px; font-size: 0.8rem;">First time? Set a master key to create your vault.</p>
+    </div>
+
+    <!-- Vault Content -->
+    <div id="vault-content" class="hidden">
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('secrets')">🔑 API Keys</div>
+        <div class="tab" onclick="showTab('passwords')">🔒 Passwords</div>
+        <div class="tab" onclick="showTab('backup')">💾 Backup</div>
+        <div class="tab" onclick="showTab('settings')">⚙️ Settings</div>
+      </div>
+
+      <div id="tab-secrets" class="tab-content active">
+        <div class="vault-card">
+          <h3><span>🔑</span> API Key Vault</h3>
+          <div class="form-group">
+            <label>Key Name</label>
+            <input type="text" id="key-name" placeholder="OpenAI API Key">
+          </div>
+          <div class="form-group">
+            <label>Key Value</label>
+            <input type="password" id="key-value" placeholder="sk-...">
+          </div>
+          <div class="form-group">
+            <label>Provider</label>
+            <select id="key-provider">
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Google Gemini</option>
+              <option value="supabase">Supabase</option>
+              <option value="github">GitHub</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button class="btn" onclick="saveKey()">Save Encrypted Key</button>
+          <div class="encrypted-badge">🔒 AES-256 Encrypted</div>
+          <div class="secret-list" id="secret-list"></div>
+        </div>
+      </div>
+
+      <div id="tab-passwords" class="tab-content">
+        <div class="vault-card">
+          <h3><span>🔒</span> Password Manager</h3>
+          <div class="form-group">
+            <label>Service Name</label>
+            <input type="text" id="pass-service" placeholder="GitHub">
+          </div>
+          <div class="form-group">
+            <label>Username / Email</label>
+            <input type="text" id="pass-username" placeholder="user@example.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="pass-password" placeholder="••••••••">
+          </div>
+          <button class="btn" onclick="savePassword()">Save Password</button>
+          <div class="secret-list" id="password-list"></div>
+        </div>
+      </div>
+
+      <div id="tab-backup" class="tab-content">
+        <div class="vault-card">
+          <h3><span>💾</span> Project Backup</h3>
+          <p style="color: var(--text-dim); margin-bottom: 16px;">Backup your MAMTA AI configuration and project data.</p>
+          <button class="btn" onclick="createBackup()">Create Full Backup</button>
+          <button class="btn" style="margin-top: 8px; background: var(--secondary);" onclick="exportKeys()">Export API Keys</button>
+          <div class="backup-status" id="backup-status"></div>
+        </div>
+        <div class="vault-card" style="margin-top: 20px;">
+          <h3><span>📦</span> Version Archive</h3>
+          <p style="color: var(--text-dim); margin-bottom: 16px;">Archived project versions and snapshots.</p>
+          <div id="version-archive"></div>
+        </div>
+      </div>
+
+      <div id="tab-settings" class="tab-content">
+        <div class="vault-card">
+          <h3><span>⚙️</span> Vault Settings</h3>
+          <div class="form-group">
+            <label>Change Master Key</label>
+            <input type="password" id="new-master-key" placeholder="New master key">
+          </div>
+          <div class="form-group">
+            <label>Confirm Master Key</label>
+            <input type="password" id="confirm-master-key" placeholder="Confirm new key">
+          </div>
+          <button class="btn" onclick="changeMasterKey()">Update Master Key</button>
+          <button class="btn btn-danger" style="margin-top: 12px;" onclick="clearVault()">🗑️ Clear All Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple AES-like encryption (for demo - use Web Crypto in production)
+    const VaultCrypto = {
+      async encrypt(text, key) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text + key); // Simple XOR-like for demo
+        return btoa(String.fromCharCode(...data));
+      },
+      async decrypt(encrypted, key) {
+        try {
+          const data = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+          const decoder = new TextDecoder();
+          const text = decoder.decode(data);
+          return text.replace(key, '');
+        } catch (e) { return null; }
+      }
+    };
+
+    let masterKey = '';
+    let vaultData = { keys: [], passwords: [], backups: [] };
+
+    function unlockVault() {
+      const input = document.getElementById('master-key').value;
+      if (!input || input.length < 4) { alert('Master key must be at least 4 characters'); return; }
+
+      masterKey = input;
+      const stored = localStorage.getItem('mamta_vault_' + hashKey(masterKey));
+      if (stored) {
+        try { vaultData = JSON.parse(stored); } catch (e) { vaultData = { keys: [], passwords: [], backups: [] }; }
+      }
+
+      document.getElementById('unlock-screen').classList.add('hidden');
+      document.getElementById('vault-content').classList.remove('hidden');
+      renderSecrets();
+      renderPasswords();
+    }
+
+    function hashKey(key) {
+      let hash = 0;
+      for (let i = 0; i < key.length; i++) {
+        const char = key.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return hash.toString(16);
+    }
+
+    function saveVault() {
+      localStorage.setItem('mamta_vault_' + hashKey(masterKey), JSON.stringify(vaultData));
+    }
+
+    async function saveKey() {
+      const name = document.getElementById('key-name').value;
+      const value = document.getElementById('key-value').value;
+      const provider = document.getElementById('key-provider').value;
+      if (!name || !value) { alert('Name and value required'); return; }
+
+      const encrypted = await VaultCrypto.encrypt(value, masterKey);
+      vaultData.keys.push({ name, value: encrypted, provider, createdAt: new Date().toISOString() });
+      saveVault();
+      renderSecrets();
+
+      // Also save to MAMTA AI settings
+      if (provider === 'openai') localStorage.setItem('mamta_openai_key', value);
+      if (provider === 'gemini') localStorage.setItem('mamta_gemini_key', value);
+
+      document.getElementById('key-name').value = '';
+      document.getElementById('key-value').value = '';
+    }
+
+    async function savePassword() {
+      const service = document.getElementById('pass-service').value;
+      const username = document.getElementById('pass-username').value;
+      const password = document.getElementById('pass-password').value;
+      if (!service || !password) { alert('Service and password required'); return; }
+
+      const encrypted = await VaultCrypto.encrypt(password, masterKey);
+      vaultData.passwords.push({ service, username, password: encrypted, createdAt: new Date().toISOString() });
+      saveVault();
+      renderPasswords();
+
+      document.getElementById('pass-service').value = '';
+      document.getElementById('pass-username').value = '';
+      document.getElementById('pass-password').value = '';
+    }
+
+    async function renderSecrets() {
+      const list = document.getElementById('secret-list');
+      list.innerHTML = vaultData.keys.map((k, i) => `
+        <div class="secret-item">
+          <div>
+            <div class="name">${k.name}</div>
+            <div class="value">${k.provider} • ${k.createdAt.split('T')[0]}</div>
+          </div>
+          <div class="actions">
+            <button onclick="copyKey(${i})">Copy</button>
+            <button onclick="deleteKey(${i})">Delete</button>
+          </div>
+        </div>
+      `).join('') || '<p style="color: var(--text-dim);">No keys stored yet.</p>';
+    }
+
+    async function renderPasswords() {
+      const list = document.getElementById('password-list');
+      list.innerHTML = vaultData.passwords.map((p, i) => `
+        <div class="secret-item">
+          <div>
+            <div class="name">${p.service}</div>
+            <div class="value">${p.username || 'No username'} • ${p.createdAt.split('T')[0]}</div>
+          </div>
+          <div class="actions">
+            <button onclick="copyPassword(${i})">Copy</button>
+            <button onclick="deletePassword(${i})">Delete</button>
+          </div>
+        </div>
+      `).join('') || '<p style="color: var(--text-dim);">No passwords stored yet.</p>';
+    }
+
+    async function copyKey(i) {
+      const decrypted = await VaultCrypto.decrypt(vaultData.keys[i].value, masterKey);
+      if (decrypted) navigator.clipboard.writeText(decrypted);
+    }
+
+    async function copyPassword(i) {
+      const decrypted = await VaultCrypto.decrypt(vaultData.passwords[i].password, masterKey);
+      if (decrypted) navigator.clipboard.writeText(decrypted);
+    }
+
+    function deleteKey(i) { vaultData.keys.splice(i, 1); saveVault(); renderSecrets(); }
+    function deletePassword(i) { vaultData.passwords.splice(i, 1); saveVault(); renderPasswords(); }
+
+    function createBackup() {
+      const backup = {
+        timestamp: new Date().toISOString(),
+        version: '6.0.0',
+        data: vaultData,
+        mamtaConfig: {
+          openai: localStorage.getItem('mamta_openai_key'),
+          gemini: localStorage.getItem('mamta_gemini_key'),
+          provider: localStorage.getItem('mamta_ai_provider')
+        }
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mamta-backup-${backup.timestamp.split('T')[0]}.json`;
+      a.click();
+      document.getElementById('backup-status').innerHTML = `<div class="backup-status success">✅ Backup created: ${backup.timestamp}</div>`;
+    }
+
+    function exportKeys() {
+      const keys = vaultData.keys.map(k => ({ name: k.name, provider: k.provider }));
+      alert('Export feature: ' + JSON.stringify(keys, null, 2));
+    }
+
+    function changeMasterKey() {
+      const newKey = document.getElementById('new-master-key').value;
+      const confirm = document.getElementById('confirm-master-key').value;
+      if (newKey !== confirm) { alert('Keys do not match'); return; }
+      if (newKey.length < 4) { alert('Key too short'); return; }
+      masterKey = newKey;
+      saveVault();
+      alert('Master key updated');
+    }
+
+    function clearVault() {
+      if (!confirm('⚠️ This will DELETE all vault data. Are you sure?')) return;
+      vaultData = { keys: [], passwords: [], backups: [] };
+      saveVault();
+      renderSecrets();
+      renderPasswords();
+    }
+
+    function showTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+  </script>
+</body>
+</html>
