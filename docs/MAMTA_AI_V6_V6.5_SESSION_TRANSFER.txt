@@ -1,0 +1,199 @@
+# 🧠 MAMTA AI — SESSION TRANSFER DOCUMENT
+# V6 → V6.5 Transition
+# Date: 2026-07-04
+# Status: V6 COMPLETE | V6.5 PENDING USER INPUT
+
+================================================================================
+⚠️  CRITICAL: READ THIS FIRST IN NEW SESSION
+================================================================================
+
+This document ensures ZERO context loss when starting a new chat session.
+Give this ENTIRE document to the AI at the start of the new session.
+
+================================================================================
+SECTION 1: V6 COMPLETION STATUS
+================================================================================
+
+Project Name:     MAMTA AI
+Current Version:  V6.0.0 (COMPLETE)
+Next Version:     V6.5 (PENDING — User will provide Master Plan)
+Live URL:         https://mrrajubhaii786-wq.github.io/MAMTA-AI/
+GitHub Repo:      https://github.com/mrrajubhaii786-wq/MAMTA-AI
+
+V6 STATUS: 100% COMPLETE — All 10 phases deployed
+
+Verified:
+✅ 16 Engines active (6 new + 5 updated + 5 base)
+✅ Real AI integration (OpenAI GPT-4o + Gemini fallback)
+✅ Real database (Supabase PostgreSQL, 12 tables, NO localStorage)
+✅ Unified single-page app (Home + Workspace IDE + SafeDrop Vault)
+✅ 20 commands working (/plan, /build, /review, /test, /auto, etc.)
+✅ Autonomous 8-step loop with Supabase logging
+✅ AES-256 encrypted SafeDrop vault
+✅ Auto-documentation engine
+
+Files Deployed: 20 files (170,000+ bytes)
+Verification Report: docs/V6_FINAL_VERIFICATION_REPORT.md
+
+================================================================================
+SECTION 2: V6.5 TRANSITION — CRITICAL INSTRUCTIONS
+================================================================================
+
+⚠️⚠️⚠️ MOST IMPORTANT RULE ⚠️⚠️⚠️
+
+The user EXPLICITLY stated:
+"AI will NOT start any V6.5 work until I provide the V6.5 Master Plan.
+Do NOT create files, do NOT modify code, do NOT build anything.
+WAIT for my V6.5 Master Plan document."
+
+THEREFORE:
+❌ DO NOT create any new files for V6.5
+❌ DO NOT modify any existing V6 files
+❌ DO NOT generate V6.5 code or architecture
+❌ DO NOT assume V6.5 requirements
+❌ DO NOT start building V6.5 features
+❌ DO NOT create engine files, services, or UI
+
+✅ ONLY verify V6 deployment status if asked
+✅ ONLY read existing files if user requests
+✅ ONLY answer questions about V6
+✅ ONLY wait for user's V6.5 Master Plan
+✅ START V6.5 work ONLY after user explicitly says:
+   "Start V6.5" or "Here is my V6.5 Master Plan" or similar
+
+================================================================================
+SECTION 3: WHAT TO DO WHEN USER RETURNS
+================================================================================
+
+STEP 1: Read this transfer document fully
+STEP 2: Verify V6 is still live (check GitHub repo + live URL)
+STEP 3: Ask user: "V6.5 Master Plan ready hai?"
+STEP 4: WAIT for user to provide V6.5 Master Plan document
+STEP 5: ONLY after receiving V6.5 Master Plan:
+        - Read the plan carefully
+        - Ask clarifying questions if needed
+        - THEN start V6.5 implementation
+
+================================================================================
+SECTION 4: V6 ARCHITECTURE REFERENCE (For Context)
+================================================================================
+
+Current Stack:
+- Frontend: HTML + CSS + Vanilla JavaScript (Unified SPA)
+- Backend: Supabase (PostgreSQL + Auth + Storage)
+- Hosting: GitHub Pages (Frontend) + Supabase (Backend)
+- AI: OpenAI GPT-4o + Gemini 1.5 Pro (fallback)
+- Security: AES-256 (SafeDrop) + SHA-256 + RLS Policies
+
+Engine Architecture:
+User Input → Chat Interface → Command Parser → Service Layer → Engine Layer
+    ↓                                                              ↓
+Supabase PostgreSQL (memory, plans, tasks, errors, agent_logs) ←── Result
+    ↓
+UI Update (Status Bar + Chat Response + Live Metrics)
+
+16 Engines:
+1. ContextEngine          (NEW V6)
+2. ReasoningEngine        (NEW V6)
+3. KnowledgeGraphEngine   (NEW V6)
+4. TestingEngine          (NEW V6)
+5. DocumentationEngine    (NEW V6)
+6. AnalyticsEngine        (NEW V6)
+7. MemoryEngineV6         (UPDATED V6)
+8. PlannerEngineV6        (UPDATED V6)
+9. BuilderEngineV6        (UPDATED V6)
+10. ReviewerEngineV6     (UPDATED V6)
+11. RepairEngineV6       (UPDATED V6)
+12. OrchestratorEngineV6  (UPDATED V6)
+13. LearningEngine        (V5 base)
+14. MonitorEngine         (V5 base)
+15. DeploymentEngine      (V5 base)
+16. EvolutionEngine       (V5 base)
+
+================================================================================
+SECTION 5: CREDENTIALS SUMMARY
+================================================================================
+
+GITHUB:
+- Repo: https://github.com/mrrajubhaii786-wq/MAMTA-AI
+- User: mrrajubhaii786-wq
+- Token: USER NEEDS TO PROVIDE FRESH TOKEN (previous may expire)
+- Generate at: https://github.com/settings/tokens
+- Required scopes: repo (full control)
+
+SUPABASE:
+- URL: https://djupszhqebpuohvzamcx.supabase.co
+- Service Role Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRqdXBzemhxZWJwdW9odnphbWN4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjkyNjg2OCwiZXhwIjoyMDk4NTAyODY4fQ.VGyU6bARum6qIZ06oIqY5j7i5FoskyYH7LBUHNHeJHQ
+- Management Token: USER NEEDS TO PROVIDE FRESH TOKEN (if Edge Functions needed)
+
+================================================================================
+SECTION 6: FILES AI MUST REVIEW BEFORE V6.5 WORK
+================================================================================
+
+When V6.5 work starts, read these first:
+
+1. V6 Verification Report:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/docs/V6_FINAL_VERIFICATION_REPORT.md
+
+2. V6 Master Plan:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/docs/V6_MASTER_PLAN_COMPLETE.md
+
+3. Main App:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/app-v6.js
+
+4. Unified Index:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/index.html
+
+5. AI Service:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/services/service-ai.js
+
+6. Supabase Service:
+   https://raw.githubusercontent.com/mrrajubhaii786-wq/MAMTA-AI/main/services/service-supabase.js
+
+================================================================================
+SECTION 7: WHAT TO TELL AI IN NEW SESSION
+================================================================================
+
+COPY-PASTE THIS EXACT MESSAGE:
+
+---
+🧠 MAMTA AI V6 → V6.5 SESSION TRANSFER
+
+We are continuing MAMTA AI development. V6 is 100% COMPLETE and DEPLOYED.
+
+GIVE THIS DOCUMENT TO THE AI FIRST: [Attach this file]
+
+THEN TELL AI:
+1. Read the transfer document fully
+2. Verify V6 is still live: https://mrrajubhaii786-wq.github.io/MAMTA-AI/
+3. Check GitHub repo: https://github.com/mrrajubhaii786-wq/MAMTA-AI
+4. DO NOT start any V6.5 work yet
+5. WAIT for me to provide the V6.5 Master Plan
+6. I will tell you when to start — until then, just verify and wait
+
+I will provide GitHub token and Supabase credentials when needed.
+---
+
+================================================================================
+SECTION 8: V6.5 PREPARATION NOTES (For Reference Only)
+================================================================================
+
+The user mentioned V6.5 (not V7). This is an incremental update to V6.
+Possible V6.5 directions (DO NOT assume — wait for user's plan):
+
+- Edge Functions for server-side AI calls
+- Real-time WebSocket subscriptions
+- Additional AI agents
+- Performance optimizations
+- Bug fixes from V6 testing
+- New engine capabilities
+- UI/UX improvements
+
+⚠️ These are ONLY possibilities. The user's V6.5 Master Plan is the ONLY
+   source of truth for what to build.
+
+================================================================================
+END OF TRANSFER DOCUMENT
+================================================================================
+
+MOTTO: "MAMTA AI never forgets. Documentation is Memory."
