@@ -1,834 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAMTA AI - Your Intelligent Assistant</title>
-    <meta name="description" content="MAMTA AI - Your intelligent companion for coding, planning, and problem-solving">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: rgba(255,255,255,0.03);
-            --bg-glass: rgba(255,255,255,0.05);
-            --border: rgba(255,255,255,0.08);
-            --text-primary: #e0e0e0;
-            --text-secondary: #808090;
-            --accent-cyan: #667eea;
-            --accent-purple: #764ba2;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(ellipse at 20% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
-        }
-
-        .stars {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
-                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
-                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.3), transparent),
-                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.2), transparent);
-            background-size: 200px 200px;
-            animation: twinkle 5s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 24px;
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff, #a0a0b0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-            border: 1px solid transparent;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            color: #fff;
-            background: rgba(102, 126, 234, 0.1);
-            border-color: rgba(102, 126, 234, 0.3);
-        }
-
-        .auth-section {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        #user-info {
-            font-size: 13px;
-            color: var(--accent-cyan);
-            display: none;
-        }
-
-        .btn-primary {
-            padding: 8px 20px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px;
-            height: calc(100vh - 80px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Welcome Section */
-        .welcome {
-            text-align: center;
-            padding: 40px 20px;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .welcome h1 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, #fff, #a0a0b0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .welcome p {
-            font-size: 16px;
-            color: var(--text-secondary);
-            max-width: 500px;
-            margin: 0 auto 24px;
-            line-height: 1.6;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .quick-btn {
-            padding: 10px 20px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: #c0c0d0;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .quick-btn:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: rgba(102, 126, 234, 0.3);
-            color: #fff;
-            transform: translateY(-2px);
-        }
-
-        /* Chat Area */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            overflow: hidden;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .chat-container::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .chat-container::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.3);
-            border-radius: 3px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            margin: 8px 0;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.5;
-            animation: fadeIn 0.3s ease;
-            word-wrap: break-word;
-        }
-
-        .user-message {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            color: white;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        .ai-message {
-            background: var(--bg-glass);
-            color: var(--text-primary);
-            margin-right: auto;
-            border-bottom-left-radius: 4px;
-            border: 1px solid var(--border);
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.6;
-            text-align: right;
-            margin-top: 4px;
-        }
-
-        .message-content {
-            white-space: pre-wrap;
-        }
-
-        /* Typing Indicator */
-        .typing-dots {
-            display: flex;
-            gap: 6px;
-            padding: 8px 0;
-        }
-
-        .typing-dots span {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .typing-dots span:nth-child(1) { animation-delay: 0s; }
-        .typing-dots span:nth-child(2) { animation-delay: 0.16s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.32s; }
-
-        /* Input Area */
-        .input-area {
-            display: flex;
-            gap: 12px;
-            padding: 16px;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 14px 18px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 15px;
-            font-family: inherit;
-            resize: none;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .chat-input:focus {
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .chat-input:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .chat-input::placeholder {
-            color: #606070;
-        }
-
-        .send-btn {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .send-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .send-btn:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Auth Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: #12121a;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            width: 90%;
-            max-width: 400px;
-            animation: fadeIn 0.3s ease;
-            position: relative;
-        }
-
-        .modal h2 {
-            font-size: 24px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
-            border-color: rgba(102, 126, 234, 0.5);
-        }
-
-        .btn-full {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 8px;
-        }
-
-        .btn-full:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-full:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .google-btn {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .google-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .switch-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .switch-text a {
-            color: var(--accent-cyan);
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 16px; right: 16px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .close-modal:hover {
-            color: #fff;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 16px;
-            font-size: 12px;
-            color: #505060;
-        }
-
-        /* Mobile */
-        @media (max-width: 768px) {
-            .header { padding: 12px 16px; }
-            .logo-text { font-size: 16px; }
-            .nav-links { display: none; }
-            .welcome h1 { font-size: 28px; }
-            .main-container { padding: 16px; }
-            .message { max-width: 90%; }
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        :focus-visible {
-            outline: 2px solid var(--accent-cyan);
-            outline-offset: 2px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MAMTA AI V5 - Self-Healing Autonomous AI Operating System">
+  <meta name="theme-color" content="#0f172a">
+  <title>MAMTA AI V5 - Autonomous OS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: rgba(15, 23, 42, 0.8);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    .logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: bold; }
+    .logo-icon { font-size: 28px; }
+    .v5-badge {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: bold; margin-left: 8px;
+    }
+    nav { display: flex; gap: 20px; }
+    nav a {
+      color: #94a3b8; text-decoration: none; padding: 8px 12px;
+      border-radius: 6px; transition: all 0.3s;
+    }
+    nav a:hover, nav a.active { color: #fff; background: rgba(99, 102, 241, 0.2); }
+    .btn-auth {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white; border: none; padding: 8px 16px;
+      border-radius: 6px; cursor: pointer; font-weight: 500;
+    }
+    main { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-size: 36px; margin-bottom: 12px; }
+    .hero p { font-size: 18px; color: #94a3b8; margin-bottom: 8px; }
+    .subtitle { font-size: 14px; color: #6366f1; font-weight: 500; }
+    .badges { display: flex; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .badge {
+      background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    }
+    .chat-section { max-width: 800px; margin: 0 auto; }
+    .chat-container {
+      background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 16px; overflow: hidden;
+    }
+    .chat-messages {
+      height: 400px; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .chat-input-area {
+      display: flex; gap: 8px; padding: 16px;
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(15, 23, 42, 0.8);
+    }
+    .chat-input-area input {
+      flex: 1; background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #e2e8f0; padding: 12px 16px; border-radius: 8px; font-size: 14px;
+    }
+    .chat-input-area input:focus { outline: none; border-color: #6366f1; }
+    .chat-input-area button {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white; border: none; padding: 12px 24px;
+      border-radius: 8px; cursor: pointer; font-weight: 500;
+    }
+    .message {
+      max-width: 80%; padding: 12px 16px; border-radius: 12px;
+      font-size: 14px; line-height: 1.5;
+    }
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+    .message.ai {
+      align-self: flex-start;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    .system-status-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 8px 16px; font-size: 12px; z-index: 1000;
+      backdrop-filter: blur(10px); display: flex; align-items: center; gap: 12px;
+    }
+    .command-hint {
+      position: absolute; bottom: 80px; left: 16px;
+      background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px; padding: 12px; font-size: 12px; max-width: 320px;
+      display: none; z-index: 100;
+    }
+    .command-hint.visible { display: block; }
+    .command-hint code {
+      background: rgba(99, 102, 241, 0.2); padding: 2px 4px;
+      border-radius: 3px; color: #a5b4fc; font-family: monospace;
+    }
+    .engine-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 4px; }
+    .engine-dot.error { background: #ef4444; }
+    .engine-dot.warn { background: #f59e0b; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulsing { animation: pulse 2s infinite; }
+  </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
-    <div class="stars"></div>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">🧠</div>
-            <div class="logo-text">MAMTA AI</div>
-        </div>
-
-        <nav class="nav-links" role="navigation" aria-label="Main navigation">
-            <a href="index.html" class="nav-btn active" aria-current="page">🏠 Chat</a>
-            <a href="workspace.html" class="nav-btn">💻 Workspace</a>
-            <a href="safedrop.html" class="nav-btn">🔒 SafeDrop</a>
-        </nav>
-
-        <div class="auth-section">
-            <span id="user-info" role="status" aria-live="polite"></span>
-            <button id="auth-btn" class="btn-primary" aria-label="Sign In">Sign In</button>
-        </div>
-    </header>
-
-    <!-- Main -->
-    <main class="main-container">
-        <div class="welcome" id="welcome-section">
-            <h1>Welcome to MAMTA AI</h1>
-            <p>Your intelligent companion for coding, planning, and problem-solving. Start a conversation below!</p>
-            <div class="quick-actions">
-                <button class="quick-btn" data-action="code">💻 Write Code</button>
-                <button class="quick-btn" data-action="plan">📋 Plan Project</button>
-                <button class="quick-btn" data-action="debug">🐛 Debug Error</button>
-                <button class="quick-btn" data-action="explain">📚 Explain</button>
-            </div>
-        </div>
-
-        <div class="chat-area">
-            <div class="chat-container" id="chat-container" role="log" aria-live="polite" aria-label="Chat messages"></div>
-
-            <div class="input-area">
-                <textarea 
-                    class="chat-input" 
-                    id="chat-input" 
-                    rows="1" 
-                    placeholder="Type your message... (Press Enter to send)"
-                    aria-label="Chat message input"
-                ></textarea>
-                <button class="send-btn" id="send-btn" aria-label="Send message">➤</button>
-            </div>
-        </div>
-    </main>
-
-    <footer class="footer">
-        MAMTA AI v4.0 — Documentation is Memory • GitHub is Truth
-    </footer>
-
-    <!-- Auth Modal -->
-    <div class="modal-overlay" id="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-        <div class="modal" style="position: relative;">
-            <button class="close-modal" onclick="closeAuthModal()" aria-label="Close modal">×</button>
-            <h2 id="auth-title">Sign In</h2>
-
-            <div id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
-                </div>
-                <button class="btn-full" id="login-btn" onclick="handleLogin()">Sign In</button>
-            </div>
-
-            <div id="signup-form" style="display: none;">
-                <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="••••••••" autocomplete="new-password">
-                </div>
-                <div class="form-group">
-                    <label for="signup-name">Your Name</label>
-                    <input type="text" id="signup-name" placeholder="John Doe" autocomplete="name">
-                </div>
-                <button class="btn-full" id="signup-btn" onclick="handleSignup()">Sign Up</button>
-            </div>
-
-            <button class="google-btn" onclick="handleGoogleAuth()">
-                <span>🔍</span> Continue with Google
-            </button>
-
-            <div class="switch-text">
-                <span id="switch-text">Don't have an account? <a onclick="switchAuthMode('signup')">Sign Up</a></span>
-            </div>
-        </div>
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🧠</span>
+      <span>MAMTA AI</span>
+      <span class="v5-badge">V5 AUTONOMOUS</span>
     </div>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="workspace.html">Workspace</a>
+      <a href="safedrop.html">SafeDrop</a>
+    </nav>
+    <button class="btn-auth" id="auth-btn">Sign In</button>
+  </header>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="error-handler.js"></script>
-    <script src="ai-service-v4.js"></script>
-    <script src="firestore-v4.js"></script>
-    <script src="app-v4.js"></script>
+  <main>
+    <section class="hero">
+      <h1>Namaste! 🙏</h1>
+      <p>Main aapka <strong>MAMTA AI V5</strong> assistant hoon.</p>
+      <p class="subtitle">Self-Healing Autonomous AI Operating System</p>
+      <div class="badges">
+        <span class="badge">🤖 Autonomous</span>
+        <span class="badge">🧠 Self-Learning</span>
+        <span class="badge">🔧 Self-Healing</span>
+        <span class="badge">🚀 Auto-Deploy</span>
+        <span class="badge">👥 Multi-Agent</span>
+      </div>
+    </section>
 
-    <script>
-        // Quick action handlers
-        document.querySelectorAll('.quick-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const action = this.getAttribute('data-action');
-                const texts = {
-                    code: 'Help me write code for ',
-                    plan: 'Plan a project for ',
-                    debug: 'Debug this error: ',
-                    explain: 'Explain this concept: '
-                };
-                const input = document.getElementById('chat-input');
-                if (input) {
-                    input.value = texts[action] || '';
-                    input.focus();
-                }
-            });
-        });
+    <section class="chat-section">
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+          <div class="message ai">
+            <strong>🧠 MAMTA AI V5</strong><br>
+            Welcome! I am now an Autonomous AI Operating System.<br><br>
+            <strong>System Commands:</strong> Type <code>/help</code> to see all commands.<br>
+            <strong>Autonomous Mode:</strong> Type <code>/auto</code> to toggle self-running mode.<br><br>
+            Kya main aapki madad kar sakta hoon?
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Type /help for commands or ask anything..." autocomplete="off">
+          <button id="send-btn">Send</button>
+        </div>
+        <div class="command-hint" id="command-hint">
+          <strong>🎛️ System Commands:</strong><br><br>
+          <code>/plan &lt;goal&gt;</code> - Create project plan<br>
+          <code>/build &lt;name&gt;</code> - Generate project<br>
+          <code>/review &lt;code&gt;</code> - Review code<br>
+          <code>/status</code> - System status<br>
+          <code>/agents</code> - List AI agents<br>
+          <code>/deploy</code> - Create version<br>
+          <code>/heal</code> - System diagnosis<br>
+          <code>/learn</code> - Learning metrics<br>
+          <code>/auto</code> - Toggle autonomous mode<br>
+          <code>/help</code> - Show all commands
+        </div>
+      </div>
+    </section>
+  </main>
 
-        // Handle login
-        async function handleLogin() {
-            const btn = document.getElementById('login-btn');
-            btn.disabled = true;
-            btn.textContent = 'Signing In...';
+  <div class="system-status-bar" id="system-status-panel">
+    <span class="v5-badge">V5</span>
+    <span id="status-text">Initializing engines...</span>
+  </div>
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+  <!-- V4 Core -->
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="ai-service.js"></script>
+  <script src="firestore.js"></script>
+  <script src="storage.js"></script>
+  <script src="security.js"></script>
+  <script src="error-handler.js"></script>
+  <script src="app.js"></script>
 
-            if (!email || !password) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast('Please enter email and password', 'warning');
-                }
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
-                return;
-            }
+  <!-- V5 Engines -->
+  <script src="engines/engine-core.js"></script>
+  <script src="engines/engine-memory.js"></script>
+  <script src="engines/engine-planner.js"></script>
+  <script src="engines/engine-builder.js"></script>
+  <script src="engines/engine-reviewer.js"></script>
+  <script src="engines/engine-repair.js"></script>
+  <script src="engines/engine-learning.js"></script>
+  <script src="engines/engine-monitor.js"></script>
+  <script src="engines/engine-deployment.js"></script>
+  <script src="engines/engine-evolution.js"></script>
+  <script src="engines/engine-orchestrator.js"></script>
 
-            try {
-                if (window.authService) {
-                    await window.authService.signIn(email, password);
-                    closeAuthModal();
-                    if (window.errorHandler) {
-                        window.errorHandler.showToast('Welcome back! 🎉', 'success');
-                    }
-                }
-            } catch (error) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast(error.message, 'error');
-                }
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
-            }
+  <!-- V5 Services -->
+  <script src="services/service-memory.js"></script>
+  <script src="services/service-planner.js"></script>
+  <script src="services/service-builder.js"></script>
+  <script src="services/service-reviewer.js"></script>
+  <script src="services/service-repair.js"></script>
+  <script src="services/service-monitor.js"></script>
+  <script src="services/service-deployment.js"></script>
+  <script src="services/service-knowledge.js"></script>
+  <script src="services/service-learning.js"></script>
+  <script src="services/service-agents.js"></script>
+
+  <!-- V5 Main -->
+  <script src="app-v5.js"></script>
+
+  <script>
+    // Chat functionality
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const sendBtn = document.getElementById('send-btn');
+    const commandHint = document.getElementById('command-hint');
+
+    function addMessage(text, isUser = false) {
+      const div = document.createElement('div');
+      div.className = `message ${isUser ? 'user' : 'ai'}`;
+      div.innerHTML = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      chatInput.value = '';
+      commandHint.classList.remove('visible');
+
+      if (text.startsWith('/') && window.mamtaOS) {
+        const result = await window.mamtaOS.handleCommand(text);
+        addMessage(`<strong>🎛️ System</strong><br>${result.message}`);
+        if (result.data) {
+          addMessage(`<strong>📊 Data</strong><br><pre style="font-size:11px;overflow-x:auto;">${JSON.stringify(result.data, null, 2).substring(0, 800)}</pre>`);
         }
+      } else {
+        // Normal AI response
+        addMessage('<strong>🧠 MAMTA AI</strong><br>Processing your request...');
+        setTimeout(() => {
+          const responses = [
+            'Main samajh gaya! Aapki request process ho rahi hai.',
+            'Bilkul! Main aapki madad karunga.',
+            'Achha sawaal! Sochta hoon...',
+            'Main V5 Autonomous OS hoon. Aap kuch bhi bana sakte hain!'
+          ];
+          addMessage(`<strong>🧠 MAMTA AI</strong><br>${responses[Math.floor(Math.random() * responses.length)]}`);
+        }, 1000);
+      }
+    }
 
-        // Handle signup
-        async function handleSignup() {
-            const btn = document.getElementById('signup-btn');
-            btn.disabled = true;
-            btn.textContent = 'Creating Account...';
-
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const name = document.getElementById('signup-name').value;
-
-            if (!email || !password) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast('Please enter email and password', 'warning');
-                }
-                btn.disabled = false;
-                btn.textContent = 'Sign Up';
-                return;
-            }
-
-            if (password.length < 6) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast('Password must be at least 6 characters', 'warning');
-                }
-                btn.disabled = false;
-                btn.textContent = 'Sign Up';
-                return;
-            }
-
-            try {
-                if (window.authService) {
-                    await window.authService.signUp(email, password, name);
-                    closeAuthModal();
-                    if (window.errorHandler) {
-                        window.errorHandler.showToast('Account created! Please check your email. 📧', 'success');
-                    }
-                }
-            } catch (error) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast(error.message, 'error');
-                }
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sign Up';
-            }
-        }
-
-        // Handle Google auth
-        async function handleGoogleAuth() {
-            try {
-                if (window.authService) {
-                    await window.authService.signInWithGoogle();
-                }
-            } catch (error) {
-                if (window.errorHandler) {
-                    window.errorHandler.showToast(error.message, 'error');
-                }
-            }
-        }
-
-        // Switch auth mode
-        function switchAuthMode(mode) {
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-            const authTitle = document.getElementById('auth-title');
-            const switchText = document.getElementById('switch-text');
-
-            if (mode === 'login') {
-                loginForm.style.display = 'block';
-                signupForm.style.display = 'none';
-                authTitle.textContent = 'Sign In';
-                switchText.innerHTML = 'Don't have an account? <a onclick="switchAuthMode('signup')">Sign Up</a>';
-            } else {
-                loginForm.style.display = 'none';
-                signupForm.style.display = 'block';
-                authTitle.textContent = 'Join MAMTA AI';
-                switchText.innerHTML = 'Already have an account? <a onclick="switchAuthMode('login')">Sign In</a>';
-            }
-        }
-
-        // Close modal
-        function closeAuthModal() {
-            const modal = document.getElementById('auth-modal');
-            if (modal) modal.classList.remove('active');
-        }
-
-        // Show modal
-        function showAuthModal(mode) {
-            const modal = document.getElementById('auth-modal');
-            if (modal) {
-                modal.classList.add('active');
-                switchAuthMode(mode);
-            }
-        }
-
-        // Close modal on overlay click
-        document.getElementById('auth-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeAuthModal();
-        });
-
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeAuthModal();
-        });
-    </script>
+    sendBtn.addEventListener('click', handleSend);
+    chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+    chatInput.addEventListener('input', (e) => {
+      commandHint.classList.toggle('visible', e.target.value.startsWith('/'));
+    });
+  </script>
 </body>
 </html>
