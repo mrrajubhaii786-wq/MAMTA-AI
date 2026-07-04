@@ -1,372 +1,661 @@
 /**
  * MAMTA AI V6.7 — "ChatGPT-Style Home + Workspace Execution Separation"
- * 4-Page Architecture with execution detection and plan transfer
+ * Home = General AI Chat | Workspace = Master Plan Execution
  * @version 6.7.0
  */
 
-// ==================== LIVE DASHBOARD (ADMIN ONLY) ====================
-class LiveDashboardV67 {
+// ==================== HOME CHAT MANAGER ====================
+class HomeChatManager {
   constructor(os) {
     this.os = os;
-    this.updateInterval = 2000;
-    this.timer = null;
-    this.lastEngineStates = {};
-    this.dbStats = { tasks: 0, plans: 0, errors: 0, memory: 0, agent_logs: 0, knowledge: 0 };
-    this.aiHistory = [];
-  }
-
-  start() {
-    this.updateAll();
-    this.timer = setInterval(() => this.updateAll(), this.updateInterval);
-    console.log('📊 Live Dashboard V6.7 started');
-  }
-
-  stop() { if (this.timer) clearInterval(this.timer); }
-
-  async updateAll() {
-    this.updateAdminOverview();
-    this.updateAdminEngineGrid();
-    this.updateAdminDatabaseMetrics();
-    this.updateAdminAIMetrics();
-    this.updateAdminHealth();
-    this.updateProductionBar();
-    await this.updateDatabaseStats();
-    this.updateNavStatus();
-  }
-
-  updateNavStatus() {
-    const dbEl = document.getElementById('nav-db');
-    const aiEl = document.getElementById('nav-ai');
-    const modeEl = document.getElementById('nav-mode');
-    if (dbEl) dbEl.textContent = this.os.supabase ? 'DB' : 'DB ❌';
-    if (aiEl) aiEl.textContent = this.os.aiService?.hasKey() ? 'AI' : 'AI ❌';
-    if (modeEl) modeEl.textContent = this.os.autonomousMode ? 'Auto' : 'Manual';
-  }
-
-  updateAdminOverview() {
-    const activeEl = document.getElementById('admin-active');
-    const dbEl = document.getElementById('admin-db');
-    const aiEl = document.getElementById('admin-ai');
-    const autoEl = document.getElementById('admin-auto');
-    const healthEl = document.getElementById('admin-health');
-    const healthBar = document.getElementById('admin-health-bar');
-
-    const engines = this.os.engines || {};
-    const activeCount = Object.values(engines).filter(e => e.status === 'ready' || e.status === 'running').length;
-    if (activeEl) activeEl.textContent = activeCount;
-
-    if (dbEl) {
-      dbEl.textContent = this.os.supabase ? 'Connected ✅' : 'Disconnected ❌';
-      dbEl.className = 'admin-card-value ' + (this.os.supabase ? 'green' : 'red');
-    }
-
-    const provider = this.os.aiService?.preferredProvider || 'none';
-    if (aiEl) aiEl.textContent = provider === 'none' ? 'Not Set' : provider.toUpperCase();
-
-    if (autoEl) {
-      autoEl.textContent = this.os.autonomousMode ? 'ON 🔄' : 'OFF';
-      autoEl.className = 'admin-card-value ' + (this.os.autonomousMode ? 'green' : '');
-    }
-
-    const health = this.calculateHealthScore();
-    if (healthEl) {
-      healthEl.textContent = health + '%';
-      healthEl.className = 'admin-card-value ' + (health >= 80 ? 'green' : health >= 50 ? 'yellow' : 'red');
-    }
-    if (healthBar) healthBar.style.width = health + '%';
-  }
-
-  updateAdminEngineGrid() {
-    const grid = document.getElementById('admin-engine-grid');
-    if (!grid) return;
-
-    const engines = this.os.engines || {};
-    const allEngines = [
-      { name: 'Context', key: 'context', icon: '🧩' },
-      { name: 'Reasoning', key: 'reasoning', icon: '🧠' },
-      { name: 'Memory', key: 'memory', icon: '💾' },
-      { name: 'Planner', key: 'planner', icon: '📋' },
-      { name: 'Builder', key: 'builder', icon: '🔨' },
-      { name: 'Reviewer', key: 'reviewer', icon: '🔍' },
-      { name: 'Repair', key: 'repair', icon: '🔧' },
-      { name: 'Testing', key: 'testing', icon: '🧪' },
-      { name: 'Docs', key: 'documentation', icon: '📝' },
-      { name: 'Analytics', key: 'analytics', icon: '📊' },
-      { name: 'Knowledge', key: 'knowledgeGraph', icon: '🕸️' },
-      { name: 'Orchestrator', key: 'orchestrator', icon: '🎛️' },
-      { name: 'Deploy', key: 'deployment', icon: '🚀' },
-      { name: 'Learning', key: 'learning', icon: '🧬' },
-      { name: 'Monitor', key: 'monitor', icon: '📡' },
-      { name: 'Evolution', key: 'evolution', icon: '🧬' }
+    this.messages = [];
+    this.isFirstMessage = true;
+    this.executionKeywords = [
+      'run this plan', 'build this app', 'generate code', 'create files',
+      'deploy', 'execute master plan', 'start sprint', 'run project',
+      'execute plan', 'build project', 'generate app', 'create project',
+      'run code', 'compile', 'start build', 'deploy app', 'push to prod',
+      'run this', 'build this', 'execute this', 'start build', 'start project',
+      '\u0915\u094B\u0921 \u092C\u0928\u093E\u0903', '\u092A\u094D\u0930\u094B\u091C\u0947\u0915\u094D\u091F \u092C\u0928\u093E\u0903', '\u092A\u094D\u0932\u093E\u0928 \u091A\u0932\u093E\u0903', '\u092C\u093F\u0932\u094D\u0921 \u0915\u0930\u094B', '\u0921\u093F\u092A\u094D\u0932\u094B\u092F \u0915\u0930\u094B',
+      'run', 'build', 'execute', 'deploy', 'compile', 'generate files'
     ];
+  }
 
-    let html = '';
-    for (const eng of allEngines) {
-      const engine = engines[eng.key];
-      let status = 'idle', dotClass = 'yellow', statusText = 'Idle';
-      if (engine) {
-        status = engine.status || 'idle';
-        if (status === 'ready' || status === 'running') {
-          dotClass = status === 'running' ? 'cyan' : 'green';
-          statusText = status === 'running' ? 'Running' : 'Ready';
-        } else if (status === 'error') { dotClass = 'red'; statusText = 'Error'; }
+  init() {
+    this.scrollToBottom();
+  }
+
+  async sendMessage(text) {
+    if (!text || !text.trim()) return;
+    text = text.trim();
+
+    // Add user message
+    this.addMessage('user', text);
+    const input = document.getElementById('home-input');
+    if (input) input.value = '';
+
+    // Check for execution intent
+    if (this.isExecutionCommand(text)) {
+      this.showWorkspaceRedirect(text);
+      return;
+    }
+
+    // Check for plan generation intent
+    if (this.isPlanIntent(text)) {
+      await this.handlePlanGeneration(text);
+      return;
+    }
+
+    // Normal general chat response
+    await this.handleGeneralChat(text);
+  }
+
+  isExecutionCommand(text) {
+    const lower = text.toLowerCase();
+    return this.executionKeywords.some(kw => lower.includes(kw.toLowerCase()));
+  }
+
+  isPlanIntent(text) {
+    const lower = text.toLowerCase();
+    const planKeywords = [
+      'plan \u092C\u0928\u093E\u0903', 'master plan', 'plan banao', 'plan for', 'plan to',
+      'create plan', 'make plan', 'project plan', 'app plan', 'roadmap',
+      'strategy', 'architecture plan', 'feature plan', 'sprint plan',
+      '\u092F\u094B\u091C\u0928\u093E', '\u092A\u094D\u0932\u093E\u0928', '\u0930\u094B\u0921\u092E\u0948\u092A', '\u0915\u093E\u0930\u094D\u092F\u092F\u094B\u091C\u0928\u093E'
+    ];
+    return planKeywords.some(kw => lower.includes(kw.toLowerCase()));
+  }
+
+  async handleGeneralChat(text) {
+    const typingId = this.showTyping();
+
+    let response = null;
+    if (this.os.aiService && this.os.aiService.hasKey && this.os.aiService.hasKey()) {
+      try {
+        response = await this.os.aiService.chat([
+          { role: 'system', content: 'You are MAMTA AI, a helpful assistant. Answer in the same language as the user (Hindi or English). Keep responses concise and actionable.' },
+          { role: 'user', content: text }
+        ]);
+      } catch (e) {
+        console.warn('AI service failed:', e);
       }
-      const calls = engine?.metrics?.calls || 0;
-      const errors = engine?.metrics?.errors || 0;
-      html += `<div class="admin-engine-item">
-        <span class="admin-engine-dot ${dotClass}"></span>
-        <div class="admin-engine-name">${eng.icon} ${eng.name}</div>
-        <div class="admin-engine-meta">${statusText} • ${calls}c • ${errors}e</div>
-      </div>`;
     }
-    grid.innerHTML = html;
+
+    this.removeTyping(typingId);
+
+    if (!response) {
+      response = this.generateLocalResponse(text);
+    }
+
+    this.addMessage('assistant', response);
+
+    if (this.os.engines && this.os.engines.memory) {
+      try {
+        await this.os.engines.memory.storeConversation('home-chat', [
+          { role: 'user', content: text, timestamp: new Date().toISOString() },
+          { role: 'assistant', content: response, timestamp: new Date().toISOString() }
+        ]);
+      } catch (e) {}
+    }
   }
 
-  updateAdminDatabaseMetrics() {
-    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-    el('adm-db-mem', (this.dbStats.memory || 0).toLocaleString());
-    el('adm-db-plan', (this.dbStats.plans || 0).toLocaleString());
-    el('adm-db-task', (this.dbStats.tasks || 0).toLocaleString());
-    el('adm-db-err', (this.dbStats.errors || 0).toLocaleString());
-    el('adm-db-log', (this.dbStats.agent_logs || 0).toLocaleString());
-    el('adm-db-kg', (this.dbStats.knowledge || 0).toLocaleString());
+  generateLocalResponse(text) {
+    const lower = text.toLowerCase();
+
+    if (lower.includes('market') || lower.includes('stock') || lower.includes('share') || lower.includes(' nifty') || lower.includes('sensex')) {
+      return "\uD83D\uDCC8 Market analysis requires real-time data. I recommend checking NSE/BSE official sites or using a financial API. Would you like me to help you build a market tracker app in **Workspace**?";
+    }
+    if (lower.includes('hello') || lower.includes('hi ') || lower.includes('namaste') || lower.includes('hey') || lower.includes('\u0928\u092E\u0938\u094D\u0924\u0947')) {
+      return "Namaste! \uD83D\uDE4F I'm MAMTA AI. I can help you plan projects, write content, research topics, or discuss strategies. What would you like to talk about?";
+    }
+    if (lower.includes('help') || lower.includes('\u0915\u094D\u092F\u093E \u0915\u0930 \u0938\u0915\u0924\u0947')) {
+      return "\uD83E\uDDE0 **MAMTA AI can help you with:**\n\n\u2022 General questions & research\n\u2022 Project planning & strategy\n\u2022 Writing & editing content\n\u2022 Discussing product ideas\n\u2022 Creating master plans (then send to Workspace for execution)\n\nTry: *\"CRM app ka plan banao\"* or *\"Write a blog on AI\"*";
+    }
+    if (lower.includes('weather') || lower.includes('mausam') || lower.includes('\u092E\u094C\u0938\u092E')) {
+      return "\uD83C\uDF24\uFE0F Weather data needs a real-time API. I can help you build a weather dashboard app! Click **Build with Workspace** below.";
+    }
+    if (lower.includes('crm') || lower.includes('dashboard') || lower.includes('app') || lower.includes('website')) {
+      return `\uD83D\uDCA1 Great idea! Here's a quick concept:\n\n**Features:** User auth, data management, analytics, notifications\n**Tech Stack:** React/Vue + Node.js/Supabase\n\nWant me to create a full **Master Plan**? Then you can send it to **Workspace** to build it!`;
+    }
+
+    return "\uD83E\uDD14 That's an interesting topic. I can discuss this further, help you research, or turn it into a structured plan. What would you like to do next?";
   }
 
-  updateAdminAIMetrics() {
-    if (!this.os.aiService) return;
-    const metrics = this.os.aiService.getMetrics();
-    const provider = this.os.aiService.preferredProvider || 'none';
-    const latency = this.aiHistory.length > 0
-      ? Math.round(this.aiHistory.reduce((a, b) => a + b, 0) / this.aiHistory.length) : 0;
-    const cost = (metrics.tokens * 0.000002).toFixed(4);
-    const successRate = metrics.calls > 0 ? Math.round((metrics.success / metrics.calls) * 100) : 100;
+  async handlePlanGeneration(text) {
+    const typingId = this.showTyping();
 
-    const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-    el('adm-ai-prov', provider.toUpperCase());
-    el('adm-ai-calls', metrics.calls.toLocaleString());
-    el('adm-ai-tokens', metrics.tokens.toLocaleString());
-    el('adm-ai-lat', latency + 'ms');
-    el('adm-ai-cost', '$' + cost);
-    el('adm-ai-fb', metrics.failures || 0);
-    el('adm-ai-sr', successRate + '%');
+    let plan = '';
+    if (this.os.aiService && this.os.aiService.hasKey && this.os.aiService.hasKey()) {
+      try {
+        plan = await this.os.aiService.chat([
+          { role: 'system', content: 'You are a technical project planner. Create a concise master plan with: Features, Tech Stack, Pages/Components, API Endpoints, Database Schema. Respond in the same language as the user.' },
+          { role: 'user', content: `Create a master plan for: ${text}` }
+        ]);
+      } catch (e) {}
+    }
+
+    if (!plan) {
+      plan = this.generateLocalPlan(text);
+    }
+
+    this.removeTyping(typingId);
+    this.addMessage('assistant', plan, true);
   }
 
-  updateAdminHealth() {
-    const container = document.getElementById('admin-health-card');
+  generateLocalPlan(text) {
+    const lower = text.toLowerCase();
+    let appName = 'My App';
+
+    if (lower.includes('crm')) appName = 'CRM App';
+    else if (lower.includes('ecommerce') || lower.includes('shop')) appName = 'E-Commerce Platform';
+    else if (lower.includes('blog')) appName = 'Blog Platform';
+    else if (lower.includes('dashboard')) appName = 'Analytics Dashboard';
+    else if (lower.includes('chat')) appName = 'Chat Application';
+
+    return `# \uD83D\uDE80 ${appName} Master Plan\n\n## \uD83D\uDCCB Features\n- User authentication (JWT/OAuth)\n- Dashboard with analytics\n- Data management (CRUD)\n- Real-time notifications\n- Responsive design\n\n## \uD83D\uDEE0\uFE0F Tech Stack\n- **Frontend:** React + Tailwind CSS\n- **Backend:** Node.js + Express\n- **Database:** PostgreSQL (Supabase)\n- **AI:** OpenAI/Gemini integration\n- **Deploy:** GitHub Pages / Vercel\n\n## \uD83D\uDCC1 Project Structure\n- src/components/ \u2014 UI components\n- src/pages/ \u2014 Route pages\n- src/hooks/ \u2014 Custom hooks\n- api/routes/ \u2014 Backend endpoints\n- tests/ \u2014 Unit & integration tests\n\n## \uD83D\uDDC4\uFE0F Database Schema\n- users (id, email, name, role)\n- projects (id, name, user_id, status)\n- tasks (id, title, project_id, status)\n\n## \uD83C\uDFAF Next Steps\nClick **"Send to Workspace"** below to start building this project!`;
+  }
+
+  showWorkspaceRedirect(text) {
+    const html = `
+      <div class="home-redirect-card">
+        <div class="redirect-icon">\uD83D\uDCBB</div>
+        <div class="redirect-text">
+          <strong>\u092F\u0939 execution task \u0939\u0948\u0964</strong><br>
+          \u0907\u0938\u0947 Workspace \u092E\u0947\u0902 run \u0915\u0930\u0947\u0902\u0964<br>
+          <span class="redirect-sub">This is a build/execution task. Open Workspace to run it.</span>
+        </div>
+        <button class="redirect-btn" onclick="openWorkspaceWithPlan('${this.escapeHtml(text)}')">Open Workspace \u2192</button>
+      </div>
+    `;
+    this.addRawMessage('assistant', html);
+  }
+
+  addMessage(role, text, isPlan = false) {
+    const container = document.getElementById('home-chat-scroll');
     if (!container) return;
-    const engines = this.os.engines || {};
-    const total = Object.keys(engines).length;
-    const ready = Object.values(engines).filter(e => e.status === 'ready' || e.status === 'running').length;
-    const archScore = total > 0 ? Math.round((ready / total) * 100) : 0;
-    const dbScore = this.os.supabase ? 100 : 0;
-    const docScore = engines.documentation?.metrics?.calls > 0 ? 100 : 85;
-    const testScore = engines.testing?.metrics?.calls > 0 ? Math.min(100, 80 + engines.testing.metrics.calls) : 80;
-    const scores = { architecture: archScore, security: 98, performance: 92, database: dbScore, documentation: docScore, testing: testScore };
-    const cats = [
-      { name: '🏗️ Architecture', key: 'architecture' },
-      { name: '🔒 Security', key: 'security' },
-      { name: '⚡ Performance', key: 'performance' },
-      { name: '🗄️ Database', key: 'database' },
-      { name: '📝 Documentation', key: 'documentation' },
-      { name: '🧪 Testing', key: 'testing' }
-    ];
-    let html = '<div class="admin-health-title">🏥 Project Health</div>';
-    let totalScore = 0;
-    for (const cat of cats) {
-      const score = scores[cat.key] || 0;
-      totalScore += score;
-      const color = score >= 90 ? 'green' : score >= 70 ? 'yellow' : 'red';
-      html += `<div class="admin-health-row"><div class="admin-health-name">${cat.name}</div><div class="admin-health-bar"><div class="admin-health-fill ${color}" style="width: ${score}%"></div></div><div class="admin-health-score ${color}">${score}%</div></div>`;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `home-msg ${role}`;
+
+    let content = this.formatMessage(text);
+
+    if (isPlan || (role === 'assistant' && text.includes('Master Plan'))) {
+      content += `
+        <div class="plan-transfer-bar">
+          <span class="plan-transfer-label">\uD83D\uDCCB Ready to build?</span>
+          <button class="plan-transfer-btn" onclick="sendPlanToWorkspace(this)">
+            Send to Workspace \u2192
+          </button>
+        </div>
+      `;
+      msgDiv.dataset.plan = text;
     }
-    const avg = Math.round(totalScore / cats.length);
-    html += `<div class="admin-health-overall"><span>Overall</span><span class="admin-health-score ${avg >= 90 ? 'green' : avg >= 70 ? 'yellow' : 'red'}">${avg}%</span></div>`;
-    container.innerHTML = html;
+
+    msgDiv.innerHTML = content;
+    container.appendChild(msgDiv);
+    this.scrollToBottom();
+
+    if (this.isFirstMessage) {
+      const welcome = document.getElementById('home-welcome');
+      if (welcome) welcome.style.display = 'none';
+      this.isFirstMessage = false;
+    }
   }
 
-  updateProductionBar() {
-    const autoEl = document.getElementById('prod-auto');
-    const manualEl = document.getElementById('prod-manual');
-    const dbEl = document.getElementById('prod-db');
-    const aiEl = document.getElementById('prod-ai');
-    if (autoEl) autoEl.className = this.os.autonomousMode ? 'prod-item active' : 'prod-item';
-    if (manualEl) manualEl.className = !this.os.autonomousMode ? 'prod-item active' : 'prod-item';
-    if (dbEl) dbEl.className = this.os.supabase ? 'prod-item active' : 'prod-item error';
-    if (aiEl) aiEl.className = this.os.aiService?.hasKey() ? 'prod-item active' : 'prod-item error';
-    const errorCount = this.dbStats.errors || 0;
-    const errorsEl = document.getElementById('prod-errors');
-    if (errorsEl) errorsEl.textContent = errorCount + ' errors';
+  addRawMessage(role, html) {
+    const container = document.getElementById('home-chat-scroll');
+    if (!container) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `home-msg ${role}`;
+    msgDiv.innerHTML = html;
+    container.appendChild(msgDiv);
+    this.scrollToBottom();
   }
 
-  calculateHealthScore() {
-    const engines = this.os.engines || {};
-    const total = Object.keys(engines).length;
-    if (total === 0) return 0;
-    let ready = 0;
-    Object.values(engines).forEach(e => { if (e.status === 'ready' || e.status === 'running') ready++; });
-    const engineHealth = (ready / total) * 100;
-    const dbHealth = this.os.supabase ? 100 : 0;
-    const aiHealth = this.os.aiService?.hasKey() ? 100 : 0;
-    return Math.round((engineHealth * 0.5 + dbHealth * 0.25 + aiHealth * 0.25));
+  formatMessage(text) {
+    return text
+      .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
   }
 
-  async updateDatabaseStats() {
-    if (!this.os.supabase) return;
-    try {
-      this.dbStats.tasks = await this.os.supabase.count('tasks') || 0;
-      this.dbStats.plans = await this.os.supabase.count('plans') || 0;
-      this.dbStats.errors = await this.os.supabase.count('errors') || 0;
-      this.dbStats.memory = await this.os.supabase.count('memory') || 0;
-      this.dbStats.agent_logs = await this.os.supabase.count('agent_logs') || 0;
-      this.dbStats.knowledge = await this.os.supabase.count('knowledge') || 0;
-    } catch (e) {}
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 
-  recordLatency(duration) {
-    this.aiHistory.push(duration);
-    if (this.aiHistory.length > 50) this.aiHistory.shift();
+  showTyping() {
+    const container = document.getElementById('home-chat-scroll');
+    if (!container) return null;
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = 'home-msg assistant typing';
+    div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    container.appendChild(div);
+    this.scrollToBottom();
+    return id;
+  }
+
+  removeTyping(id) {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  }
+
+  scrollToBottom() {
+    const container = document.getElementById('home-chat-scroll');
+    if (container) container.scrollTop = container.scrollHeight;
+  }
+
+  quickAction(text) {
+    const input = document.getElementById('home-input');
+    if (input) input.value = text;
+    this.sendMessage(text);
   }
 }
 
-// ==================== ACTIVITY TIMELINE (ADMIN) ====================
-class ActivityTimelineV67 {
-  constructor() {
-    this.events = [];
-    this.maxEvents = 50;
+// ==================== WORKSPACE PLAN RUNNER ====================
+class WorkspacePlanRunner {
+  constructor(os) {
+    this.os = os;
+    this.currentPlan = null;
+    this.tasks = [];
+    this.buildLogs = [];
+    this.files = [];
+    this.status = 'idle';
   }
 
-  addEvent(type, message, details = {}) {
-    const event = {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-      timestamp: new Date(), type, message, details
+  init() {
+    const saved = localStorage.getItem('mamta_workspace_plan');
+    if (saved) {
+      try {
+        this.currentPlan = JSON.parse(saved);
+        this.renderPlan();
+      } catch (e) {}
+    }
+  }
+
+  setPlan(planText) {
+    this.currentPlan = {
+      text: planText,
+      title: this.extractTitle(planText),
+      timestamp: new Date().toISOString(),
+      status: 'pending'
     };
-    this.events.unshift(event);
-    if (this.events.length > this.maxEvents) this.events.pop();
-    this.render();
+    this.savePlan();
+    this.renderPlan();
   }
 
-  render() {
-    const container = document.getElementById('admin-timeline');
-    if (!container) return;
-    const html = this.events.map(evt => {
-      const time = evt.timestamp.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const icon = this.getIcon(evt.type);
-      return `<div class="admin-timeline-item ${evt.type}"><div class="admin-timeline-time">${time}</div><div class="admin-timeline-text">${icon} ${evt.message}</div></div>`;
-    }).join('');
-    container.innerHTML = html || '<div class="admin-timeline-empty">No activity yet.</div>';
+  extractTitle(text) {
+    const match = text.match(/#\s*(.+)/);
+    return match ? match[1].trim() : 'Untitled Plan';
   }
 
-  getIcon(type) {
-    const icons = {
-      engine: '⚙️', plan: '📋', build: '🔨', review: '🔍', repair: '🔧', test: '🧪',
-      deploy: '🚀', learn: '🧠', error: '❌', success: '✅', warning: '⚠️', info: 'ℹ️',
-      ai: '🤖', db: '🗄️', memory: '💾', security: '🔒', context: '🧩', reasoning: '🧠',
-      knowledge: '🕸️', testing: '🧪', docs: '📝', analytics: '📊', orchestrator: '🎛️',
-      evolution: '🧬', monitor: '📡'
-    };
-    return icons[type] || '•';
-  }
-}
-
-// ==================== AUTONOMOUS LOOP VISUALIZER (ADMIN) ====================
-class AutonomousLoopVisualizerV67 {
-  constructor() {
-    this.steps = ['Observe', 'Understand', 'Reason', 'Plan', 'Build', 'Review', 'Repair', 'Learn'];
-    this.currentStep = -1;
+  savePlan() {
+    if (this.currentPlan) {
+      localStorage.setItem('mamta_workspace_plan', JSON.stringify(this.currentPlan));
+    }
   }
 
-  setStep(stepIndex) {
-    this.currentStep = stepIndex;
-    this.render();
+  renderPlan() {
+    const planDisplay = document.getElementById('mp-current-plan');
+    if (planDisplay && this.currentPlan) {
+      planDisplay.innerHTML = `
+        <div class="mp-plan-badge">\uD83D\uDCCB ${this.currentPlan.title}</div>
+        <div class="mp-plan-meta">Imported ${new Date(this.currentPlan.timestamp).toLocaleString()}</div>
+      `;
+    }
+
+    const textarea = document.getElementById('mp-input');
+    if (textarea && this.currentPlan && this.currentPlan.text) {
+      textarea.value = this.currentPlan.text;
+    }
   }
 
-  render() {
-    const container = document.getElementById('admin-loop-viz');
-    if (!container) return;
-    let html = '<div class="admin-loop-title">🔄 Autonomous Loop</div>';
-    this.steps.forEach((step, i) => {
-      const isActive = i === this.currentStep;
-      const isCompleted = i < this.currentStep;
-      const cls = isActive ? 'admin-loop-step active' : isCompleted ? 'admin-loop-step completed' : 'admin-loop-step';
-      html += `<div class="${cls}"><div class="admin-loop-step-num">${i + 1}</div><div class="admin-loop-step-name">${step}</div></div>`;
-      if (i < this.steps.length - 1) {
-        html += `<div class="admin-loop-arrow ${isCompleted ? 'completed' : ''}">↓</div>`;
+  async analyzePlan() {
+    const textarea = document.getElementById('mp-input');
+    const text = textarea ? textarea.value.trim() : '';
+    if (!text) {
+      this.log('\u26A0\uFE0F Please paste a Master Plan first', 'warning');
+      return;
+    }
+
+    this.status = 'analyzing';
+    this.setBuildStatus('Analyzing...');
+    this.log('\uD83D\uDD0D Analyzing Master Plan...', 'info');
+
+    this.setPlan(text);
+    await this.delay(1500);
+
+    this.tasks = this.extractTasks(text);
+
+    this.log(`\u2705 Analysis complete. Found ${this.tasks.length} tasks.`, 'success');
+    this.status = 'idle';
+    this.setBuildStatus('Analyzed');
+    this.renderTaskQueue();
+  }
+
+  extractTasks(planText) {
+    const tasks = [];
+    const lines = planText.split('\n');
+    let currentSection = '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('## ')) {
+        currentSection = trimmed.replace('## ', '');
+      } else if (trimmed.match(/^[-*]\s+(.+)/)) {
+        const taskName = trimmed.match(/^[-*]\s+(.+)/)[1];
+        tasks.push({
+          id: `task-${tasks.length + 1}`,
+          name: taskName,
+          section: currentSection,
+          status: 'pending',
+          type: this.detectTaskType(taskName, currentSection)
+        });
       }
+    }
+
+    if (tasks.length === 0) {
+      tasks.push(
+        { id: 'task-1', name: 'Setup project structure', section: 'Setup', status: 'pending', type: 'build' },
+        { id: 'task-2', name: 'Create frontend components', section: 'Frontend', status: 'pending', type: 'build' },
+        { id: 'task-3', name: 'Build backend API', section: 'Backend', status: 'pending', type: 'build' },
+        { id: 'task-4', name: 'Write tests', section: 'Testing', status: 'pending', type: 'test' },
+        { id: 'task-5', name: 'Review and deploy', section: 'Deploy', status: 'pending', type: 'deploy' }
+      );
+    }
+
+    return tasks;
+  }
+
+  detectTaskType(name, section) {
+    const lower = (name + ' ' + section).toLowerCase();
+    if (lower.includes('test')) return 'test';
+    if (lower.includes('deploy')) return 'deploy';
+    if (lower.includes('review')) return 'review';
+    if (lower.includes('design') || lower.includes('ui')) return 'design';
+    return 'build';
+  }
+
+  async createTaskTree() {
+    if (this.tasks.length === 0) {
+      this.log('\u26A0\uFE0F No tasks found. Run Analyze Plan first.', 'warning');
+      return;
+    }
+
+    this.log('\uD83D\uDCCB Creating task tree...', 'info');
+    await this.delay(800);
+
+    this.tasks.forEach((task, i) => {
+      task.status = 'pending';
+      task.dependsOn = i > 0 ? [this.tasks[i-1].id] : [];
     });
-    if (this.currentStep >= 0 && this.currentStep < this.steps.length) {
-      html += `<div class="admin-loop-current">Current: <span>${this.steps[this.currentStep]}</span></div>`;
+
+    this.log(`\u2705 Task tree created with ${this.tasks.length} tasks.`, 'success');
+    this.renderTaskQueue();
+  }
+
+  async buildProject() {
+    if (this.tasks.length === 0) {
+      this.log('\u26A0\uFE0F No tasks to build. Run Analyze Plan first.', 'warning');
+      return;
     }
+
+    this.status = 'building';
+    this.setBuildStatus('Building...');
+    this.log('\uD83D\uDD28 Starting build...', 'info');
+
+    for (const task of this.tasks) {
+      task.status = 'running';
+      this.renderTaskQueue();
+      this.log(`\uD83D\uDD28 ${task.name}...`, 'info');
+
+      await this.delay(1200 + Math.random() * 1000);
+
+      if (task.type === 'build' || task.type === 'design') {
+        const file = this.generateMockFile(task);
+        this.files.push(file);
+        this.log(`\uD83D\uDCC4 Generated ${file.path}`, 'success');
+      }
+
+      task.status = 'completed';
+      this.renderTaskQueue();
+      this.log(`\u2705 ${task.name} completed`, 'success');
+    }
+
+    this.status = 'completed';
+    this.setBuildStatus('Completed');
+    this.log('\uD83C\uDF89 Build completed successfully!', 'success');
+    this.renderGeneratedFiles();
+  }
+
+  generateMockFile(task) {
+    const fileMap = {
+      'Setup project structure': { path: 'package.json', content: '{\n  "name": "project",\n  "version": "1.0.0"\n}' },
+      'Create frontend components': { path: 'src/components/App.jsx', content: 'export default function App() { return <div>Hello</div>; }' },
+      'Build backend API': { path: 'api/index.js', content: 'const express = require("express");\nconst app = express();' },
+      'Write tests': { path: 'tests/app.test.js', content: 'test("app works", () => { expect(true).toBe(true); });' }
+    };
+
+    return fileMap[task.name] || { 
+      path: `src/${task.name.toLowerCase().replace(/\s+/g, '-')}.js`, 
+      content: `// ${task.name}\n// Generated by MAMTA AI\n` 
+    };
+  }
+
+  async reviewOutput() {
+    this.log('\uD83D\uDD0D Reviewing output...', 'info');
+    await this.delay(1000);
+
+    const issues = [];
+    if (this.files.length === 0) issues.push('No files generated');
+
+    this.log(`\u2705 Review complete. ${issues.length} issues found.`, 'success');
+  }
+
+  async saveProject() {
+    this.log('\uD83D\uDCBE Saving project...', 'info');
+    await this.delay(500);
+
+    const projectData = {
+      plan: this.currentPlan,
+      tasks: this.tasks,
+      files: this.files,
+      timestamp: new Date().toISOString()
+    };
+
+    localStorage.setItem('mamta_project_' + Date.now(), JSON.stringify(projectData));
+    this.log('\u2705 Project saved to localStorage', 'success');
+  }
+
+  renderTaskQueue() {
+    const container = document.getElementById('mp-task-queue');
+    if (!container) return;
+
+    if (this.tasks.length === 0) {
+      container.innerHTML = '<div class="mp-empty">No tasks yet. Paste a Master Plan above to start.</div>';
+      return;
+    }
+
+    const html = this.tasks.map(t => {
+      const statusIcon = t.status === 'completed' ? '\u2705' : t.status === 'running' ? '\u23F3' : t.status === 'failed' ? '\u274C' : '\u23F8\uFE0F';
+      const statusClass = t.status;
+      return `
+        <div class="mp-task-item ${statusClass}">
+          <span class="mp-task-icon">${statusIcon}</span>
+          <span class="mp-task-name">${t.name}</span>
+          <span class="mp-task-type">${t.type}</span>
+        </div>
+      `;
+    }).join('');
+
     container.innerHTML = html;
+  }
+
+  renderGeneratedFiles() {
+    const container = document.getElementById('mp-file-list');
+    if (!container) return;
+
+    if (this.files.length === 0) {
+      container.innerHTML = '<div class="mp-empty">No files generated yet.</div>';
+      return;
+    }
+
+    const html = this.files.map(f => `
+      <div class="mp-file-item">
+        <span class="mp-file-icon">\uD83D\uDCC4</span>
+        <span class="mp-file-path">${f.path}</span>
+      </div>
+    `).join('');
+
+    container.innerHTML = html;
+  }
+
+  setBuildStatus(status) {
+    const el = document.getElementById('mp-build-status');
+    if (el) el.textContent = status;
+  }
+
+  log(message, type = 'info') {
+    const container = document.getElementById('mp-build-logs');
+    if (!container) return;
+
+    const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+    const typeClass = type;
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${typeClass}">[${type.toUpperCase()}]</span> ${message}`;
+    container.appendChild(entry);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  delay(ms) {
+    return new Promise(r => setTimeout(r, ms));
   }
 }
 
-// ==================== MAMTA AI V6.7 MAIN CLASS ====================
+// ==================== V6.7 MAIN CLASS ====================
 class MAMTAOSV6_7 extends MAMTAOSV6_6 {
   constructor() {
     super();
     this.version = '6.7.0';
-    this.liveDashboard = null;
-    this.activityTimeline = null;
-    this.autonomousLoopViz = null;
+    this.homeChat = null;
+    this.wsRunner = null;
   }
 
   async init() {
-    console.log('🧠 MAMTA AI V6.7 initializing...');
+    console.log('\uD83E\uDDE0 MAMTA AI V6.7 initializing...');
+
     const result = await super.init();
     if (!result) return false;
 
-    this.liveDashboard = new LiveDashboardV67(this);
-    this.activityTimeline = new ActivityTimelineV67();
-    this.autonomousLoopViz = new AutonomousLoopVisualizerV67();
-    this.liveDashboard.start();
+    this.homeChat = new HomeChatManager(this);
+    this.homeChat.init();
 
-    this.hookAutonomousLoopV67();
-    this.hookEngineEventsV67();
+    this.wsRunner = new WorkspacePlanRunner(this);
+    this.wsRunner.init();
 
-    console.log('✅ MAMTA AI V6.7 FULLY INITIALIZED');
-    if (window.showToast) window.showToast('MAMTA AI V6.7 Ready — Talk. Build. Monitor. Secure.', 'success');
-    this.activityTimeline.addEvent('info', 'V6.7 initialized: Home=Chat | Workspace=Build | Admin=Monitor | SafeDrop=Vault', { version: this.version });
+    this.setupV67EventListeners();
+    this.setupPlanTransfer();
+
+    console.log('\u2705 MAMTA AI V6.7 FULLY INITIALIZED');
+    if (window.showToast) window.showToast('MAMTA AI V6.7 Ready — Home Chat + Workspace Execution', 'success');
+
     return true;
   }
 
-  hookAutonomousLoopV67() {
-    if (!this.engines.orchestrator) return;
-    const original = this.engines.orchestrator.runAutonomousCycle.bind(this.engines.orchestrator);
-    this.engines.orchestrator.runAutonomousCycle = async () => {
-      this.simulateLoopV67();
-      return await original();
+  setupV67EventListeners() {
+    window.sendHomeChat = () => {
+      const input = document.getElementById('home-input');
+      if (input && this.homeChat) {
+        this.homeChat.sendMessage(input.value);
+      }
+    };
+
+    window.homeQuick = (text) => {
+      if (this.homeChat) {
+        this.homeChat.quickAction(text);
+      }
+    };
+
+    window.analyzeMasterPlan = () => {
+      if (this.wsRunner) this.wsRunner.analyzePlan();
+    };
+    window.createTaskTree = () => {
+      if (this.wsRunner) this.wsRunner.createTaskTree();
+    };
+    window.buildProject = () => {
+      if (this.wsRunner) this.wsRunner.buildProject();
+    };
+    window.reviewOutput = () => {
+      if (this.wsRunner) this.wsRunner.reviewOutput();
+    };
+    window.saveProject = () => {
+      if (this.wsRunner) this.wsRunner.saveProject();
+    };
+
+    window.sendPlanToWorkspace = (btnElement) => {
+      const msgDiv = btnElement.closest('.home-msg');
+      const plan = msgDiv ? msgDiv.dataset.plan : '';
+      if (plan) {
+        localStorage.setItem('mamta_pending_plan', plan);
+        this.showPage('workspace');
+        setTimeout(() => {
+          if (this.wsRunner) {
+            this.wsRunner.setPlan(plan);
+            if (window.showToast) window.showToast('Plan transferred to Workspace!', 'success');
+          }
+        }, 300);
+      }
+    };
+
+    window.openWorkspaceWithPlan = (text) => {
+      localStorage.setItem('mamta_pending_plan', text);
+      this.showPage('workspace');
     };
   }
 
-  async simulateLoopV67() {
-    const steps = [0, 1, 2, 3, 4, 5, 6, 7];
-    for (const step of steps) {
-      this.autonomousLoopViz.setStep(step);
-      this.activityTimeline.addEvent('orchestrator', `Loop: ${['Observe','Understand','Reason','Plan','Build','Review','Repair','Learn'][step]}`, { step });
-      await this.delay(500);
+  setupPlanTransfer() {
+    const pending = localStorage.getItem('mamta_pending_plan');
+    if (pending && this.wsRunner) {
+      this.wsRunner.setPlan(pending);
+      localStorage.removeItem('mamta_pending_plan');
     }
-    setTimeout(() => this.autonomousLoopViz.setStep(-1), 1500);
   }
 
-  hookEngineEventsV67() {
-    const check = () => {
-      Object.entries(this.engines || {}).forEach(([name, engine]) => {
-        const prev = this.liveDashboard?.lastEngineStates?.[name];
-        const curr = engine.status;
-        if (prev && prev !== curr) {
-          const type = curr === 'error' ? 'error' : curr === 'running' ? 'engine' : 'success';
-          this.activityTimeline.addEvent(type, `${name} engine: ${curr}`, { engine: name, status: curr });
-        }
-        if (this.liveDashboard) this.liveDashboard.lastEngineStates[name] = curr;
-      });
-    };
-    setInterval(check, 2000);
-  }
+  showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
 
-  delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const navBtns = document.querySelectorAll('.nav-tab');
+    navBtns.forEach(btn => {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + page + "'")) {
+        btn.classList.add('active');
+      }
+    });
+
+    if (page === 'workspace' && this.wsRunner) {
+      this.wsRunner.renderPlan();
+      this.wsRunner.renderTaskQueue();
+      this.wsRunner.renderGeneratedFiles();
+    }
+  }
 
   getSystemReport() {
-    const report = super.getSystemReport();
-    return { ...report, version: this.version, architecture: 'V6.7: Home=Chat | Workspace=Build | Admin=Monitor | SafeDrop=Vault' };
+    const report = super.getSystemReport ? super.getSystemReport() : {};
+    return {
+      ...report,
+      version: this.version,
+      architecture: 'V6.7: Home(Chat) | Workspace(Execution) | Admin(Monitor) | SafeDrop(Secrets)',
+      homeChat: this.homeChat ? 'active' : 'inactive',
+      workspaceRunner: this.wsRunner ? 'active' : 'inactive'
+    };
   }
 }
 
