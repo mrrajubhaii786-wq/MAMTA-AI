@@ -390,10 +390,10 @@
   <nav class="top-nav">
     <div class="logo">MAMTA AI</div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
-      <button class="nav-tab" onclick="showPage('workspace')">💻 Workspace</button>
-      <button class="nav-tab" onclick="showPage('admin')">📊 Admin</button>
-      <button class="nav-tab" onclick="showPage('safedrop')">🔐 SafeDrop</button>
+      <button class="nav-tab active" onclick="showPage('home', this)">🏠 Home</button>
+      <button class="nav-tab" onclick="showPage('workspace', this)">💻 Workspace</button>
+      <button class="nav-tab" onclick="showPage('admin', this)">📊 Admin</button>
+      <button class="nav-tab" onclick="showPage('safedrop', this)">🔐 SafeDrop</button>
     </div>
     <div class="nav-status">
       <div class="nav-pill"><span class="dot green"></span><span id="nav-db">DB</span></div>
@@ -782,12 +782,13 @@ Example:
     // ═══════════════════════════════════════════════════════════════
 
     // ==================== PAGE ROUTING ====================
-    function showPage(name) {
+    function showPage(name, clickedTab) {
       window.location.hash = '#' + name;
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-' + name).classList.add('active');
-      event.target.classList.add('active');
+      const pageEl = document.getElementById('page-' + name);
+      if (pageEl) pageEl.classList.add('active');
+      if (clickedTab) clickedTab.classList.add('active');
 
       const prodBar = document.getElementById('production-bar');
       if (prodBar) prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
