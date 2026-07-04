@@ -1,144 +1,193 @@
-# 🧠 MAMTA AI — Autonomous AI System
+# 🧠 MAMTA AI — Autonomous Intelligence OS
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blueviolet?style=for-the-badge&logo=github)](https://mrrajubhaii786-wq.github.io/MAMTA-AI/)
+[![Version](https://img.shields.io/badge/Version-6.7.0-blue?style=for-the-badge)](https://github.com/mrrajubhaii786-wq/MAMTA-AI)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 > **Think. Plan. Build. Autonomously.**
 
-## 🚀 Overview
+MAMTA AI is a sovereign, autonomous intelligence operating system designed for developers, creators, and AI enthusiasts. It combines conversational AI, project execution, system monitoring, and secure vault management in a single unified interface.
 
-MAMTA AI ek 3-page autonomous AI system hai jo users ko:
-- **AI Chat** se kuch bhi poochne ki suvidha deta hai
-- **Planning Room** se apps/websites plan karne ki ability deta hai
-- **Workspace** mein auto-build karke code generate karta hai
-- **SafeDrop** se end-to-end encrypted data security deta hai
+---
 
-## 📁 Project Structure
+## ✨ Features
+
+### 🏠 Home — Conversational AI
+- **ChatGPT-style interface** for natural conversations
+- **Hindi + English** bilingual support
+- **Smart execution detection** — detects build/plan commands and redirects to Workspace
+- **Quick actions** for common tasks
+- **Master Plan generation** with one-click transfer to Workspace
+
+### 💻 Workspace — Developer IDE
+- **Master Plan Runner** — paste a plan, auto-analyze, create tasks, build
+- **Execution Dashboard** — real-time task queue, build logs, file generation
+- **Task tree visualization** — dependency-aware task execution
+- **Build simulation** with mock file generation
+
+### 📊 Admin — System Monitor
+- **Engine Monitor** — 16 autonomous engines status
+- **AI Metrics** — provider stats, token usage, latency
+- **Project Health** — architecture, security, performance scores
+- **Activity Timeline** — live event tracking
+
+### 🔐 SafeDrop — Security Vault
+- **AES-256 encrypted** API key storage
+- **Password Manager** for service credentials
+- **Project Backup/Restore**
+- **Master Key** protection
+
+---
+
+## 🏗️ Architecture
 
 ```
-MAMTA-AI/
-├── index.html              # 🏠 Home Page (Chat + Planning Room)
-├── workspace.html          # ⚡ Workspace (Developer Studio)
-├── safedrop.html           # 🛡️ SafeDrop (Security Vault)
-├── supabase-config.js      # 🟢 Supabase Configuration
-├── auth.js                 # 🔐 Authentication Service
-├── PostgreSQL.js            # 🗄️ Supabase Database Service
-├── storage.js              # ☁️ Supabase Storage Service
-├── ai-service.js           # 🤖 OpenAI/Gemini API Integration
-├── security.js             # 🔐 Client-Side Encryption Utils
-├── app.js                  # 🚀 Main App Integration
-└── README.md               # 📋 This file
+┌─────────────────────────────────────────┐
+│           🧠 MAMTA AI v6.7              │
+├─────────────┬─────────────┬─────────────┤
+│   🏠 HOME   │  💻 WORKSPACE│  📊 ADMIN   │
+│             │             │             │
+│  Chat AI    │  Plan Runner│  Monitor    │
+│  Plan Gen   │  Task Queue │  Metrics    │
+│  Quick Act  │  Build Logs │  Health     │
+├─────────────┴─────────────┴─────────────┤
+│           🔐 SafeDrop Vault               │
+│     API Keys | Passwords | Backup        │
+└─────────────────────────────────────────┘
 ```
 
-## 🟢 Supabase Setup
+**Motto:** *Talk on Home. Build in Workspace. Monitor in Admin. Secure in SafeDrop.*
 
-### 1. Create Supabase Project
-```bash
-# Go to: https://app.supabase.com/
-# Create new project: "MAMTA-AI"
+---
+
+## 🚀 Quick Start
+
+### 1. Visit Live Site
+```
+https://mrrajubhaii786-wq.github.io/MAMTA-AI/
 ```
 
-### 2. Enable Services
-- **Authentication**: Email/Password, Google, Phone
-- **PostgreSQL Database**: Start in test mode
-- **Storage**: Create default bucket
+### 2. Configure AI Providers (Optional)
+Navigate to **🔐 SafeDrop** → Add your API keys:
+- OpenAI API Key
+- Gemini API Key
+- Supabase Config
 
-### 3. Get Config
-```javascript
-// Copy from Supabase Console → Project Settings → General
-// Paste in Supabase-config.js
-```
+### 3. Start Building
+1. **🏠 Home** → Type your idea → Get Master Plan
+2. Click **"Send to Workspace"**
+3. **💻 Workspace** → Click **"Analyze Plan"** → **"Build Project"**
+4. Watch tasks execute and files generate!
 
-### 4. Update API Key
-```javascript
-// In ai-service.js, add your OpenAI or Gemini API key
-const API_KEY = 'your-api-key-here';
-```
+---
 
-## 🚀 Deployment
+## 📱 Mobile Support
 
-### Option 1: Supabase Hosting (Recommended)
-```bash
-npm install -g Supabase-tools
-Supabase login
-Supabase init hosting
-Supabase deploy
-```
+Fully responsive design with:
+- Fixed bottom chat input (mobile-friendly)
+- Touch-optimized buttons (44px+ tap targets)
+- Collapsible sidebar navigation
+- Optimized for 768px and 480px breakpoints
 
-### Option 2: Vercel
-```bash
-npm i -g vercel
-vercel
-```
-
-### Option 3: Netlify
-```bash
-# Drag and drop folder to netlify.com
-```
-
-## 🔐 Security Features
-
-| Feature | Status |
-|---------|--------|
-| Client-Side Encryption (AES-GCM) | ✅ |
-| Zero-Knowledge Architecture | ✅ |
-| Multi-Factor Authentication | ✅ |
-| Geo-Fencing | ✅ |
-| Honeypot Files | ✅ |
-| Emergency Lock | ✅ |
-| Audit Logging | ✅ |
+---
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | HTML5, CSS3, Vanilla JS |
-| UI Framework | Custom (Glassmorphism + Dark Theme) |
-| Backend | Supabase (Auth, PostgreSQL, Storage) |
-| AI API | OpenAI GPT-4 / Google Gemini |
-| Encryption | Web Crypto API (AES-256-GCM) |
-| Hosting | Vercel / Netlify |
-
-## 📱 Responsive Breakpoints
-
-| Device | Width | Layout |
-|--------|-------|--------|
-| Desktop | >1200px | Full 3-panel |
-| Tablet | 768-1200px | 2-panel |
-| Mobile | <768px | Single column |
-
-## 🎯 Features
-
-### Home Page
-- 🤖 AI Chat with real-time responses
-- 💡 Planning Room with auto-generated plans
-- 🚀 Auto-redirect to Workspace
-- 🌐 Multi-language support (Hindi + English)
-
-### Workspace
-- 💻 Code Editor with syntax highlighting
-- 📱 Live Preview (Mobile/Tablet/Desktop)
-- 🤖 AI Agents (Code, Design, Test, Deploy)
-- 🖥️ Real-time Build Console
-
-### SafeDrop
-- 🔒 End-to-End Encryption
-- 📤 Drag & Drop Upload
-- 🛡️ Active Defense Panel
-- 🚨 Emergency Lock Button
-- 📋 Audit Logs
-
-## 👨‍💻 Developer
-
-**MAMTA AI** — Built with ❤️ for humans.
-
-## 📄 License
-
-MIT License — Free to use, modify, and distribute.
+| **Frontend** | Vanilla HTML5, CSS3, JavaScript |
+| **Styling** | CSS Variables, Flexbox, Grid |
+| **Animations** | CSS Keyframes, SVG SMIL |
+| **Storage** | localStorage (encrypted vault) |
+| **Icons** | Custom SVG |
+| **Fonts** | System fonts + Monospace |
 
 ---
 
-> **Note**: This is a prototype. For production, add:
-> - Rate limiting
-> - Input validation
-> - Error boundaries
-> - Loading states
-> - Accessibility (ARIA)
-> - Unit tests
+## 📁 Project Structure
+
+```
+MAMTA-AI/
+├── index.html          # Main application (single file)
+├── assets/
+│   └── mamta_logo.svg  # MAMTA AI Logo
+├── docs/
+│   └── *.md            # Documentation
+├── app-v6.6.js         # V6.6 Engine (legacy)
+├── app-v6.7.js         # V6.7 Engine (deprecated)
+└── README.md           # This file
+```
+
+> **Note:** V6.7 is fully self-contained in `index.html` with inline JavaScript. No external dependencies required.
+
+---
+
+## 🎨 Logo
+
+The MAMTA AI logo represents **sovereign intelligence**:
+- **Outer ring** — Infinite learning loop
+- **"M" monogram** — MAMTA identity
+- **Diamond center** — Core intelligence
+- **Purple→Cyan gradient** — Creativity → Logic
+
+---
+
+## 🔒 Security
+
+- All API keys stored with **AES-256 encryption**
+- **Browser-only** storage (localStorage)
+- **No server-side** data transmission
+- **Master Key** required for vault access
+
+---
+
+## 📝 Changelog
+
+### v6.7.0 (Current)
+- ✅ ChatGPT-style Home page
+- ✅ Workspace Master Plan Runner
+- ✅ Execution Dashboard with task queue
+- ✅ Plan transfer Home → Workspace
+- ✅ Mobile responsive layout
+- ✅ Professional SVG icons
+- ✅ MAMTA AI Logo (Nav + Home)
+
+### v6.6.0 (Stable)
+- ✅ Admin monitoring dashboards
+- ✅ SafeDrop vault
+- ✅ 16-engine architecture
+- ✅ AI metrics tracking
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open a Pull Request
+
+---
+
+## 📜 License
+
+MIT License — feel free to use, modify, and distribute.
+
+---
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ by the MAMTA AI community
+- Inspired by autonomous AI systems
+- Logo design: Sovereign Intelligence concept
+
+---
+
+<div align="center">
+
+**[🌐 Live Site](https://mrrajubhaii786-wq.github.io/MAMTA-AI/)** • **[📂 GitHub](https://github.com/mrrajubhaii786-wq/MAMTA-AI)** • **[🐛 Issues](https://github.com/mrrajubhaii786-wq/MAMTA-AI/issues)**
+
+*Think. Plan. Build. Autonomously.* 🚀
+
+</div>
