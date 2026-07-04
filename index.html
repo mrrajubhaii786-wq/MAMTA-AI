@@ -383,7 +383,284 @@
       .admin-grid { grid-template-columns: repeat(2, 1fr); }
       .ws-metric-grid { grid-template-columns: 1fr 1fr; }
     }
-  </style>
+  
+/* ==================== V6.7 HOME CHAT STYLES ==================== */
+.home-chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-msg {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  animation: msgAppear 0.3s ease;
+}
+
+.home-msg.user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.home-msg.assistant {
+  align-self: flex-start;
+  background: var(--surface);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.home-msg.system {
+  align-self: center;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+  max-width: 100%;
+  text-align: center;
+}
+
+@keyframes msgAppear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.typing-dots {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.plan-transfer-bar {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.plan-transfer-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.plan-transfer-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.plan-transfer-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.home-redirect-card {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.redirect-icon {
+  font-size: 2rem;
+}
+
+.redirect-text {
+  flex: 1;
+  min-width: 200px;
+}
+
+.redirect-text strong {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.redirect-sub {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.redirect-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.redirect-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ==================== V6.7 WORKSPACE STYLES ==================== */
+.mp-plan-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mp-plan-meta {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.mp-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+
+.mp-task-item.running {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.mp-task-item.completed {
+  border-color: var(--success);
+  opacity: 0.8;
+}
+
+.mp-task-icon {
+  font-size: 1.1rem;
+}
+
+.mp-task-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.mp-task-type {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-dim);
+}
+
+.mp-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.mp-empty {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ==================== V6.7 MOBILE ==================== */
+@media (max-width: 768px) {
+  .home-container {
+    padding-bottom: 80px;
+  }
+
+  .home-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    z-index: 100;
+  }
+
+  .home-input-box {
+    border-radius: 28px;
+    padding: 4px;
+  }
+
+  .home-quick-actions {
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+
+  .home-quick-chip {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .home-msg {
+    max-width: 90%;
+    font-size: 0.95rem;
+  }
+
+  .home-welcome h1 {
+    font-size: 2rem;
+  }
+
+  .home-redirect-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .redirect-text {
+    min-width: auto;
+  }
+}
+
+</style>
 </head>
 <body>
   <!-- TOP NAV -->
@@ -1355,6 +1632,6 @@ Would you like me to:
   <script src="engines/engine-orchestrator-v6.js"></script>
   <script src="app-v6.js"></script>
   <script src="app-v6.5.js"></script>
-  <script src="app-v6.6.js"></script>
+  <script src="app-v6.7.js"></script>
 </body>
 </html>
