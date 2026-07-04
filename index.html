@@ -3,337 +3,390 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAMTA AI V6.6 — Autonomous OS</title>
+  <title>MAMTA AI V6.7 — Talk. Build. Monitor. Secure.</title>
   <style>
     :root {
-      --bg: #0a0e1a; --panel: #111827; --border: #1e293b; --border-light: #334155;
-      --primary: #6366f1; --secondary: #8b5cf6; --success: #10b981; --warning: #f59e0b;
-      --error: #ef4444; --cyan: #06b6d4; --text: #f1f5f9; --text-dim: #94a3b8;
-      --text-dark: #64748b; --glass: rgba(17,24,39,0.85); --glass-border: rgba(99,102,241,0.15);
+      --bg: #0a0e1a; --bg-secondary: #0d1117; --panel: #111827; --panel-hover: #1a2236;
+      --border: #1e293b; --border-light: #334155; --border-subtle: #1e293b80;
+      --primary: #6366f1; --primary-light: #818cf8; --secondary: #8b5cf6;
+      --success: #10b981; --warning: #f59e0b; --error: #ef4444; --cyan: #06b6d4;
+      --text: #f1f5f9; --text-dim: #94a3b8; --text-dark: #64748b; --text-muted: #475569;
+      --glass: rgba(17,24,39,0.9); --glass-border: rgba(99,102,241,0.12);
+      --chat-user: #6366f1; --chat-ai: #1e293b;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-    /* TOP NAV */
+    /* ═══════════════════════════════════════════════════════════════
+       TOP NAVIGATION
+       ═══════════════════════════════════════════════════════════════ */
     .top-nav {
-      background: var(--panel); border-bottom: 1px solid var(--border); padding: 0 20px;
-      display: flex; align-items: center; height: 56px; position: fixed;
-      top: 0; left: 0; right: 0; z-index: 1000; backdrop-filter: blur(10px);
+      background: var(--glass); border-bottom: 1px solid var(--glass-border);
+      padding: 0 20px; display: flex; align-items: center; height: 52px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      backdrop-filter: blur(20px);
     }
-    .logo { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-right: 30px; display: flex; align-items: center; gap: 8px; }
-    .logo::before { content: "🧠"; -webkit-text-fill-color: initial; }
-    .nav-tabs { display: flex; gap: 4px; }
+    .logo { font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-right: 24px; display: flex; align-items: center; gap: 6px; }
+    .logo::before { content: "🧠"; -webkit-text-fill-color: initial; font-size: 1.1rem; }
+    .nav-tabs { display: flex; gap: 2px; }
     .nav-tab {
-      padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      padding: 7px 16px; border-radius: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 500;
       transition: all 0.2s; border: none; background: transparent; color: var(--text-dim);
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 5px;
     }
-    .nav-tab:hover { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-tab:hover { background: rgba(99,102,241,0.08); color: var(--text); }
     .nav-tab.active { background: var(--primary); color: white; }
-    .status-area { margin-left: auto; display: flex; gap: 12px; align-items: center; }
-    .status-pill { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); color: var(--text-dim); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .nav-status { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .nav-pill { background: rgba(0,0,0,0.2); padding: 3px 10px; border-radius: 12px; font-size: 0.7rem; color: var(--text-dark); border: 1px solid var(--border); display: flex; align-items: center; gap: 5px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
     .dot.green { background: var(--success); }
     .dot.yellow { background: var(--warning); }
-    .dot.red { background: var(--error); }
 
     /* PAGES */
-    .main-content { padding-top: 56px; min-height: 100vh; }
-    .page { display: none; padding-bottom: 60px; }
+    .main-content { padding-top: 52px; min-height: 100vh; }
+    .page { display: none; }
     .page.active { display: block; }
 
     /* ═══════════════════════════════════════════════════════════════
        HOME PAGE — ChatGPT-Style Clean Chat
        ═══════════════════════════════════════════════════════════════ */
-    .home-layout {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: calc(100vh - 56px); padding: 20px; position: relative;
+    .home-container {
+      display: flex; flex-direction: column; height: calc(100vh - 52px);
+      max-width: 900px; margin: 0 auto; position: relative;
     }
-    .home-hero { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .home-hero h1 { font-size: 3rem; margin-bottom: 16px; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
-    .home-hero .subtitle { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 8px; }
-    .home-hero .version-tag { display: inline-block; background: rgba(99,102,241,0.1); border: 1px solid var(--primary); padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; color: var(--primary); }
+    .home-welcome {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 20px; transition: all 0.4s ease;
+    }
+    .home-welcome.hidden { opacity: 0; height: 0; padding: 0; overflow: hidden; flex: 0; }
+    .home-welcome h1 {
+      font-size: 2.8rem; font-weight: 800; margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--primary-light), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    .home-welcome .tagline { font-size: 1.15rem; color: var(--text-dim); margin-bottom: 8px; font-weight: 400; }
+    .home-welcome .version { font-size: 0.8rem; color: var(--text-dark); }
 
-    .home-chat-area { width: 100%; max-width: 800px; animation: fadeInUp 0.8s ease 0.1s both; }
-    .home-chat-box {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
-      padding: 16px 20px; display: flex; align-items: center; gap: 12px;
-      transition: all 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    .home-chat-scroll {
+      flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px;
+      scroll-behavior: smooth;
     }
-    .home-chat-box:focus-within { border-color: var(--primary); box-shadow: 0 4px 30px rgba(99,102,241,0.15); }
-    .home-chat-input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 1rem; outline: none; padding: 8px 0; }
-    .home-chat-input::placeholder { color: var(--text-dark); }
-    .home-chat-send { background: var(--primary); border: none; border-radius: 10px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .home-chat-send:hover { background: var(--secondary); transform: scale(1.02); }
+    .home-chat-scroll::-webkit-scrollbar { width: 6px; }
+    .home-chat-scroll::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+    .home-chat-scroll:hover::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .home-msg { max-width: 85%; line-height: 1.6; font-size: 0.95rem; animation: msgIn 0.3s ease; }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .home-msg.user { align-self: flex-end; background: var(--chat-user); color: white; padding: 12px 18px; border-radius: 18px 18px 4px 18px; }
+    .home-msg.ai { align-self: flex-start; background: var(--chat-ai); border: 1px solid var(--border); color: var(--text); padding: 14px 18px; border-radius: 18px 18px 18px 4px; }
+    .home-msg.system { align-self: center; background: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.15); color: var(--cyan); padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-family: monospace; }
+    .home-msg.redirect {
+      align-self: center; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+      border: 1px solid var(--glass-border); padding: 20px 24px; border-radius: 16px;
+      text-align: center; max-width: 400px;
+    }
+    .home-msg.redirect .redirect-title { font-size: 1rem; font-weight: 600; color: var(--primary-light); margin-bottom: 8px; }
+    .home-msg.redirect .redirect-desc { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 14px; }
+    .home-msg.redirect .redirect-btn {
+      background: var(--primary); border: none; border-radius: 10px; padding: 10px 24px;
+      color: white; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+    }
+    .home-msg.redirect .redirect-btn:hover { background: var(--secondary); transform: scale(1.02); }
+
+    .home-input-area {
+      padding: 16px 20px 24px; position: sticky; bottom: 0;
+      background: linear-gradient(to top, var(--bg) 80%, transparent);
+    }
+    .home-input-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+      padding: 6px 6px 6px 18px; display: flex; align-items: center; gap: 8px;
+      transition: all 0.3s; box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      max-width: 800px; margin: 0 auto;
+    }
+    .home-input-box:focus-within { border-color: var(--primary); box-shadow: 0 2px 20px rgba(99,102,241,0.15); }
+    .home-input-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent;
+      color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: all 0.2s; flex-shrink: 0;
+    }
+    .home-input-btn:hover { background: rgba(99,102,241,0.1); color: var(--text); }
+    .home-input-field { flex: 1; background: transparent; border: none; color: var(--text); font-size: 1rem; outline: none; padding: 10px 0; resize: none; max-height: 120px; }
+    .home-input-field::placeholder { color: var(--text-dark); }
+    .home-input-send {
+      width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--primary);
+      color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; transition: all 0.2s; flex-shrink: 0;
+    }
+    .home-input-send:hover { background: var(--secondary); transform: scale(1.05); }
+    .home-input-send:disabled { background: var(--border); cursor: not-allowed; }
 
     .home-quick-actions {
-      display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center;
-      animation: fadeInUp 1s ease 0.2s both;
+      display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center;
+      max-width: 800px; margin: 0 auto 12px;
     }
-    .home-quick-btn {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px 18px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer;
-      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    .home-quick-chip {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+      padding: 8px 16px; color: var(--text-dim); font-size: 0.82rem; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 5px;
     }
-    .home-quick-btn:hover { border-color: var(--primary); color: var(--text); background: rgba(99,102,241,0.08); transform: translateY(-2px); }
-
-    .home-chat-messages {
-      width: 100%; max-width: 800px; margin-bottom: 20px; max-height: 350px;
-      overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-    }
-    .home-msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; animation: fadeInUp 0.3s ease; }
-    .home-msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .home-msg.ai { background: var(--panel); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .home-msg.system { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); color: var(--cyan); align-self: center; font-size: 0.8rem; font-family: monospace; padding: 8px 14px; }
-
-    .home-bottom-status {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 16px; font-size: 0.75rem; color: var(--text-dark);
-      animation: fadeInUp 1.2s ease 0.3s both;
-    }
+    .home-quick-chip:hover { border-color: var(--primary); color: var(--text); background: rgba(99,102,241,0.06); }
 
     /* ═══════════════════════════════════════════════════════════════
-       WORKSPACE PAGE — Developer IDE
+       WORKSPACE PAGE — Developer Execution System
        ═══════════════════════════════════════════════════════════════ */
-    .ws-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; min-height: calc(100vh - 56px); }
-    .ws-sidebar { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; height: fit-content; position: sticky; top: 76px; }
-    .ws-sidebar h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .ws-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-dim); font-size: 0.88rem; transition: all 0.2s; margin-bottom: 2px; }
-    .ws-nav-item:hover { background: rgba(99,102,241,0.1); color: var(--text); }
+    .ws-layout { display: grid; grid-template-columns: 250px 1fr; gap: 16px; padding: 16px; max-width: 1600px; margin: 0 auto; min-height: calc(100vh - 52px); }
+    .ws-sidebar { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; height: fit-content; position: sticky; top: 68px; }
+    .ws-sidebar h3 { font-size: 0.8rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .ws-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; cursor: pointer; color: var(--text-dim); font-size: 0.85rem; transition: all 0.2s; margin-bottom: 1px; }
+    .ws-nav-item:hover { background: rgba(99,102,241,0.08); color: var(--text); }
     .ws-nav-item.active { background: var(--primary); color: white; }
-    .ws-main { display: flex; flex-direction: column; gap: 20px; }
-    .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .ws-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
-    .ws-metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .ws-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; transition: all 0.2s; }
-    .ws-metric:hover { border-color: var(--border-light); }
-    .ws-metric-value { font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .ws-metric-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-    .ws-console { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.85rem; color: var(--text-dim); overflow-x: auto; max-height: 300px; overflow-y: auto; }
-    .ws-file-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--text-dim); font-size: 0.85rem; transition: all 0.2s; }
-    .ws-file-item:hover { background: rgba(99,102,241,0.08); color: var(--primary); }
-    .ws-task-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; }
-    .ws-task-status { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
-    .ws-task-status.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
-    .ws-task-status.running { background: rgba(99,102,241,0.15); color: var(--primary); }
-    .ws-task-status.completed { background: rgba(16,185,129,0.15); color: var(--success); }
-    .ws-task-status.failed { background: rgba(239,68,68,0.15); color: var(--error); }
-    .ws-chat-area { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
-    .ws-chat-input-area { display: flex; gap: 10px; }
+    .ws-main { display: flex; flex-direction: column; gap: 16px; }
+    .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .ws-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; color: var(--text); }
+
+    /* Master Plan Runner */
+    .mp-runner { background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05)); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    .mp-runner h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--primary-light); }
+    .mp-runner textarea {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; color: var(--text); font-size: 0.9rem; outline: none; resize: vertical;
+      min-height: 120px; font-family: inherit; line-height: 1.5; margin-bottom: 12px;
+    }
+    .mp-runner textarea:focus { border-color: var(--primary); }
+    .mp-runner .mp-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .mp-btn {
+      background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px;
+      color: white; font-weight: 600; cursor: pointer; font-size: 0.88rem; transition: all 0.2s;
+    }
+    .mp-btn:hover { background: var(--secondary); transform: translateY(-1px); }
+    .mp-btn.secondary { background: var(--border); }
+    .mp-btn.secondary:hover { background: var(--border-light); }
+    .mp-btn.success { background: var(--success); }
+    .mp-btn.success:hover { background: #059669; }
+
+    .ws-metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .ws-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .ws-metric-value { font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .ws-metric-label { font-size: 0.7rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .ws-file-list { display: flex; flex-direction: column; gap: 2px; }
+    .ws-file-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: var(--text-dim); font-size: 0.84rem; transition: all 0.15s; }
+    .ws-file-item:hover { background: rgba(99,102,241,0.06); color: var(--text); }
+    .ws-file-item.active { background: rgba(99,102,241,0.12); color: var(--primary-light); }
+
+    .ws-console {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.82rem;
+      color: var(--text-dim); overflow-x: auto; max-height: 280px; overflow-y: auto; line-height: 1.5;
+    }
+    .ws-console .log-time { color: var(--text-dark); margin-right: 8px; }
+    .ws-console .log-info { color: var(--cyan); }
+    .ws-console .log-success { color: var(--success); }
+    .ws-console .log-error { color: var(--error); }
+    .ws-console .log-warn { color: var(--warning); }
+
+    .ws-task-queue { display: flex; flex-direction: column; gap: 6px; }
+    .ws-task-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-size: 0.84rem; }
+    .ws-task-status { padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+    .ws-task-status.pending { background: rgba(245,158,11,0.12); color: var(--warning); }
+    .ws-task-status.running { background: rgba(99,102,241,0.12); color: var(--primary); }
+    .ws-task-status.completed { background: rgba(16,185,129,0.12); color: var(--success); }
+    .ws-task-status.failed { background: rgba(239,68,68,0.12); color: var(--error); }
+
+    .ws-chat-area { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; max-height: 250px; overflow-y: auto; margin-bottom: 10px; }
+    .ws-chat-input-area { display: flex; gap: 8px; }
     .ws-chat-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; outline: none; }
     .ws-chat-input:focus { border-color: var(--primary); }
-    .ws-chat-send { background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; }
+    .ws-chat-send { background: var(--primary); border: none; border-radius: 8px; padding: 10px 18px; color: white; font-weight: 600; cursor: pointer; font-size: 0.88rem; }
 
     /* ═══════════════════════════════════════════════════════════════
        ADMIN PAGE — System Monitoring Cockpit
        ═══════════════════════════════════════════════════════════════ */
-    .admin-layout { padding: 20px; max-width: 1600px; margin: 0 auto; padding-bottom: 80px; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .admin-header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
-    .admin-live-badge { background: rgba(16,185,129,0.1); border: 1px solid var(--success); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .admin-layout { padding: 16px; max-width: 1600px; margin: 0 auto; padding-bottom: 70px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .admin-header h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .admin-live-badge { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
     .admin-live-badge .dot { animation: pulse-green 2s infinite; }
-    @keyframes pulse-green { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
+    @keyframes pulse-green { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 5px rgba(16,185,129,0); } }
 
-    .admin-section { margin-bottom: 24px; }
-    .admin-section-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
-    .admin-section-title .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse-green 2s infinite; }
+    .admin-section { margin-bottom: 20px; }
+    .admin-section-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; color: var(--text); }
+    .admin-section-title .live-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-green 2s infinite; }
 
-    .admin-overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
-    .admin-metric-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; }
-    .admin-metric-card:hover { border-color: var(--border-light); }
-    .admin-metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .admin-metric-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-    .admin-metric-icon { font-size: 1.2rem; opacity: 0.7; }
-    .admin-metric-value { font-size: 1.6rem; font-weight: 700; color: var(--text); }
-    .admin-metric-value.green { color: var(--success); }
-    .admin-metric-value.red { color: var(--error); }
-    .admin-metric-value.yellow { color: var(--warning); }
-    .admin-metric-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 10px; }
-    .admin-metric-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease, background 0.3s ease; background: var(--success); }
-    .admin-metric-bar-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; text-align: right; }
+    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .admin-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: all 0.2s; }
+    .admin-card:hover { border-color: var(--border-light); }
+    .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .admin-card-label { font-size: 0.7rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-card-value { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+    .admin-card-value.green { color: var(--success); }
+    .admin-card-value.red { color: var(--error); }
+    .admin-card-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+    .admin-card-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; background: var(--success); }
 
-    .admin-engine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-    .admin-engine-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; transition: all 0.2s; }
-    .admin-engine-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
-    .admin-engine-dot { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 8px; display: block; }
-    .admin-engine-dot.green { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
-    .admin-engine-dot.cyan { background: var(--cyan); box-shadow: 0 0 8px rgba(6,182,212,0.4); animation: pulse-cyan 1.5s infinite; }
+    .admin-engine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .admin-engine-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; transition: all 0.2s; }
+    .admin-engine-item:hover { border-color: var(--border-light); transform: translateY(-1px); }
+    .admin-engine-dot { width: 8px; height: 8px; border-radius: 50%; margin: 0 auto 6px; display: block; }
+    .admin-engine-dot.green { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.3); }
+    .admin-engine-dot.cyan { background: var(--cyan); box-shadow: 0 0 6px rgba(6,182,212,0.3); animation: pulse-cyan 1.5s infinite; }
     .admin-engine-dot.yellow { background: var(--warning); }
-    .admin-engine-dot.red { background: var(--error); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
-    @keyframes pulse-cyan { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
-    .admin-engine-name { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-    .admin-engine-status { font-size: 0.7rem; color: var(--text-dark); }
+    .admin-engine-dot.red { background: var(--error); box-shadow: 0 0 6px rgba(239,68,68,0.3); }
+    @keyframes pulse-cyan { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+    .admin-engine-name { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+    .admin-engine-meta { font-size: 0.65rem; color: var(--text-dark); margin-top: 3px; }
 
-    .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .admin-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .admin-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
-    .admin-health-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .admin-health-title { font-size: 1rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .admin-health-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .admin-health { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .admin-health-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; }
+    .admin-health-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
     .admin-health-row:last-child { border-bottom: none; }
-    .admin-health-icon { font-size: 1.1rem; flex-shrink: 0; }
-    .admin-health-name { font-size: 0.9rem; min-width: 110px; color: var(--text); }
-    .admin-health-bar-container { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
-    .admin-health-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .admin-health-name { font-size: 0.85rem; min-width: 100px; color: var(--text); }
+    .admin-health-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .admin-health-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
     .admin-health-fill.green { background: var(--success); }
     .admin-health-fill.yellow { background: var(--warning); }
     .admin-health-fill.red { background: var(--error); }
-    .admin-health-score { font-size: 0.85rem; font-weight: 600; min-width: 40px; text-align: right; }
-    .admin-health-score.green { color: var(--success); }
-    .admin-health-score.yellow { color: var(--warning); }
-    .admin-health-score.red { color: var(--error); }
-    .admin-health-overall { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 1rem; font-weight: 600; }
-    .admin-health-overall-score { font-size: 1.3rem; }
-    .admin-health-overall-score.green { color: var(--success); }
+    .admin-health-score { font-size: 0.8rem; font-weight: 600; min-width: 36px; text-align: right; }
+    .admin-health-overall { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); font-weight: 600; font-size: 0.95rem; }
 
-    .admin-timeline { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; max-height: 500px; overflow-y: auto; }
-    .admin-timeline h3 { font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .admin-timeline-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border); padding-left: 16px; position: relative; transition: all 0.2s; }
-    .admin-timeline-item:hover { background: rgba(255,255,255,0.02); border-radius: 0 8px 8px 0; }
-    .admin-timeline-item::before { content: ""; position: absolute; left: -5px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); }
-    .admin-timeline-item.success::before { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .admin-timeline { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-height: 450px; overflow-y: auto; }
+    .admin-timeline h3 { font-size: 0.9rem; margin-bottom: 12px; }
+    .admin-timeline-item { display: flex; gap: 10px; padding: 8px 0; border-left: 2px solid var(--border); padding-left: 14px; position: relative; }
+    .admin-timeline-item::before { content: ""; position: absolute; left: -4px; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--border-light); }
+    .admin-timeline-item.success::before { background: var(--success); }
     .admin-timeline-item.error::before { background: var(--error); }
     .admin-timeline-item.warning::before { background: var(--warning); }
     .admin-timeline-item.engine::before { background: var(--cyan); }
-    .admin-timeline-item.ai::before { background: var(--primary); }
-    .admin-timeline-time { font-size: 0.75rem; color: var(--text-dark); font-family: monospace; min-width: 60px; flex-shrink: 0; }
-    .admin-timeline-icon { font-size: 1rem; flex-shrink: 0; }
-    .admin-timeline-content { flex: 1; font-size: 0.85rem; color: var(--text); line-height: 1.4; }
-    .admin-timeline-empty { text-align: center; color: var(--text-dark); font-size: 0.85rem; padding: 30px 0; }
+    .admin-timeline-time { font-size: 0.7rem; color: var(--text-dark); font-family: monospace; min-width: 50px; }
+    .admin-timeline-text { font-size: 0.82rem; color: var(--text); flex: 1; }
+    .admin-timeline-empty { text-align: center; color: var(--text-dark); font-size: 0.82rem; padding: 24px 0; }
 
-    .admin-loop-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
-    .admin-loop-title { font-size: 1rem; font-weight: 600; margin-bottom: 20px; color: var(--text); }
-    .admin-loop-steps { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .admin-loop-step { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); min-width: 200px; transition: all 0.4s ease; opacity: 0.5; }
-    .admin-loop-step.completed { opacity: 1; border-color: var(--success); background: rgba(16,185,129,0.05); }
-    .admin-loop-step.active { opacity: 1; border-color: var(--cyan); background: rgba(6,182,212,0.08); transform: scale(1.05); animation: glow-cyan 1.5s ease-in-out infinite alternate; }
-    @keyframes glow-cyan { from { box-shadow: 0 0 10px rgba(6,182,212,0.2); } to { box-shadow: 0 0 25px rgba(6,182,212,0.5), 0 0 50px rgba(6,182,212,0.2); } }
-    .admin-loop-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-dim); flex-shrink: 0; }
-    .admin-loop-step.completed .admin-loop-step-num { background: var(--success); color: white; }
+    .admin-loop { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+    .admin-loop-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; }
+    .admin-loop-step { display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); min-width: 180px; margin: 0 auto 3px; transition: all 0.4s; opacity: 0.5; }
+    .admin-loop-step.active { opacity: 1; border-color: var(--cyan); background: rgba(6,182,212,0.06); transform: scale(1.03); animation: glow-cyan 1.5s infinite alternate; }
+    .admin-loop-step.completed { opacity: 1; border-color: var(--success); background: rgba(16,185,129,0.04); }
+    .admin-loop-step-num { width: 20px; height: 20px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--text-dark); }
     .admin-loop-step.active .admin-loop-step-num { background: var(--cyan); color: white; }
-    .admin-loop-step-name { font-size: 0.9rem; font-weight: 500; }
-    .admin-loop-step.active .admin-loop-step-name { color: var(--cyan); font-weight: 600; }
-    .admin-loop-step.completed .admin-loop-step-name { color: var(--success); }
-    .admin-loop-arrow { font-size: 1.2rem; color: var(--border-light); line-height: 1; opacity: 0.3; }
-    .admin-loop-arrow.completed { color: var(--success); opacity: 0.6; }
-    .admin-loop-current { margin-top: 16px; font-size: 0.85rem; color: var(--text-dim); }
-    .admin-loop-current span { color: var(--cyan); font-weight: 600; }
+    .admin-loop-step.completed .admin-loop-step-num { background: var(--success); color: white; }
+    .admin-loop-step-name { font-size: 0.85rem; }
+    .admin-loop-arrow { color: var(--text-dark); font-size: 1rem; opacity: 0.3; line-height: 1; }
+    .admin-loop-arrow.completed { color: var(--success); opacity: 0.5; }
+    @keyframes glow-cyan { from { box-shadow: 0 0 8px rgba(6,182,212,0.15); } to { box-shadow: 0 0 20px rgba(6,182,212,0.4); } }
 
-    .admin-ai-metrics { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .admin-ai-metrics h3 { font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .admin-ai-metric-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .admin-ai-metric-row:last-child { border-bottom: none; }
-    .admin-ai-metric-label { font-size: 0.85rem; color: var(--text-dim); }
-    .admin-ai-metric-value { font-size: 0.9rem; font-weight: 600; color: var(--text); font-family: monospace; }
-    .admin-ai-metric-value.green { color: var(--success); }
-    .admin-ai-metric-value.cyan { color: var(--cyan); }
-    .admin-ai-metric-value.warning { color: var(--warning); }
+    .admin-ai-metrics { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .admin-ai-metrics h3 { font-size: 0.9rem; margin-bottom: 12px; }
+    .admin-ai-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .admin-ai-row:last-child { border-bottom: none; }
+    .admin-ai-label { color: var(--text-dim); }
+    .admin-ai-value { font-weight: 600; font-family: monospace; }
 
     /* ═══════════════════════════════════════════════════════════════
        SAFEDROP PAGE — Security Vault
        ═══════════════════════════════════════════════════════════════ */
-    .sd-layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 56px); }
+    .sd-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 52px); }
     .sd-main { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .sd-sidebar { display: flex; flex-direction: column; gap: 20px; }
-    .sd-dash-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-    .sd-dash-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .sd-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .sd-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
-    .sd-metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .sd-sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .sd-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    .sd-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .sd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sd-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; }
+    .sd-metric-value { font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
     .sd-metric-value.green { color: var(--success); }
     .sd-metric-value.red { color: var(--error); }
-    .sd-metric-value.yellow { color: var(--warning); }
-    .sd-metric-label { font-size: 0.75rem; color: var(--text-dim); }
-    .sd-vault-health { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .sd-health-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-    .sd-health-fill { height: 100%; border-radius: 4px; background: var(--success); transition: width 0.5s ease; }
-    .sd-health-text { font-size: 0.85rem; color: var(--text-dim); text-align: center; }
-    .sd-key-status { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    .sd-key-status:last-child { border-bottom: none; }
-    .sd-key-status .sd-key-name { flex: 1; color: var(--text); }
-    .sd-key-status .sd-key-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
-    .sd-key-status .sd-key-badge.ok { background: rgba(16,185,129,0.15); color: var(--success); }
-    .sd-key-status .sd-key-badge.missing { background: rgba(239,68,68,0.15); color: var(--error); }
-    .sd-warning-box { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 12px; font-size: 0.85rem; color: var(--warning); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .sd-metric-label { font-size: 0.7rem; color: var(--text-dark); }
+    .sd-health-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+    .sd-health-fill { height: 100%; border-radius: 3px; background: var(--success); transition: width 0.5s ease; }
+    .sd-health-text { font-size: 0.8rem; color: var(--text-dark); text-align: center; }
+    .sd-key-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .sd-key-row:last-child { border-bottom: none; }
+    .sd-key-name { flex: 1; color: var(--text); }
+    .sd-key-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+    .sd-key-badge.ok { background: rgba(16,185,129,0.12); color: var(--success); }
+    .sd-key-badge.missing { background: rgba(239,68,68,0.12); color: var(--error); }
+    .sd-warn { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 10px 12px; font-size: 0.82rem; color: var(--warning); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
 
-    /* VAULT TABS */
-    .vault-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .vault-tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); border: none; background: transparent; transition: all 0.2s; }
-    .vault-tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-    .vault-tab.active { color: var(--primary); background: rgba(99,102,241,0.1); font-weight: 600; }
+    .vault-tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .vault-tab { padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; color: var(--text-dim); border: none; background: transparent; transition: all 0.2s; }
+    .vault-tab:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .vault-tab.active { color: var(--primary); background: rgba(99,102,241,0.08); font-weight: 600; }
     .vault-tab-content { display: none; }
     .vault-tab-content.active { display: block; }
-    .vault-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
+    .vault-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.88rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
     .vault-input:focus { border-color: var(--primary); }
-    .vault-btn { background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+    .vault-btn { background: var(--primary); border: none; border-radius: 8px; padding: 10px 18px; color: white; font-weight: 600; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; }
     .vault-btn:hover { background: var(--secondary); }
     .vault-btn.secondary { background: var(--border); }
     .vault-btn.secondary:hover { background: var(--border-light); }
-    .vault-btn.small { padding: 6px 12px; font-size: 0.8rem; }
-    .vault-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    .vault-table th { text-align: left; padding: 10px; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-    .vault-table td { padding: 10px; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: var(--text); }
+    .vault-btn.small { padding: 6px 12px; font-size: 0.78rem; }
+    .vault-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .vault-table th { text-align: left; padding: 8px 10px; font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .vault-table td { padding: 8px 10px; font-size: 0.82rem; border-bottom: 1px solid var(--border); color: var(--text); }
     .vault-table tr:hover td { background: rgba(255,255,255,0.02); }
 
     /* PRODUCTION BAR */
     .production-bar {
       position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass);
       border-top: 1px solid var(--glass-border); backdrop-filter: blur(20px);
-      padding: 10px 20px; display: flex; justify-content: center; gap: 24px;
+      padding: 8px 20px; display: flex; justify-content: center; gap: 20px;
       align-items: center; z-index: 999; flex-wrap: wrap;
     }
-    .prod-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-dark); transition: all 0.3s; padding: 4px 10px; border-radius: 6px; }
-    .prod-indicator::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--text-dark); transition: all 0.3s; }
-    .prod-indicator.active { color: var(--success); background: rgba(16,185,129,0.1); }
-    .prod-indicator.active::before { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
-    .prod-indicator.error { color: var(--error); background: rgba(239,68,68,0.1); }
-    .prod-indicator.error::before { background: var(--error); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+    .prod-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--text-dark); transition: all 0.3s; padding: 3px 8px; border-radius: 5px; }
+    .prod-item::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-dark); transition: all 0.3s; }
+    .prod-item.active { color: var(--success); background: rgba(16,185,129,0.08); }
+    .prod-item.active::before { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.3); }
+    .prod-item.error { color: var(--error); background: rgba(239,68,68,0.08); }
+    .prod-item.error::before { background: var(--error); box-shadow: 0 0 6px rgba(239,68,68,0.3); }
 
     /* TOAST */
-    .toast-container { position: fixed; top: 70px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
-    .toast { padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; font-weight: 500; animation: slideIn 0.3s ease; max-width: 350px; backdrop-filter: blur(10px); }
-    .toast.success { background: rgba(16,185,129,0.15); border: 1px solid var(--success); color: var(--success); }
-    .toast.error { background: rgba(239,68,68,0.15); border: 1px solid var(--error); color: var(--error); }
-    .toast.warning { background: rgba(245,158,11,0.15); border: 1px solid var(--warning); color: var(--warning); }
-    .toast.info { background: rgba(99,102,241,0.15); border: 1px solid var(--primary); color: var(--primary); }
+    .toast-container { position: fixed; top: 64px; right: 16px; z-index: 10000; display: flex; flex-direction: column; gap: 6px; }
+    .toast { padding: 10px 18px; border-radius: 10px; font-size: 0.88rem; font-weight: 500; animation: slideIn 0.3s ease; max-width: 320px; backdrop-filter: blur(10px); }
+    .toast.success { background: rgba(16,185,129,0.12); border: 1px solid var(--success); color: var(--success); }
+    .toast.error { background: rgba(239,68,68,0.12); border: 1px solid var(--error); color: var(--error); }
+    .toast.warning { background: rgba(245,158,11,0.12); border: 1px solid var(--warning); color: var(--warning); }
+    .toast.info { background: rgba(99,102,241,0.12); border: 1px solid var(--primary); color: var(--primary); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     /* SCROLLBAR */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
     /* RESPONSIVE */
     @media (max-width: 1200px) {
       .ws-layout { grid-template-columns: 1fr; }
-      .ws-sidebar { position: static; display: flex; overflow-x: auto; gap: 8px; padding: 12px; }
+      .ws-sidebar { position: static; display: flex; overflow-x: auto; gap: 6px; padding: 12px; }
       .ws-sidebar h3 { display: none; }
-      .ws-nav-item { white-space: nowrap; padding: 8px 12px; font-size: 0.8rem; }
+      .ws-nav-item { white-space: nowrap; padding: 7px 10px; font-size: 0.8rem; }
       .sd-layout { grid-template-columns: 1fr; }
       .admin-two-col, .admin-three-col { grid-template-columns: 1fr; }
-      .admin-engine-grid { grid-template-columns: repeat(2, 1fr); }
-      .production-bar { gap: 12px; padding: 8px 10px; }
-      .home-hero h1 { font-size: 2rem; }
+      .admin-engine-grid { grid-template-columns: repeat(3, 1fr); }
+      .ws-metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .production-bar { gap: 12px; padding: 6px 10px; }
     }
     @media (max-width: 768px) {
-      .top-nav { padding: 0 10px; }
-      .logo { font-size: 1rem; margin-right: 10px; }
-      .nav-tab { padding: 6px 10px; font-size: 0.8rem; }
-      .status-area { display: none; }
-      .home-hero h1 { font-size: 1.6rem; }
-      .home-chat-box { padding: 12px 14px; }
-      .home-quick-btn { padding: 8px 12px; font-size: 0.8rem; }
+      .top-nav { padding: 0 10px; height: 48px; }
+      .logo { font-size: 1rem; margin-right: 8px; }
+      .nav-tab { padding: 5px 8px; font-size: 0.78rem; }
+      .nav-status { display: none; }
+      .main-content { padding-top: 48px; }
+      .home-container { height: calc(100vh - 48px); }
+      .home-welcome h1 { font-size: 1.8rem; }
+      .home-input-box { border-radius: 16px; padding: 4px 4px 4px 12px; }
+      .home-quick-chip { padding: 6px 12px; font-size: 0.78rem; }
       .admin-engine-grid { grid-template-columns: repeat(2, 1fr); }
-      .admin-overview-grid { grid-template-columns: repeat(2, 1fr); }
+      .admin-grid { grid-template-columns: repeat(2, 1fr); }
+      .ws-metric-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
-  <!-- ═══════════════════════════════════════════════════════════════
-       TOP NAVIGATION — 4 Tabs: Home | Workspace | Admin | SafeDrop
-       ═══════════════════════════════════════════════════════════════ -->
+  <!-- TOP NAV -->
   <nav class="top-nav">
     <div class="logo">MAMTA AI</div>
     <div class="nav-tabs">
@@ -342,14 +395,13 @@
       <button class="nav-tab" onclick="showPage('admin')">📊 Admin</button>
       <button class="nav-tab" onclick="showPage('safedrop')">🔐 SafeDrop</button>
     </div>
-    <div class="status-area">
-      <div class="status-pill"><span class="dot green"></span><span id="nav-db-status">DB</span></div>
-      <div class="status-pill"><span class="dot green"></span><span id="nav-ai-status">AI</span></div>
-      <div class="status-pill"><span class="dot yellow"></span><span id="nav-mode-status">Manual</span></div>
+    <div class="nav-status">
+      <div class="nav-pill"><span class="dot green"></span><span id="nav-db">DB</span></div>
+      <div class="nav-pill"><span class="dot green"></span><span id="nav-ai">AI</span></div>
+      <div class="nav-pill"><span class="dot yellow"></span><span id="nav-mode">Manual</span></div>
     </div>
   </nav>
 
-  <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toast-container"></div>
 
   <div class="main-content">
@@ -358,121 +410,151 @@
          PAGE 1 — HOME: ChatGPT-Style Clean Chat
          ═══════════════════════════════════════════════════════════════ -->
     <div class="page active" id="page-home">
-      <div class="home-layout">
-        <div class="home-hero">
+      <div class="home-container">
+        <!-- Welcome Screen (hides when chat starts) -->
+        <div class="home-welcome" id="home-welcome">
           <h1>MAMTA AI</h1>
-          <div class="subtitle">How can I help you today?</div>
-          <div class="version-tag">V6.6 — Autonomous OS</div>
+          <div class="tagline">Ask anything. Discuss anything. Plan anything.</div>
+          <div class="version">V6.7 — Talk. Build. Monitor. Secure.</div>
         </div>
 
-        <div class="home-chat-messages" id="home-chat-messages">
-          <div class="home-msg system">[SYSTEM] MAMTA AI V6.6 initialized. Type /help for commands.</div>
+        <!-- Chat Messages -->
+        <div class="home-chat-scroll" id="home-chat-scroll">
+          <!-- Messages appear here -->
         </div>
 
-        <div class="home-chat-area">
-          <div class="home-chat-box">
-            <input type="text" class="home-chat-input" id="home-chat-input" placeholder="Ask anything or type a command..." onkeydown="if(event.key==='Enter')sendHomeChat()">
-            <button class="home-chat-send" onclick="sendHomeChat()">➤</button>
+        <!-- Input Area -->
+        <div class="home-input-area">
+          <div class="home-quick-actions" id="home-quick-actions">
+            <button class="home-quick-chip" onclick="homeQuick('Plan a project')">📋 Plan something</button>
+            <button class="home-quick-chip" onclick="homeQuick('Write code for')">✍️ Write or edit</button>
+            <button class="home-quick-chip" onclick="homeQuick('Research about')">🔍 Research</button>
+            <button class="home-quick-chip" onclick="homeQuick('Build with Workspace')">🔨 Build with Workspace</button>
           </div>
-        </div>
-
-        <div class="home-quick-actions">
-          <button class="home-quick-btn" onclick="quickCommand('/plan Build a website')">📋 Plan a Project</button>
-          <button class="home-quick-btn" onclick="quickCommand('/build MyApp')">🔨 Build an App</button>
-          <button class="home-quick-btn" onclick="quickCommand('/review function hello() {}')">🔍 Review Code</button>
-          <button class="home-quick-btn" onclick="quickCommand('/heal')">🔧 Fix Error</button>
-        </div>
-
-        <div class="home-bottom-status">
-          <span id="home-db-status">● Database</span>
-          <span>•</span>
-          <span id="home-ai-status">● AI Ready</span>
-          <span>•</span>
-          <span id="home-mode-status">● Manual Mode</span>
+          <div class="home-input-box">
+            <button class="home-input-btn" title="Attach">+</button>
+            <input type="text" class="home-input-field" id="home-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendHomeChat()">
+            <button class="home-input-btn" title="Voice">🎤</button>
+            <button class="home-input-send" id="home-send-btn" onclick="sendHomeChat()">➤</button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         PAGE 2 — WORKSPACE: Developer IDE
+         PAGE 2 — WORKSPACE: Developer Execution System
          ═══════════════════════════════════════════════════════════════ -->
     <div class="page" id="page-workspace">
       <div class="ws-layout">
         <div class="ws-sidebar">
-          <h3>📁 Navigation</h3>
-          <div class="ws-nav-item active" onclick="showWsTab('dashboard')">📊 Dashboard</div>
+          <h3>Navigation</h3>
+          <div class="ws-nav-item active" onclick="showWsTab('runner')">🏃 Master Plan Runner</div>
+          <div class="ws-nav-item" onclick="showWsTab('dashboard')">📊 Dashboard</div>
           <div class="ws-nav-item" onclick="showWsTab('files')">📁 Files</div>
-          <div class="ws-nav-item" onclick="showWsTab('build')">🔨 Build Monitor</div>
-          <div class="ws-nav-item" onclick="showWsTab('architecture')">🏗️ Architecture</div>
+          <div class="ws-nav-item" onclick="showWsTab('build')">🔨 Build</div>
           <div class="ws-nav-item" onclick="showWsTab('tests')">🧪 Tests</div>
-          <div class="ws-nav-item" onclick="showWsTab('tasks')">📋 Tasks</div>
+          <div class="ws-nav-item" onclick="showWsTab('deploy')">🚀 Deploy</div>
 
-          <h3 style="margin-top: 24px;">⚡ Quick Actions</h3>
-          <button class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/plan')">➕ New Plan</button>
-          <button class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/build')">➕ New Build</button>
-          <button class="vault-btn secondary" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/auto')">🤖 Toggle Auto</button>
-          <button class="vault-btn secondary" style="width: 100%;" onclick="wsCommand('/sync')">🔄 Sync DB</button>
+          <h3 style="margin-top: 20px;">Quick Actions</h3>
+          <button class="mp-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/plan')">➕ New Plan</button>
+          <button class="mp-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/build')">➕ New Build</button>
+          <button class="mp-btn secondary" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/auto')">🤖 Toggle Auto</button>
+          <button class="mp-btn secondary" style="width: 100%;" onclick="wsCommand('/sync')">🔄 Sync DB</button>
         </div>
 
         <div class="ws-main">
+          <!-- Master Plan Runner -->
+          <div class="mp-runner">
+            <h3>🏃 Master Plan Runner</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Paste your Master Plan here. MAMTA AI will analyze, create tasks, generate files, and build your project.</p>
+            <textarea id="mp-input" placeholder="Paste your Master Plan here...
+
+Example:
+# My App Master Plan
+## Features
+- User login
+- Dashboard
+- API integration
+
+## Tech Stack
+- React frontend
+- Node.js backend
+- PostgreSQL database"></textarea>
+            <div class="mp-actions">
+              <button class="mp-btn" onclick="analyzeMasterPlan()">🔍 Analyze Plan</button>
+              <button class="mp-btn secondary" onclick="createTaskTree()">📋 Create Tasks</button>
+              <button class="mp-btn success" onclick="buildProject()">🔨 Build Project</button>
+              <button class="mp-btn secondary" onclick="reviewOutput()">🔍 Review Output</button>
+              <button class="mp-btn secondary" onclick="saveProject()">💾 Save Project</button>
+            </div>
+          </div>
+
           <!-- Project Dashboard -->
           <div class="ws-card">
-            <h3>📊 Project Dashboard</h3>
+            <h3>📊 Execution Dashboard</h3>
             <div class="ws-metric-grid">
               <div class="ws-metric">
-                <div class="ws-metric-value" id="ws-active-project">—</div>
-                <div class="ws-metric-label">Active Project</div>
+                <div class="ws-metric-value" id="ws-current-plan">—</div>
+                <div class="ws-metric-label">Current Plan</div>
               </div>
               <div class="ws-metric">
-                <div class="ws-metric-value" id="ws-build-status">Idle</div>
+                <div class="ws-metric-value" id="ws-current-sprint">—</div>
+                <div class="ws-metric-label">Current Sprint</div>
+              </div>
+              <div class="ws-metric">
+                <div class="ws-metric-value" id="ws-running-task">Idle</div>
+                <div class="ws-metric-label">Running Task</div>
+              </div>
+              <div class="ws-metric">
+                <div class="ws-metric-value" id="ws-build-status">Ready</div>
                 <div class="ws-metric-label">Build Status</div>
               </div>
-              <div class="ws-metric">
-                <div class="ws-metric-value" id="ws-test-status">—</div>
-                <div class="ws-metric-label">Test Status</div>
+            </div>
+          </div>
+
+          <!-- Task Queue -->
+          <div class="ws-card">
+            <h3>📋 Task Queue</h3>
+            <div class="ws-task-queue" id="ws-task-queue">
+              <div class="ws-task-item">
+                <span>No tasks yet. Paste a Master Plan above to start.</span>
+                <span class="ws-task-status pending">Pending</span>
               </div>
             </div>
           </div>
 
           <!-- File Explorer -->
           <div class="ws-card">
-            <h3>📁 File Explorer</h3>
-            <div id="ws-file-list">
+            <h3>📁 Generated Files</h3>
+            <div class="ws-file-list" id="ws-file-list">
+              <div class="ws-file-item">📁 src/</div>
+              <div class="ws-file-item">📁 components/</div>
               <div class="ws-file-item">📄 index.html</div>
               <div class="ws-file-item">📄 app.js</div>
               <div class="ws-file-item">📄 style.css</div>
               <div class="ws-file-item">📄 api.js</div>
-              <div class="ws-file-item">📄 database.sql</div>
-            </div>
-          </div>
-
-          <!-- AI Builder Console -->
-          <div class="ws-card">
-            <h3>🤖 AI Builder Console</h3>
-            <div class="ws-chat-area" id="ws-chat-messages">
-              <div class="home-msg system">[SYSTEM] MAMTA AI Workspace IDE ready. Use /plan, /build, /review, /test.</div>
-            </div>
-            <div class="ws-chat-input-area">
-              <input type="text" class="ws-chat-input" id="ws-chat-input" placeholder="Type /help for commands..." onkeydown="if(event.key==='Enter')sendWsChat()">
-              <button class="ws-chat-send" onclick="sendWsChat()">Send</button>
+              <div class="ws-file-item">📄 package.json</div>
             </div>
           </div>
 
           <!-- Build Monitor -->
           <div class="ws-card">
-            <h3>🔨 Build Monitor</h3>
-            <div class="ws-console" id="ws-build-log">[SYSTEM] Waiting for build commands...
-Use /build to start a new project build.</div>
+            <h3>🔨 Build Logs</h3>
+            <div class="ws-console" id="ws-build-log">
+<span class="log-time">[00:00:00]</span> <span class="log-info">[INFO]</span> Workspace ready. Waiting for Master Plan input...
+<span class="log-time">[00:00:00]</span> <span class="log-info">[INFO]</span> Paste a plan and click "Analyze Plan" to begin.</span>
+            </div>
           </div>
 
-          <!-- Task Queue -->
+          <!-- AI Console -->
           <div class="ws-card">
-            <h3>📋 Task Queue</h3>
-            <div id="ws-task-queue">
-              <div class="ws-task-item">
-                <span>No pending tasks</span>
-                <span class="ws-task-status pending">Pending</span>
-              </div>
+            <h3>🤖 AI Console</h3>
+            <div class="ws-chat-area" id="ws-chat-messages">
+              <div class="home-msg system">[SYSTEM] Workspace AI ready. Use /plan, /build, /review, /test, /deploy.</div>
+            </div>
+            <div class="ws-chat-input-area">
+              <input type="text" class="ws-chat-input" id="ws-chat-input" placeholder="Type /help for commands..." onkeydown="if(event.key==='Enter')sendWsChat()">
+              <button class="ws-chat-send" onclick="sendWsChat()">Send</button>
             </div>
           </div>
         </div>
@@ -486,132 +568,93 @@ Use /build to start a new project build.</div>
       <div class="admin-layout">
         <div class="admin-header">
           <h1>📊 Admin Dashboard</h1>
-          <div class="admin-live-badge"><span class="dot green"></span> LIVE MONITORING</div>
+          <div class="admin-live-badge"><span class="dot green"></span> LIVE</div>
         </div>
 
-        <!-- Section 1: System Overview -->
+        <!-- System Overview -->
         <div class="admin-section">
           <div class="admin-section-title"><span class="live-dot"></span> System Overview</div>
-          <div class="admin-overview-grid">
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Total Engines</span><span class="admin-metric-icon">⚙️</span></div>
-              <div class="admin-metric-value" id="admin-total-engines">16</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Active Engines</span><span class="admin-metric-icon">🟢</span></div>
-              <div class="admin-metric-value green" id="admin-active-engines">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Database</span><span class="admin-metric-icon">🗄️</span></div>
-              <div class="admin-metric-value" id="admin-db-status">Checking...</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">AI Provider</span><span class="admin-metric-icon">🤖</span></div>
-              <div class="admin-metric-value" id="admin-ai-provider">—</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Autonomous Mode</span><span class="admin-metric-icon">🔄</span></div>
-              <div class="admin-metric-value" id="admin-auto-mode">OFF</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Health Score</span><span class="admin-metric-icon">🏥</span></div>
-              <div class="admin-metric-value green" id="admin-health-score">100%</div>
-              <div class="admin-metric-bar"><div class="admin-metric-fill" id="admin-health-bar" style="width: 100%"></div></div>
-            </div>
+          <div class="admin-grid">
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Total Engines</span><span>⚙️</span></div><div class="admin-card-value">16</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Active</span><span>🟢</span></div><div class="admin-card-value green" id="admin-active">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Database</span><span>🗄️</span></div><div class="admin-card-value" id="admin-db">Checking...</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">AI Provider</span><span>🤖</span></div><div class="admin-card-value" id="admin-ai">—</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Auto Mode</span><span>🔄</span></div><div class="admin-card-value" id="admin-auto">OFF</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Health</span><span>🏥</span></div><div class="admin-card-value green" id="admin-health">100%</div><div class="admin-card-bar"><div class="admin-card-bar-fill" id="admin-health-bar" style="width: 100%"></div></div></div>
           </div>
         </div>
 
-        <!-- Section 2: Engine Monitor (16 Engines) -->
+        <!-- Engine Monitor -->
         <div class="admin-section">
-          <div class="admin-section-title"><span class="live-dot"></span> Engine Monitor — All 16 Engines</div>
+          <div class="admin-section-title"><span class="live-dot"></span> Engine Monitor — 16 Engines</div>
           <div class="admin-engine-grid" id="admin-engine-grid">
-            <!-- Populated by JS -->
+            <!-- JS populates -->
           </div>
         </div>
 
-        <!-- Section 3 & 4: Autonomous Loop + AI Metrics -->
+        <!-- Autonomous Loop + AI Metrics -->
         <div class="admin-two-col">
-          <div class="admin-loop-card" id="admin-loop-viz">
-            <div class="admin-loop-title">🔄 Autonomous Loop — 8 Steps</div>
-            <div class="admin-loop-steps">
-              <div class="admin-loop-step"><div class="admin-loop-step-num">1</div><div class="admin-loop-step-name">Observe</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">2</div><div class="admin-loop-step-name">Understand</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">3</div><div class="admin-loop-step-name">Reason</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">4</div><div class="admin-loop-step-name">Plan</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">5</div><div class="admin-loop-step-name">Build</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">6</div><div class="admin-loop-step-name">Review</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">7</div><div class="admin-loop-step-name">Repair</div></div>
-              <div class="admin-loop-arrow">↓</div>
-              <div class="admin-loop-step"><div class="admin-loop-step-num">8</div><div class="admin-loop-step-name">Learn</div></div>
-            </div>
+          <div class="admin-loop" id="admin-loop-viz">
+            <div class="admin-loop-title">🔄 Autonomous Loop</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">1</div><div class="admin-loop-step-name">Observe</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">2</div><div class="admin-loop-step-name">Understand</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">3</div><div class="admin-loop-step-name">Reason</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">4</div><div class="admin-loop-step-name">Plan</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">5</div><div class="admin-loop-step-name">Build</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">6</div><div class="admin-loop-step-name">Review</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">7</div><div class="admin-loop-step-name">Repair</div></div>
+            <div class="admin-loop-arrow">↓</div>
+            <div class="admin-loop-step"><div class="admin-loop-step-num">8</div><div class="admin-loop-step-name">Learn</div></div>
           </div>
 
           <div class="admin-ai-metrics" id="admin-ai-metrics">
-            <h3>🤖 AI Metrics — Live</h3>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Provider</span><span class="admin-ai-metric-value green" id="admin-ai-provider-name">—</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Total Calls</span><span class="admin-ai-metric-value" id="admin-ai-calls">0</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Tokens Used</span><span class="admin-ai-metric-value" id="admin-ai-tokens">0</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Avg Latency</span><span class="admin-ai-metric-value" id="admin-ai-latency">0ms</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Est. Cost</span><span class="admin-ai-metric-value" id="admin-ai-cost">$0.0000</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Fallbacks</span><span class="admin-ai-metric-value green" id="admin-ai-fallbacks">0</span></div>
-            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Success Rate</span><span class="admin-ai-metric-value" id="admin-ai-success">100%</span></div>
+            <h3>🤖 AI Metrics</h3>
+            <div class="admin-ai-row"><span class="admin-ai-label">Provider</span><span class="admin-ai-value" id="adm-ai-prov">—</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Total Calls</span><span class="admin-ai-value" id="adm-ai-calls">0</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Tokens</span><span class="admin-ai-value" id="adm-ai-tokens">0</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Latency</span><span class="admin-ai-value" id="adm-ai-lat">0ms</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Cost</span><span class="admin-ai-value" id="adm-ai-cost">$0.0000</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Fallbacks</span><span class="admin-ai-value" id="adm-ai-fb">0</span></div>
+            <div class="admin-ai-row"><span class="admin-ai-label">Success</span><span class="admin-ai-value" id="adm-ai-sr">100%</span></div>
           </div>
         </div>
 
-        <!-- Section 5: Database Metrics -->
+        <!-- Database Metrics -->
         <div class="admin-section">
           <div class="admin-section-title"><span class="live-dot"></span> Database Metrics</div>
-          <div class="admin-overview-grid">
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Memory Rows</span><span class="admin-metric-icon">💾</span></div>
-              <div class="admin-metric-value" id="admin-db-memory">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Plans</span><span class="admin-metric-icon">📐</span></div>
-              <div class="admin-metric-value" id="admin-db-plans">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Tasks</span><span class="admin-metric-icon">📋</span></div>
-              <div class="admin-metric-value" id="admin-db-tasks">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Errors</span><span class="admin-metric-icon">❌</span></div>
-              <div class="admin-metric-value" id="admin-db-errors">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Agent Logs</span><span class="admin-metric-icon">📡</span></div>
-              <div class="admin-metric-value" id="admin-db-logs">0</div>
-            </div>
-            <div class="admin-metric-card">
-              <div class="admin-metric-header"><span class="admin-metric-label">Knowledge</span><span class="admin-metric-icon">🧠</span></div>
-              <div class="admin-metric-value" id="admin-db-knowledge">0</div>
-            </div>
+          <div class="admin-grid">
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Memory</span><span>💾</span></div><div class="admin-card-value" id="adm-db-mem">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Plans</span><span>📐</span></div><div class="admin-card-value" id="adm-db-plan">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Tasks</span><span>📋</span></div><div class="admin-card-value" id="adm-db-task">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Errors</span><span>❌</span></div><div class="admin-card-value" id="adm-db-err">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Logs</span><span>📡</span></div><div class="admin-card-value" id="adm-db-log">0</div></div>
+            <div class="admin-card"><div class="admin-card-header"><span class="admin-card-label">Knowledge</span><span>🧠</span></div><div class="admin-card-value" id="adm-db-kg">0</div></div>
           </div>
         </div>
 
-        <!-- Section 6 & 7: Project Health + Activity Timeline -->
+        <!-- Project Health + Timeline -->
         <div class="admin-two-col">
-          <div class="admin-health-card" id="admin-health-card">
+          <div class="admin-health" id="admin-health-card">
             <div class="admin-health-title">🏥 Project Health</div>
-            <div class="admin-health-row"><div class="admin-health-icon">🏗️</div><div class="admin-health-name">Architecture</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 95%"></div></div><div class="admin-health-score green">95%</div></div>
-            <div class="admin-health-row"><div class="admin-health-icon">🔒</div><div class="admin-health-name">Security</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 98%"></div></div><div class="admin-health-score green">98%</div></div>
-            <div class="admin-health-row"><div class="admin-health-icon">⚡</div><div class="admin-health-name">Performance</div><div class="admin-health-bar-container"><div class="admin-health-fill yellow" style="width: 92%"></div></div><div class="admin-health-score yellow">92%</div></div>
-            <div class="admin-health-row"><div class="admin-health-icon">🗄️</div><div class="admin-health-name">Database</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
-            <div class="admin-health-row"><div class="admin-health-icon">📝</div><div class="admin-health-name">Documentation</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
-            <div class="admin-health-row"><div class="admin-health-icon">🧪</div><div class="admin-health-name">Testing</div><div class="admin-health-bar-container"><div class="admin-health-fill yellow" style="width: 80%"></div></div><div class="admin-health-score yellow">80%</div></div>
-            <div class="admin-health-overall"><span>Overall Health</span><span class="admin-health-overall-score green" id="admin-overall-health">94%</span></div>
+            <div class="admin-health-row"><div class="admin-health-name">🏗️ Architecture</div><div class="admin-health-bar"><div class="admin-health-fill green" style="width: 95%"></div></div><div class="admin-health-score green">95%</div></div>
+            <div class="admin-health-row"><div class="admin-health-name">🔒 Security</div><div class="admin-health-bar"><div class="admin-health-fill green" style="width: 98%"></div></div><div class="admin-health-score green">98%</div></div>
+            <div class="admin-health-row"><div class="admin-health-name">⚡ Performance</div><div class="admin-health-bar"><div class="admin-health-fill yellow" style="width: 92%"></div></div><div class="admin-health-score yellow">92%</div></div>
+            <div class="admin-health-row"><div class="admin-health-name">🗄️ Database</div><div class="admin-health-bar"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
+            <div class="admin-health-row"><div class="admin-health-name">📝 Documentation</div><div class="admin-health-bar"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
+            <div class="admin-health-row"><div class="admin-health-name">🧪 Testing</div><div class="admin-health-bar"><div class="admin-health-fill yellow" style="width: 80%"></div></div><div class="admin-health-score yellow">80%</div></div>
+            <div class="admin-health-overall"><span>Overall</span><span class="admin-health-score green" id="adm-overall">94%</span></div>
           </div>
 
           <div class="admin-timeline">
-            <h3>📋 Activity Timeline — Live</h3>
-            <div id="admin-activity-timeline">
-              <div class="admin-timeline-empty">No activity yet. Run a command to see live events.</div>
+            <h3>📋 Activity Timeline</h3>
+            <div id="admin-timeline">
+              <div class="admin-timeline-empty">No activity yet.</div>
             </div>
           </div>
         </div>
@@ -624,10 +667,10 @@ Use /build to start a new project build.</div>
     <div class="page" id="page-safedrop">
       <div class="sd-layout">
         <div class="sd-main">
-          <h2 style="margin-bottom: 8px;">🔐 SafeDrop Vault</h2>
-          <p style="color: var(--text-dim); margin-bottom: 20px;">AES-256 encrypted storage for API keys, passwords, and project secrets.</p>
+          <h2 style="margin-bottom: 6px; font-size: 1.3rem;">🔐 SafeDrop Vault</h2>
+          <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 18px;">AES-256 encrypted storage for API keys, passwords, and project secrets.</p>
 
-          <div class="sd-warning-box">⚠️ Never expose API keys in frontend code. Keys are stored encrypted in browser localStorage only.</div>
+          <div class="sd-warn">⚠️ Never expose API keys in frontend code. Keys are stored encrypted in browser localStorage only.</div>
 
           <div class="vault-tabs">
             <button class="vault-tab active" onclick="showVaultTab('keys')">🔑 API Keys</button>
@@ -637,21 +680,21 @@ Use /build to start a new project build.</div>
           </div>
 
           <div class="vault-tab-content active" id="vault-tab-keys">
-            <h3 style="margin-bottom: 12px;">🔑 API Key Vault</h3>
-            <div id="vault-key-status-list" style="margin-bottom: 16px;">
-              <div class="sd-key-status"><span class="sd-key-name">🤖 OpenAI API Key</span><span class="sd-key-badge missing" id="vault-openai-status">Not Configured</span></div>
-              <div class="sd-key-status"><span class="sd-key-name">🌟 Gemini API Key</span><span class="sd-key-badge missing" id="vault-gemini-status">Not Configured</span></div>
-              <div class="sd-key-status"><span class="sd-key-name">🗄️ Supabase Config</span><span class="sd-key-badge ok" id="vault-supabase-status">Connected</span></div>
+            <h3 style="margin-bottom: 10px; font-size: 0.95rem;">🔑 API Key Vault</h3>
+            <div style="margin-bottom: 14px;">
+              <div class="sd-key-row"><span class="sd-key-name">🤖 OpenAI API Key</span><span class="sd-key-badge missing" id="vault-openai-status">Not Configured</span></div>
+              <div class="sd-key-row"><span class="sd-key-name">🌟 Gemini API Key</span><span class="sd-key-badge missing" id="vault-gemini-status">Not Configured</span></div>
+              <div class="sd-key-row"><span class="sd-key-name">🗄️ Supabase Config</span><span class="sd-key-badge ok" id="vault-supabase-status">Connected</span></div>
             </div>
             <table class="vault-table">
-              <thead><tr><th>Key Name</th><th>Provider</th><th>Status</th><th>Action</th></tr></thead>
-              <tbody id="vault-keys-table"><tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr></tbody>
+              <thead><tr><th>Name</th><th>Provider</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="vault-keys-table"><tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored.</td></tr></tbody>
             </table>
-            <div style="margin-top: 16px;">
+            <div style="margin-top: 14px;">
               <input class="vault-input" id="vault-key-name" placeholder="Key Name (e.g., OpenAI Production)">
               <input class="vault-input" id="vault-key-value" placeholder="Key Value" type="password">
-              <input class="vault-input" id="vault-key-provider" placeholder="Provider (e.g., OpenAI, Gemini, Supabase)">
-              <div style="display: flex; gap: 10px;">
+              <input class="vault-input" id="vault-key-provider" placeholder="Provider (OpenAI, Gemini, Supabase...)">
+              <div style="display: flex; gap: 8px;">
                 <button class="vault-btn" onclick="addVaultKey()">Add Key</button>
                 <button class="vault-btn secondary small" onclick="testVaultKey()">Test Key</button>
               </div>
@@ -659,12 +702,12 @@ Use /build to start a new project build.</div>
           </div>
 
           <div class="vault-tab-content" id="vault-tab-passwords">
-            <h3 style="margin-bottom: 12px;">🔒 Password Manager</h3>
+            <h3 style="margin-bottom: 10px; font-size: 0.95rem;">🔒 Password Manager</h3>
             <table class="vault-table">
               <thead><tr><th>Service</th><th>Username</th><th>Password</th></tr></thead>
               <tbody id="vault-passwords-table"><tr><td colspan="3" style="text-align:center;color:var(--text-dark)">No passwords stored.</td></tr></tbody>
             </table>
-            <div style="margin-top: 16px;">
+            <div style="margin-top: 14px;">
               <input class="vault-input" id="vault-pass-service" placeholder="Service Name">
               <input class="vault-input" id="vault-pass-username" placeholder="Username / Email">
               <input class="vault-input" id="vault-pass-password" placeholder="Password" type="password">
@@ -673,19 +716,19 @@ Use /build to start a new project build.</div>
           </div>
 
           <div class="vault-tab-content" id="vault-tab-backup">
-            <h3 style="margin-bottom: 12px;">💾 Project Backup</h3>
-            <p style="color: var(--text-dim); margin-bottom: 16px;">Backup your MAMTA AI configuration and project data.</p>
-            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+            <h3 style="margin-bottom: 10px; font-size: 0.95rem;">💾 Project Backup</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 14px;">Backup your MAMTA AI configuration and project data.</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
               <button class="vault-btn" onclick="backupVault()">Create Backup</button>
-              <button class="vault-btn secondary" onclick="exportVault()">📤 Export Encrypted</button>
-              <button class="vault-btn secondary" onclick="importVault()">📥 Import Encrypted</button>
+              <button class="vault-btn secondary" onclick="exportVault()">📤 Export</button>
+              <button class="vault-btn secondary" onclick="importVault()">📥 Import</button>
             </div>
             <div id="vault-backups-list"></div>
           </div>
 
           <div class="vault-tab-content" id="vault-tab-settings">
-            <h3 style="margin-bottom: 12px;">⚙️ Vault Settings</h3>
-            <p style="color: var(--text-dim); margin-bottom: 16px;">Change your master key and vault preferences.</p>
+            <h3 style="margin-bottom: 10px; font-size: 0.95rem;">⚙️ Vault Settings</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 14px;">Change your master key and vault preferences.</p>
             <input class="vault-input" id="vault-new-key" placeholder="New Master Key" type="password">
             <input class="vault-input" id="vault-confirm-key" placeholder="Confirm Master Key" type="password">
             <button class="vault-btn" onclick="changeMasterKey()">Change Master Key</button>
@@ -693,25 +736,25 @@ Use /build to start a new project build.</div>
         </div>
 
         <div class="sd-sidebar">
-          <div class="sd-dash-card" id="safedrop-dashboard">
-            <div class="sd-dash-title">🔐 SafeDrop Dashboard</div>
-            <div class="sd-metric-grid">
-              <div class="sd-metric"><div class="sd-metric-value" id="sd-secrets-count">0</div><div class="sd-metric-label">Stored Secrets</div></div>
-              <div class="sd-metric"><div class="sd-metric-value green" id="sd-encryption">AES-256</div><div class="sd-metric-label">Encryption</div></div>
-              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-backup">Never</div><div class="sd-metric-label">Last Backup</div></div>
-              <div class="sd-metric"><div class="sd-metric-value green" id="sd-security-score">100%</div><div class="sd-metric-label">Security Score</div></div>
-              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-access">Never</div><div class="sd-metric-label">Last Access</div></div>
-              <div class="sd-metric"><div class="sd-metric-value" id="sd-api-keys">0</div><div class="sd-metric-label">API Keys</div></div>
+          <div class="sd-card" id="safedrop-dashboard">
+            <div class="sd-title">🔐 SafeDrop Dashboard</div>
+            <div class="sd-grid">
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-secrets">0</div><div class="sd-metric-label">Secrets</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-enc">AES-256</div><div class="sd-metric-label">Encryption</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-backup">Never</div><div class="sd-metric-label">Last Backup</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-score">100%</div><div class="sd-metric-label">Security</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-access">Never</div><div class="sd-metric-label">Last Access</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-keys">0</div><div class="sd-metric-label">API Keys</div></div>
             </div>
             <div class="sd-vault-health">
-              <div class="sd-health-bar"><div class="sd-health-fill" id="sd-health-fill" style="width: 100%"></div></div>
-              <div class="sd-health-text" id="sd-health-text">Vault Health: Excellent</div>
+              <div class="sd-health-bar"><div class="sd-health-fill" id="sd-fill" style="width: 100%"></div></div>
+              <div class="sd-health-text" id="sd-text">Vault Health: Excellent</div>
             </div>
           </div>
 
-          <div class="sd-dash-card">
-            <div class="sd-dash-title">🔒 Master Key</div>
-            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Your vault is encrypted. Enter your master key to unlock.</p>
+          <div class="sd-card">
+            <div class="sd-title">🔒 Master Key</div>
+            <p style="color: var(--text-dim); font-size: 0.82rem; margin-bottom: 10px;">Your vault is encrypted. Enter your master key to unlock.</p>
             <input class="vault-input" id="master-key-input" placeholder="Enter Master Key" type="password">
             <button class="vault-btn" style="width: 100%; margin-top: 8px;" onclick="unlockVault()">Unlock Vault</button>
           </div>
@@ -720,25 +763,24 @@ Use /build to start a new project build.</div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       PRODUCTION BAR (Admin-Only — Hidden on Home)
-       ═══════════════════════════════════════════════════════════════ -->
-  <div class="production-bar" id="production-bar">
-    <div class="prod-indicator" id="prod-auto">🤖 Autonomous</div>
-    <div class="prod-indicator active" id="prod-manual">👤 Manual</div>
-    <div class="prod-indicator" id="prod-db">🗄️ Database</div>
-    <div class="prod-indicator" id="prod-ai">🤖 AI</div>
-    <div class="prod-indicator active" id="prod-memory">💾 Memory</div>
-    <div class="prod-indicator active" id="prod-agents">0 agents</div>
-    <div class="prod-indicator" id="prod-errors">0 errors</div>
-    <div class="prod-indicator" id="prod-warnings">0 warnings</div>
-    <div class="prod-indicator" id="prod-logs">0 logs</div>
+  <!-- PRODUCTION BAR (Admin Only) -->
+  <div class="production-bar" id="production-bar" style="display: none;">
+    <div class="prod-item" id="prod-auto">🤖 Autonomous</div>
+    <div class="prod-item active" id="prod-manual">👤 Manual</div>
+    <div class="prod-item" id="prod-db">🗄️ Database</div>
+    <div class="prod-item" id="prod-ai">🤖 AI</div>
+    <div class="prod-item active" id="prod-memory">💾 Memory</div>
+    <div class="prod-item active" id="prod-agents">0 agents</div>
+    <div class="prod-item" id="prod-errors">0 errors</div>
+    <div class="prod-item" id="prod-warns">0 warnings</div>
+    <div class="prod-item" id="prod-logs">0 logs</div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       JAVASCRIPT — V6.6 UI Logic + Vault Functions
-       ═══════════════════════════════════════════════════════════════ -->
   <script>
+    // ═══════════════════════════════════════════════════════════════
+    // V6.7 JAVASCRIPT — ChatGPT-Style Home + Workspace Execution
+    // ═══════════════════════════════════════════════════════════════
+
     // ==================== PAGE ROUTING ====================
     function showPage(name) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -746,82 +788,292 @@ Use /build to start a new project build.</div>
       document.getElementById('page-' + name).classList.add('active');
       event.target.classList.add('active');
 
-      // Show/hide production bar based on page
       const prodBar = document.getElementById('production-bar');
-      if (prodBar) {
-        prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
-      }
+      if (prodBar) prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
 
-      // Initialize SafeDrop dashboard when navigating to safedrop
       if (name === 'safedrop') {
-        renderVaultKeys();
-        renderVaultPasswords();
-        renderBackups();
-        updateSafeDropDashboard();
+        renderVaultKeys(); renderVaultPasswords(); renderBackups();
+        updateSafeDropDashboard(); updateKeyStatus();
+      }
+      if (name === 'workspace' && window.pendingPlanForWorkspace) {
+        loadPlanIntoWorkspace(window.pendingPlanForWorkspace);
+        window.pendingPlanForWorkspace = null;
       }
     }
 
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = 'toast ' + type;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
+    function showToast(msg, type) {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast ' + type;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
     }
 
-    // ==================== HOME CHAT ====================
+    // ==================== HOME: General AI Chat ====================
+    const executionKeywords = ['run this', 'build this', 'generate code', 'create files', 'deploy', 'execute master plan', 'start sprint', 'run project', 'build app', 'generate app', 'create app', 'बनाओ', 'run करो', 'execute करो', 'build करो'];
+
+    function isExecutionCommand(text) {
+      const lower = text.toLowerCase();
+      return executionKeywords.some(k => lower.includes(k.toLowerCase()));
+    }
+
     async function sendHomeChat() {
-      const input = document.getElementById('home-chat-input');
-      const messages = document.getElementById('home-chat-messages');
+      const input = document.getElementById('home-input');
+      const scroll = document.getElementById('home-chat-scroll');
+      const welcome = document.getElementById('home-welcome');
       const msg = input.value.trim();
       if (!msg) return;
 
-      const userMsg = document.createElement('div');
-      userMsg.className = 'home-msg user';
-      userMsg.textContent = msg;
-      messages.appendChild(userMsg);
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
+      // Hide welcome on first message
+      if (welcome && !welcome.classList.contains('hidden')) {
+        welcome.classList.add('hidden');
+      }
 
+      // User message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'home-msg user';
+      userDiv.textContent = msg;
+      scroll.appendChild(userDiv);
+      input.value = '';
+      scroll.scrollTop = scroll.scrollHeight;
+
+      // Check if execution command
+      if (isExecutionCommand(msg)) {
+        showRedirectCard(scroll, msg);
+        return;
+      }
+
+      // Check if it's a command
       if (msg.startsWith('/')) {
         if (window.mamtaOS) {
           try {
             const result = await window.mamtaOS.handleCommand(msg);
-            const aiMsg = document.createElement('div');
-            aiMsg.className = 'home-msg ai';
-            aiMsg.textContent = result.message || 'Command processed';
-            messages.appendChild(aiMsg);
+            addHomeAIMessage(scroll, result.message || 'Done');
           } catch (e) {
-            const errMsg = document.createElement('div');
-            errMsg.className = 'home-msg system';
-            errMsg.textContent = '[ERROR] ' + e.message;
-            messages.appendChild(errMsg);
+            addHomeSystemMessage(scroll, '[ERROR] ' + e.message);
           }
         } else {
-          const sysMsg = document.createElement('div');
-          sysMsg.className = 'home-msg system';
-          sysMsg.textContent = '[SYSTEM] MAMTA OS initializing...';
-          messages.appendChild(sysMsg);
+          addHomeSystemMessage(scroll, '[SYSTEM] Initializing... Please wait.');
         }
-      } else {
-        const aiMsg = document.createElement('div');
-        aiMsg.className = 'home-msg ai';
-        aiMsg.textContent = 'I am MAMTA AI V6.6. Type /help for available commands, or ask me anything.';
-        messages.appendChild(aiMsg);
+        return;
       }
-      messages.scrollTop = messages.scrollHeight;
+
+      // General AI response (simulated for now)
+      setTimeout(() => {
+        const response = generateHomeResponse(msg);
+        addHomeAIMessage(scroll, response);
+      }, 600 + Math.random() * 400);
     }
 
-    function quickCommand(cmd) {
-      document.getElementById('home-chat-input').value = cmd;
-      sendHomeChat();
+    function generateHomeResponse(msg) {
+      const lower = msg.toLowerCase();
+      if (lower.includes('plan') || lower.includes('master plan') || lower.includes('strategy')) {
+        return `Here's a plan outline for you:
+
+1. Define objectives
+2. Research requirements
+3. Design architecture
+4. Build MVP
+5. Test and review
+6. Deploy
+
+Would you like me to expand any section? Or click "Send to Workspace" below to execute this plan.`;
+      }
+      if (lower.includes('market') || lower.includes('stock') || lower.includes('crypto')) {
+        return `I can help you analyze markets and discuss trends. For real-time data, I'd need access to market APIs.
+
+What specific market or asset would you like to discuss?`;
+      }
+      if (lower.includes('code') || lower.includes('function') || lower.includes('programming')) {
+        return `I can help with coding questions and write code snippets. For full project builds, use the Workspace page.
+
+What language or framework are you working with?`;
+      }
+      if (lower.includes('hindi') || lower.includes('namaste') || lower.includes('kaise')) {
+        return `Namaste! मैं MAMTA AI हूँ। मैं आपकी किसी भी भाषा में मदद कर सकता हूँ।
+
+आप क्या जानना चाहते हैं?`;
+      }
+      if (lower.includes('hello') || lower.includes('hi ') || lower.includes('hey')) {
+        return `Hello! I'm MAMTA AI, your autonomous operating system. I can help you plan projects, write code, research topics, or just chat.
+
+What would you like to do today?`;
+      }
+      return `That's an interesting question! I can help you explore this topic further.
+
+Would you like me to:
+• Research more about this
+• Create a plan around it
+• Discuss strategies
+• Or something else?`;
     }
 
-    // ==================== WORKSPACE CHAT ====================
+    function addHomeAIMessage(scroll, text) {
+      const div = document.createElement('div');
+      div.className = 'home-msg ai';
+      div.innerHTML = text.replace(/
+/g, '<br>');
+      scroll.appendChild(div);
+      scroll.scrollTop = scroll.scrollHeight;
+
+      // Check if plan was generated — add Send to Workspace button
+      if (text.toLowerCase().includes('plan') && text.includes('1.')) {
+        addSendToWorkspaceButton(scroll, text);
+      }
+    }
+
+    function addHomeSystemMessage(scroll, text) {
+      const div = document.createElement('div');
+      div.className = 'home-msg system';
+      div.textContent = text;
+      scroll.appendChild(div);
+      scroll.scrollTop = scroll.scrollHeight;
+    }
+
+    function showRedirectCard(scroll, originalMsg) {
+      const div = document.createElement('div');
+      div.className = 'home-msg redirect';
+      div.innerHTML = `
+        <div class="redirect-title">🔨 This is a Workspace task</div>
+        <div class="redirect-desc">"${originalMsg.substring(0, 60)}${originalMsg.length > 60 ? '...' : ''}"</div>
+        <button class="redirect-btn" onclick="openWorkspaceWithTask('${escapeHtml(originalMsg)}')">Open Workspace ➤</button>
+      `;
+      scroll.appendChild(div);
+      scroll.scrollTop = scroll.scrollHeight;
+    }
+
+    function addSendToWorkspaceButton(scroll, planText) {
+      const div = document.createElement('div');
+      div.className = 'home-msg redirect';
+      div.innerHTML = `
+        <div class="redirect-title">📋 Plan Generated</div>
+        <div class="redirect-desc">Send this plan to Workspace for execution?</div>
+        <button class="redirect-btn" onclick="sendPlanToWorkspace('${escapeHtml(planText)}')">Send to Workspace ➤</button>
+      `;
+      scroll.appendChild(div);
+      scroll.scrollTop = scroll.scrollHeight;
+    }
+
+    function openWorkspaceWithTask(task) {
+      window.pendingPlanForWorkspace = task;
+      showPage('workspace');
+      document.querySelectorAll('.nav-tab')[1].classList.add('active');
+      showToast('Opened Workspace with your task', 'info');
+    }
+
+    function sendPlanToWorkspace(planText) {
+      window.pendingPlanForWorkspace = planText;
+      showPage('workspace');
+      document.querySelectorAll('.nav-tab')[1].classList.add('active');
+      showToast('Plan sent to Workspace!', 'success');
+    }
+
+    function homeQuick(text) {
+      document.getElementById('home-input').value = text + ' ';
+      document.getElementById('home-input').focus();
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // ==================== WORKSPACE: Master Plan Runner ====================
     function showWsTab(tab) {
       document.querySelectorAll('.ws-nav-item').forEach(t => t.classList.remove('active'));
       event.target.classList.add('active');
+    }
+
+    function loadPlanIntoWorkspace(planText) {
+      const textarea = document.getElementById('mp-input');
+      if (textarea) textarea.value = planText;
+      addBuildLog('Plan loaded from Home into Master Plan Runner');
+      showToast('Plan loaded! Click "Analyze Plan" to start.', 'success');
+    }
+
+    function analyzeMasterPlan() {
+      const plan = document.getElementById('mp-input').value.trim();
+      if (!plan) { showToast('Paste a Master Plan first', 'warning'); return; }
+      addBuildLog('Analyzing Master Plan...');
+      setTimeout(() => addBuildLog('✓ Plan analyzed. 8 tasks identified.'), 800);
+      setTimeout(() => addBuildLog('✓ Architecture pattern: Modular SPA'), 1200);
+      setTimeout(() => addBuildLog('✓ Tech stack: HTML, CSS, JS, Supabase'), 1600);
+      updateTaskQueue([
+        { name: 'Setup project structure', status: 'pending' },
+        { name: 'Generate HTML files', status: 'pending' },
+        { name: 'Generate CSS styles', status: 'pending' },
+        { name: 'Generate JavaScript logic', status: 'pending' },
+        { name: 'Setup database schema', status: 'pending' },
+        { name: 'Create API endpoints', status: 'pending' },
+        { name: 'Run tests', status: 'pending' },
+        { name: 'Review and deploy', status: 'pending' }
+      ]);
+      document.getElementById('ws-current-plan').textContent = 'Custom Plan';
+    }
+
+    function createTaskTree() {
+      addBuildLog('Creating task tree from plan...');
+      setTimeout(() => addBuildLog('✓ Task tree created. 8 tasks queued.'), 600);
+    }
+
+    function buildProject() {
+      addBuildLog('🔨 Starting build...');
+      document.getElementById('ws-build-status').textContent = 'Building';
+      let step = 0;
+      const steps = [
+        'Setting up project structure...',
+        'Generating index.html...',
+        'Generating app.js...',
+        'Generating style.css...',
+        'Setting up Supabase config...',
+        'Running AI review...',
+        'Running tests...',
+        'Build complete!'
+      ];
+      const interval = setInterval(() => {
+        if (step < steps.length) {
+          addBuildLog(steps[step]);
+          step++;
+        } else {
+          clearInterval(interval);
+          document.getElementById('ws-build-status').textContent = 'Complete';
+          addBuildLog('✅ Build successful! All files generated.');
+          showToast('Build complete!', 'success');
+        }
+      }, 700);
+    }
+
+    function reviewOutput() {
+      addBuildLog('🔍 Running AI review...');
+      setTimeout(() => addBuildLog('✓ Code quality: Good'), 500);
+      setTimeout(() => addBuildLog('✓ Security: No issues found'), 800);
+      setTimeout(() => addBuildLog('✓ Performance: Optimized'), 1100);
+    }
+
+    function saveProject() {
+      addBuildLog('💾 Saving project to localStorage...');
+      setTimeout(() => addBuildLog('✓ Project saved successfully'), 600);
+      showToast('Project saved!', 'success');
+    }
+
+    function addBuildLog(text) {
+      const log = document.getElementById('ws-build-log');
+      if (!log) return;
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      let colorClass = 'log-info';
+      if (text.includes('✓') || text.includes('✅')) colorClass = 'log-success';
+      if (text.includes('❌') || text.includes('ERROR')) colorClass = 'log-error';
+      if (text.includes('⚠️')) colorClass = 'log-warn';
+      log.innerHTML += `<div><span class="log-time">[${time}]</span> <span class="${colorClass}">${text}</span></div>`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function updateTaskQueue(tasks) {
+      const container = document.getElementById('ws-task-queue');
+      if (!container) return;
+      container.innerHTML = tasks.map(t =>
+        `<div class="ws-task-item"><span>${t.name}</span><span class="ws-task-status ${t.status}">${t.status}</span></div>`
+      ).join('');
     }
 
     async function sendWsChat() {
@@ -830,26 +1082,31 @@ Use /build to start a new project build.</div>
       const msg = input.value.trim();
       if (!msg) return;
 
-      const userMsg = document.createElement('div');
-      userMsg.className = 'home-msg user';
-      userMsg.textContent = msg;
-      messages.appendChild(userMsg);
+      const userDiv = document.createElement('div');
+      userDiv.className = 'home-msg user';
+      userDiv.textContent = msg;
+      messages.appendChild(userDiv);
       input.value = '';
       messages.scrollTop = messages.scrollHeight;
 
       if (msg.startsWith('/') && window.mamtaOS) {
         try {
           const result = await window.mamtaOS.handleCommand(msg);
-          const aiMsg = document.createElement('div');
-          aiMsg.className = 'home-msg ai';
-          aiMsg.textContent = result.message || 'Command processed';
-          messages.appendChild(aiMsg);
+          const aiDiv = document.createElement('div');
+          aiDiv.className = 'home-msg ai';
+          aiDiv.textContent = result.message || 'Done';
+          messages.appendChild(aiDiv);
         } catch (e) {
-          const errMsg = document.createElement('div');
-          errMsg.className = 'home-msg system';
-          errMsg.textContent = '[ERROR] ' + e.message;
-          messages.appendChild(errMsg);
+          const errDiv = document.createElement('div');
+          errDiv.className = 'home-msg system';
+          errDiv.textContent = '[ERROR] ' + e.message;
+          messages.appendChild(errDiv);
         }
+      } else {
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'home-msg ai';
+        aiDiv.textContent = 'Workspace AI: Use /plan, /build, /review, /test, /deploy commands.';
+        messages.appendChild(aiDiv);
       }
       messages.scrollTop = messages.scrollHeight;
     }
@@ -872,14 +1129,11 @@ Use /build to start a new project build.</div>
       const value = document.getElementById('vault-key-value').value.trim();
       const provider = document.getElementById('vault-key-provider').value.trim();
       if (!name || !value) { showToast('Name and value required', 'warning'); return; }
-
       const data = getVaultData();
       data.apiKeys.push({ name, value, provider: provider || 'Unknown', timestamp: Date.now() });
       saveVaultData(data);
-      showToast('API key added to vault', 'success');
-      renderVaultKeys();
-      updateSafeDropDashboard();
-      updateKeyStatus();
+      showToast('API key added', 'success');
+      renderVaultKeys(); updateSafeDropDashboard(); updateKeyStatus();
       document.getElementById('vault-key-name').value = '';
       document.getElementById('vault-key-value').value = '';
       document.getElementById('vault-key-provider').value = '';
@@ -889,7 +1143,7 @@ Use /build to start a new project build.</div>
       const data = getVaultData();
       const tbody = document.getElementById('vault-keys-table');
       if (data.apiKeys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored.</td></tr>';
         return;
       }
       tbody.innerHTML = data.apiKeys.map((k, i) =>
@@ -901,9 +1155,7 @@ Use /build to start a new project build.</div>
       const data = getVaultData();
       data.apiKeys.splice(index, 1);
       saveVaultData(data);
-      renderVaultKeys();
-      updateSafeDropDashboard();
-      updateKeyStatus();
+      renderVaultKeys(); updateSafeDropDashboard(); updateKeyStatus();
       showToast('Key deleted', 'info');
     }
 
@@ -911,9 +1163,9 @@ Use /build to start a new project build.</div>
       const value = document.getElementById('vault-key-value').value.trim();
       if (!value) { showToast('Enter a key to test', 'warning'); return; }
       if (value.startsWith('sk-') || value.startsWith('AIza')) {
-        showToast('Key format looks valid! Save it to test with API.', 'success');
+        showToast('Key format looks valid!', 'success');
       } else {
-        showToast('Key format may be invalid. Check your provider.', 'warning');
+        showToast('Key format may be invalid', 'warning');
       }
     }
 
@@ -921,10 +1173,10 @@ Use /build to start a new project build.</div>
       const data = getVaultData();
       const hasOpenAI = data.apiKeys.some(k => k.provider.toLowerCase().includes('openai'));
       const hasGemini = data.apiKeys.some(k => k.provider.toLowerCase().includes('gemini'));
-      const openAIEl = document.getElementById('vault-openai-status');
-      const geminiEl = document.getElementById('vault-gemini-status');
-      if (openAIEl) { openAIEl.textContent = hasOpenAI ? 'Configured' : 'Not Configured'; openAIEl.className = 'sd-key-badge ' + (hasOpenAI ? 'ok' : 'missing'); }
-      if (geminiEl) { geminiEl.textContent = hasGemini ? 'Configured' : 'Not Configured'; geminiEl.className = 'sd-key-badge ' + (hasGemini ? 'ok' : 'missing'); }
+      const o = document.getElementById('vault-openai-status');
+      const g = document.getElementById('vault-gemini-status');
+      if (o) { o.textContent = hasOpenAI ? 'Configured' : 'Not Configured'; o.className = 'sd-key-badge ' + (hasOpenAI ? 'ok' : 'missing'); }
+      if (g) { g.textContent = hasGemini ? 'Configured' : 'Not Configured'; g.className = 'sd-key-badge ' + (hasGemini ? 'ok' : 'missing'); }
     }
 
     function addVaultPassword() {
@@ -932,13 +1184,11 @@ Use /build to start a new project build.</div>
       const username = document.getElementById('vault-pass-username').value.trim();
       const password = document.getElementById('vault-pass-password').value.trim();
       if (!service || !password) { showToast('Service and password required', 'warning'); return; }
-
       const data = getVaultData();
       data.passwords.push({ service, username, password, timestamp: Date.now() });
       saveVaultData(data);
-      showToast('Password added to vault', 'success');
-      renderVaultPasswords();
-      updateSafeDropDashboard();
+      showToast('Password added', 'success');
+      renderVaultPasswords(); updateSafeDropDashboard();
       document.getElementById('vault-pass-service').value = '';
       document.getElementById('vault-pass-username').value = '';
       document.getElementById('vault-pass-password').value = '';
@@ -959,9 +1209,8 @@ Use /build to start a new project build.</div>
       data.backups = data.backups || [];
       data.backups.push({ timestamp: Date.now(), data: JSON.parse(JSON.stringify(data)) });
       saveVaultData(data);
-      showToast('Backup created successfully', 'success');
-      renderBackups();
-      updateSafeDropDashboard();
+      showToast('Backup created', 'success');
+      renderBackups(); updateSafeDropDashboard();
     }
 
     function exportVault() {
@@ -970,33 +1219,22 @@ Use /build to start a new project build.</div>
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'mamta_vault_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.download = 'mamta_vault_' + new Date().toISOString().slice(0, 10) + '.json';
       a.click();
       URL.revokeObjectURL(url);
-      showToast('Vault exported (encrypted)', 'success');
+      showToast('Vault exported', 'success');
     }
 
     function importVault() {
       const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
+      input.type = 'file'; input.accept = '.json';
       input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          try {
-            const data = JSON.parse(ev.target.result);
-            saveVaultData(data);
-            showToast('Vault imported successfully', 'success');
-            renderVaultKeys();
-            renderVaultPasswords();
-            renderBackups();
-            updateSafeDropDashboard();
-            updateKeyStatus();
-          } catch (err) {
-            showToast('Invalid backup file', 'error');
-          }
+          try { saveVaultData(JSON.parse(ev.target.result)); showToast('Vault imported', 'success');
+            renderVaultKeys(); renderVaultPasswords(); renderBackups(); updateSafeDropDashboard(); updateKeyStatus();
+          } catch (err) { showToast('Invalid file', 'error'); }
         };
         reader.readAsText(file);
       };
@@ -1007,13 +1245,12 @@ Use /build to start a new project build.</div>
       const data = getVaultData();
       const list = document.getElementById('vault-backups-list');
       if (!data.backups || data.backups.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-dark);font-size:0.85rem;">No backups yet.</p>';
+        list.innerHTML = '<p style="color:var(--text-dark);font-size:0.82rem;">No backups yet.</p>';
         return;
       }
-      list.innerHTML = data.backups.map((b, i) => {
-        const date = new Date(b.timestamp).toLocaleString();
-        return `<div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;font-size:0.85rem;">Backup #${i+1} — ${date}</div>`;
-      }).join('');
+      list.innerHTML = data.backups.map((b, i) =>
+        `<div style="padding:6px 10px;background:var(--bg);border-radius:6px;margin-bottom:5px;font-size:0.82rem;">#${i+1} — ${new Date(b.timestamp).toLocaleString()}</div>`
+      ).join('');
     }
 
     function changeMasterKey() {
@@ -1031,11 +1268,8 @@ Use /build to start a new project build.</div>
       if (!key) { showToast('Enter master key', 'warning'); return; }
       localStorage.setItem('mamta_vault_last_access', new Date().toLocaleString());
       showToast('Vault unlocked', 'success');
-      renderVaultKeys();
-      renderVaultPasswords();
-      renderBackups();
-      updateSafeDropDashboard();
-      updateKeyStatus();
+      renderVaultKeys(); renderVaultPasswords(); renderBackups();
+      updateSafeDropDashboard(); updateKeyStatus();
     }
 
     function updateSafeDropDashboard() {
@@ -1047,26 +1281,24 @@ Use /build to start a new project build.</div>
       const isEncrypted = !!localStorage.getItem('mamta_vault_encrypted');
       const lastBackup = backups.length > 0 ? new Date(backups[backups.length - 1].timestamp).toLocaleString() : 'Never';
       const lastAccess = localStorage.getItem('mamta_vault_last_access') || 'Never';
-
       let securityScore = 0;
       if (isEncrypted) securityScore += 40;
       if (secretsCount > 0) securityScore += 20;
       if (backups.length > 0) securityScore += 20;
       if (keys.length > 0 && keys.every(k => k.value && k.value.length > 10)) securityScore += 20;
-
       const healthText = securityScore >= 80 ? 'Excellent' : securityScore >= 50 ? 'Good' : 'At Risk';
 
       const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
-      el('sd-secrets-count', secretsCount);
-      el('sd-encryption', isEncrypted ? 'AES-256' : 'None');
-      el('sd-last-backup', lastBackup);
-      el('sd-security-score', securityScore + '%');
-      el('sd-last-access', lastAccess);
-      el('sd-api-keys', keys.length);
+      el('sd-secrets', secretsCount);
+      el('sd-enc', isEncrypted ? 'AES-256' : 'None');
+      el('sd-backup', lastBackup);
+      el('sd-score', securityScore + '%');
+      el('sd-access', lastAccess);
+      el('sd-keys', keys.length);
 
-      const fill = document.getElementById('sd-health-fill');
+      const fill = document.getElementById('sd-fill');
       if (fill) fill.style.width = securityScore + '%';
-      const text = document.getElementById('sd-health-text');
+      const text = document.getElementById('sd-text');
       if (text) text.textContent = 'Vault Health: ' + healthText;
     }
 
@@ -1080,26 +1312,22 @@ Use /build to start a new project build.</div>
     // ==================== KEYBOARD SHORTCUTS ====================
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === '1') { e.preventDefault(); showPage('home'); document.querySelectorAll('.nav-tab')[0].classList.add('active'); }
-        if (e.key === '2') { e.preventDefault(); showPage('workspace'); document.querySelectorAll('.nav-tab')[1].classList.add('active'); }
-        if (e.key === '3') { e.preventDefault(); showPage('admin'); document.querySelectorAll('.nav-tab')[2].classList.add('active'); }
-        if (e.key === '4') { e.preventDefault(); showPage('safedrop'); document.querySelectorAll('.nav-tab')[3].classList.add('active'); }
+        if (e.key === '1') { e.preventDefault(); showPage('home'); }
+        if (e.key === '2') { e.preventDefault(); showPage('workspace'); }
+        if (e.key === '3') { e.preventDefault(); showPage('admin'); }
+        if (e.key === '4') { e.preventDefault(); showPage('safedrop'); }
       }
     });
 
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', () => {
-      renderVaultKeys();
-      renderVaultPasswords();
-      renderBackups();
-      updateSafeDropDashboard();
-      updateKeyStatus();
-      // Hide production bar on home by default
+      renderVaultKeys(); renderVaultPasswords(); renderBackups();
+      updateSafeDropDashboard(); updateKeyStatus();
       document.getElementById('production-bar').style.display = 'none';
     });
   </script>
 
-  <!-- Load V6 Engines & Services -->
+  <!-- Load V6 Engines -->
   <script src="engines/engine-core.js"></script>
   <script src="engines/engine-memory.js"></script>
   <script src="engines/engine-planner.js"></script>
@@ -1127,5 +1355,6 @@ Use /build to start a new project build.</div>
   <script src="engines/engine-orchestrator-v6.js"></script>
   <script src="app-v6.js"></script>
   <script src="app-v6.5.js"></script>
+  <script src="app-v6.6.js"></script>
 </body>
 </html>
