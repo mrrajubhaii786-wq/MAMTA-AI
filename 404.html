@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MAMTA AI V6.7</title>
+  <script>
+    // GitHub Pages SPA redirect fix
+    // Redirects /workspace, /admin, /safedrop back to index.html with hash
+    var path = window.location.pathname;
+    var repo = '/MAMTA-AI';
+
+    // Remove repo prefix if present
+    if (path.indexOf(repo) === 0) {
+      path = path.substring(repo.length);
+    }
+
+    // Map paths to hash routes
+    var hashRoute = '';
+    if (path === '/workspace' || path.startsWith('/workspace/')) {
+      hashRoute = '#/workspace';
+    } else if (path === '/admin' || path.startsWith('/admin/')) {
+      hashRoute = '#/admin';
+    } else if (path === '/safedrop' || path.startsWith('/safedrop/')) {
+      hashRoute = '#/safedrop';
+    } else if (path === '/' || path === '/index.html') {
+      hashRoute = '#/home';
+    } else {
+      hashRoute = '#/home';
+    }
+
+    // Preserve query string
+    var search = window.location.search;
+
+    // Redirect to index.html with hash
+    window.location.replace(window.location.origin + repo + '/' + hashRoute + search);
+  </script>
+</head>
+<body>
+  <p>Redirecting to MAMTA AI...</p>
+</body>
+</html>
