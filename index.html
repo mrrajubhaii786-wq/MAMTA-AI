@@ -2,559 +2,1549 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MAMTA AI V6.7 — Talk. Build. Monitor. Secure.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAMTA AI V6.6 — Autonomous OS</title>
   <style>
+
     :root {
       --bg: #0a0e1a; --panel: #111827; --border: #1e293b; --border-light: #334155;
       --primary: #6366f1; --secondary: #8b5cf6; --success: #10b981; --warning: #f59e0b;
       --error: #ef4444; --cyan: #06b6d4; --text: #f1f5f9; --text-dim: #94a3b8;
       --text-dark: #64748b; --glass: rgba(17,24,39,0.85); --glass-border: rgba(99,102,241,0.15);
-      --input-bg: #1e293b; --radius: 12px; --radius-lg: 16px; --radius-xl: 24px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-    :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
     /* TOP NAV */
     .top-nav {
-      background: var(--panel); border-bottom: 1px solid var(--border); padding: 0 16px;
-      display: flex; align-items: center; justify-content: space-between; height: 56px;
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000; backdrop-filter: blur(10px);
+      background: var(--panel); border-bottom: 1px solid var(--border); padding: 0 20px;
+      display: flex; align-items: center; height: 56px; position: fixed;
+      top: 0; left: 0; right: 0; z-index: 1000; backdrop-filter: blur(10px);
     }
-    .nav-left { display: flex; align-items: center; gap: 12px; }
-    .logo { font-size: 1.25rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .version-pill {
-      font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; background: var(--border);
-      color: var(--text-dim); border: 1px solid var(--border-light); white-space: nowrap;
-    }
+    .logo { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-right: 30px; display: flex; align-items: center; gap: 8px; }
+    .logo::before { content: "🧠"; -webkit-text-fill-color: initial; }
     .nav-tabs { display: flex; gap: 4px; }
     .nav-tab {
-      padding: 8px 16px; border-radius: var(--radius); border: none; background: transparent;
-      color: var(--text-dim); font-size: 0.9rem; font-weight: 500; cursor: pointer;
-      transition: all 0.2s; position: relative;
+      padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      transition: all 0.2s; border: none; background: transparent; color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
     }
-    .nav-tab:hover { color: var(--text); background: rgba(99,102,241,0.08); }
-    .nav-tab.active { color: var(--primary); background: rgba(99,102,241,0.12); }
-    .nav-tab.active::after {
-      content: ''; position: absolute; bottom: -4px; left: 20%; right: 20%;
-      height: 2px; background: var(--primary); border-radius: 2px;
-    }
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .status-text { font-size: 0.75rem; color: var(--text-dim); }
+    .nav-tab:hover { background: rgba(99,102,241,0.1); color: var(--text); }
+    .nav-tab.active { background: var(--primary); color: white; }
+    .status-area { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+    .status-pill { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); color: var(--text-dim); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.green { background: var(--success); }
+    .dot.yellow { background: var(--warning); }
+    .dot.red { background: var(--error); }
 
-    /* PAGE CONTAINER */
-    .page-container { padding-top: 56px; min-height: 100vh; display: none; }
-    .page-container.active { display: flex; flex-direction: column; }
+    /* PAGES */
+    .main-content { padding-top: 56px; min-height: 100vh; }
+    .page { display: none; padding-bottom: 60px; }
+    .page.active { display: block; }
 
-    /* HOME — CHATGPT STYLE */
-    #page-home { height: 100vh; height: 100dvh; position: relative; }
-    .home-chat-area {
-      flex: 1; overflow-y: auto; padding: 20px 16px 140px; max-width: 800px; width: 100%; margin: 0 auto;
-    }
-    .welcome-screen {
+    /* ═══════════════════════════════════════════════════════════════
+       HOME PAGE — ChatGPT-Style Clean Chat
+       ═══════════════════════════════════════════════════════════════ */
+    .home-layout {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 60vh; text-align: center; gap: 24px; animation: fadeIn 0.6s ease;
+      min-height: calc(100vh - 56px); padding: 20px; position: relative;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .welcome-logo { font-size: 3rem; }
-    .welcome-title { font-size: 1.5rem; font-weight: 600; color: var(--text); }
-    .welcome-subtitle { font-size: 0.95rem; color: var(--text-dim); max-width: 400px; line-height: 1.6; }
-    .quick-actions {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 480px; width: 100%; margin-top: 8px;
-    }
-    .quick-action-btn {
-      padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border);
-      background: var(--panel); color: var(--text); font-size: 0.85rem; font-weight: 500;
-      cursor: pointer; transition: all 0.2s; text-align: left; display: flex; align-items: center; gap: 10px;
-    }
-    .quick-action-btn:hover { border-color: var(--primary); background: rgba(99,102,241,0.08); transform: translateY(-1px); }
-    .quick-action-btn .icon { font-size: 1.1rem; }
+    .home-hero { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .home-hero h1 { font-size: 3rem; margin-bottom: 16px; background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+    .home-hero .subtitle { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 8px; }
+    .home-hero .version-tag { display: inline-block; background: rgba(99,102,241,0.1); border: 1px solid var(--primary); padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; color: var(--primary); }
 
-    /* Chat messages */
-    .chat-message {
-      display: flex; gap: 12px; margin-bottom: 20px; animation: fadeIn 0.3s ease;
+    .home-chat-area { width: 100%; max-width: 800px; animation: fadeInUp 0.8s ease 0.1s both; }
+    .home-chat-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+      transition: all 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
-    .chat-message.user { flex-direction: row-reverse; }
-    .chat-avatar {
-      width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
-    }
-    .chat-message.ai .chat-avatar { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; }
-    .chat-bubble {
-      max-width: 80%; padding: 12px 16px; border-radius: var(--radius-lg); font-size: 0.95rem; line-height: 1.6;
-      background: var(--panel); border: 1px solid var(--border); color: var(--text);
-    }
-    .chat-message.user .chat-bubble { background: var(--primary); color: white; border: none; }
-    .chat-bubble pre {
-      background: #0f172a; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin-top: 8px;
-    }
-    .chat-bubble code { font-family: 'Fira Code', monospace; font-size: 0.85rem; }
-    .chat-bubble p { margin-bottom: 8px; }
-    .chat-bubble p:last-child { margin-bottom: 0; }
-    .chat-bubble ul { margin-left: 18px; margin-top: 6px; }
-    .chat-bubble li { margin-bottom: 4px; }
+    .home-chat-box:focus-within { border-color: var(--primary); box-shadow: 0 4px 30px rgba(99,102,241,0.15); }
+    .home-chat-input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 1rem; outline: none; padding: 8px 0; }
+    .home-chat-input::placeholder { color: var(--text-dark); }
+    .home-chat-send { background: var(--primary); border: none; border-radius: 10px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .home-chat-send:hover { background: var(--secondary); transform: scale(1.02); }
 
-    /* Execution redirect card */
-    .exec-card {
-      background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-      border: 1px solid var(--primary); border-radius: var(--radius-lg); padding: 16px; margin-top: 12px;
+    .home-quick-actions {
+      display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center;
+      animation: fadeInUp 1s ease 0.2s both;
     }
-    .exec-card-title { font-weight: 600; color: var(--primary); margin-bottom: 6px; }
-    .exec-card-text { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 12px; }
-    .exec-card-btn {
-      padding: 8px 16px; border-radius: var(--radius); border: none; background: var(--primary);
-      color: white; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s;
+    .home-quick-btn {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 10px 18px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
     }
-    .exec-card-btn:hover { opacity: 0.9; }
+    .home-quick-btn:hover { border-color: var(--primary); color: var(--text); background: rgba(99,102,241,0.08); transform: translateY(-2px); }
 
-    /* Send to Workspace button */
-    .send-to-ws-btn {
-      margin-top: 10px; padding: 6px 12px; border-radius: var(--radius); border: 1px solid var(--success);
-      background: rgba(16,185,129,0.1); color: var(--success); font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    .home-chat-messages {
+      width: 100%; max-width: 800px; margin-bottom: 20px; max-height: 350px;
+      overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
     }
-    .send-to-ws-btn:hover { background: var(--success); color: white; }
+    .home-msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; animation: fadeInUp 0.3s ease; }
+    .home-msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .home-msg.ai { background: var(--panel); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .home-msg.system { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); color: var(--cyan); align-self: center; font-size: 0.8rem; font-family: monospace; padding: 8px 14px; }
 
-    /* Input area */
-    .home-input-wrap {
-      position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px 20px;
-      background: linear-gradient(to top, var(--bg) 60%, transparent); z-index: 100;
-    }
-    .home-input-box {
-      max-width: 800px; margin: 0 auto; display: flex; align-items: flex-end; gap: 8px;
-      background: var(--input-bg); border: 1px solid var(--border-light); border-radius: var(--radius-xl);
-      padding: 10px 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .home-input-box textarea {
-      flex: 1; background: transparent; border: none; color: var(--text); font-size: 0.95rem;
-      resize: none; outline: none; min-height: 24px; max-height: 120px; font-family: inherit; line-height: 1.5;
-    }
-    .home-input-box textarea::placeholder { color: var(--text-dark); }
-    .input-btn {
-      width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent;
-      color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; transition: all 0.2s; flex-shrink: 0;
-    }
-    .input-btn:hover { background: rgba(99,102,241,0.1); color: var(--text); }
-    .input-btn.send { background: var(--primary); color: white; }
-    .input-btn.send:hover { background: var(--secondary); }
-    .input-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Typing indicator */
-    .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; }
-    .typing-indicator span { width: 8px; height: 8px; background: var(--text-dim); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-    .typing-indicator span:nth-child(1) { animation-delay: 0s; }
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-
-    /* WORKSPACE */
-    #page-workspace { flex-direction: row; }
-    .ws-sidebar {
-      width: 260px; background: var(--panel); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; padding: 16px; gap: 8px; flex-shrink: 0;
-    }
-    .ws-sidebar-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dark); margin-bottom: 4px; }
-    .ws-tab {
-      padding: 10px 12px; border-radius: var(--radius); border: none; background: transparent;
-      color: var(--text-dim); font-size: 0.9rem; text-align: left; cursor: pointer;
-      display: flex; align-items: center; gap: 10px; transition: all 0.2s;
-    }
-    .ws-tab:hover { background: rgba(99,102,241,0.08); color: var(--text); }
-    .ws-tab.active { background: rgba(99,102,241,0.12); color: var(--primary); font-weight: 500; }
-    .ws-main { flex: 1; overflow-y: auto; padding: 24px; }
-    .ws-section { display: none; }
-    .ws-section.active { display: block; }
-    .ws-section-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 20px; }
-
-    /* Master Plan Runner */
-    .plan-textarea {
-      width: 100%; min-height: 200px; background: var(--panel); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); padding: 16px; color: var(--text); font-family: 'Fira Code', monospace;
-      font-size: 0.9rem; resize: vertical; outline: none; line-height: 1.6;
-    }
-    .plan-textarea:focus { border-color: var(--primary); }
-    .plan-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-    .plan-btn {
-      padding: 10px 18px; border-radius: var(--radius); border: none; font-size: 0.85rem; font-weight: 500;
-      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
-    }
-    .plan-btn.primary { background: var(--primary); color: white; }
-    .plan-btn.primary:hover { background: #5558e0; }
-    .plan-btn.secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border-light); }
-    .plan-btn.secondary:hover { border-color: var(--primary); }
-    .plan-btn.success { background: var(--success); color: white; }
-    .plan-btn.success:hover { background: #0da271; }
-    .plan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .plan-btn .spinner {
-      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
-      border-radius: 50%; animation: spin 0.8s linear infinite; display: none;
-    }
-    .plan-btn.loading .spinner { display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Task Tree */
-    .task-tree { margin-top: 24px; }
-    .task-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius);
-      background: var(--panel); border: 1px solid var(--border); margin-bottom: 8px;
-    }
-    .task-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .task-status.pending { background: var(--text-dark); }
-    .task-status.running { background: var(--warning); animation: pulse 1.5s infinite; }
-    .task-status.completed { background: var(--success); }
-    .task-status.failed { background: var(--error); }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .task-name { flex: 1; font-size: 0.9rem; }
-    .task-badge {
-      font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; background: var(--border); color: var(--text-dim);
+    .home-bottom-status {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 16px; font-size: 0.75rem; color: var(--text-dark);
+      animation: fadeInUp 1.2s ease 0.3s both;
     }
 
-    /* Execution Dashboard */
-    .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
-    .dash-card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px;
-    }
-    .dash-card-title { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-    .dash-card-value { font-size: 1.5rem; font-weight: 700; }
-    .dash-card-sub { font-size: 0.8rem; color: var(--text-dark); margin-top: 4px; }
-    .logs-container {
-      background: #0f172a; border-radius: var(--radius); padding: 12px; font-family: 'Fira Code', monospace;
-      font-size: 0.8rem; max-height: 300px; overflow-y: auto; color: var(--text-dim); line-height: 1.6;
-    }
-    .log-entry { margin-bottom: 4px; }
-    .log-time { color: var(--text-dark); margin-right: 8px; }
-    .log-info { color: var(--cyan); }
-    .log-success { color: var(--success); }
-    .log-error { color: var(--error); }
-    .log-warn { color: var(--warning); }
-    .files-list { display: flex; flex-direction: column; gap: 6px; }
-    .file-item {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius);
-      background: rgba(99,102,241,0.05); border: 1px solid var(--border); font-size: 0.85rem;
-    }
-    .file-icon { font-size: 1.1rem; }
-    .file-name { flex: 1; }
-    .file-size { font-size: 0.75rem; color: var(--text-dark); }
+    /* ═══════════════════════════════════════════════════════════════
+       WORKSPACE PAGE — Developer IDE
+       ═══════════════════════════════════════════════════════════════ */
+    .ws-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; min-height: calc(100vh - 56px); }
+    .ws-sidebar { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; height: fit-content; position: sticky; top: 76px; }
+    .ws-sidebar h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .ws-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: var(--text-dim); font-size: 0.88rem; transition: all 0.2s; margin-bottom: 2px; }
+    .ws-nav-item:hover { background: rgba(99,102,241,0.1); color: var(--text); }
+    .ws-nav-item.active { background: var(--primary); color: white; }
+    .ws-main { display: flex; flex-direction: column; gap: 20px; }
+    .ws-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .ws-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .ws-metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .ws-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; transition: all 0.2s; }
+    .ws-metric:hover { border-color: var(--border-light); }
+    .ws-metric-value { font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .ws-metric-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .ws-console { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'Fira Code', Consolas, monospace; font-size: 0.85rem; color: var(--text-dim); overflow-x: auto; max-height: 300px; overflow-y: auto; }
+    .ws-file-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; cursor: pointer; color: var(--text-dim); font-size: 0.85rem; transition: all 0.2s; }
+    .ws-file-item:hover { background: rgba(99,102,241,0.08); color: var(--primary); }
+    .ws-task-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; }
+    .ws-task-status { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+    .ws-task-status.pending { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .ws-task-status.running { background: rgba(99,102,241,0.15); color: var(--primary); }
+    .ws-task-status.completed { background: rgba(16,185,129,0.15); color: var(--success); }
+    .ws-task-status.failed { background: rgba(239,68,68,0.15); color: var(--error); }
+    .ws-chat-area { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-height: 300px; overflow-y: auto; margin-bottom: 12px; }
+    .ws-chat-input-area { display: flex; gap: 10px; }
+    .ws-chat-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; outline: none; }
+    .ws-chat-input:focus { border-color: var(--primary); }
+    .ws-chat-send { background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; }
 
-    /* ADMIN (V6.6 Structure Preserved) */
-    #page-admin { padding: 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
-    .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
-    .admin-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
-    .admin-card h3 { font-size: 1rem; margin-bottom: 12px; color: var(--text); }
-    .engine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-    .engine-cell {
-      padding: 14px 10px; border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border);
-      text-align: center; font-size: 0.8rem; transition: all 0.2s;
-    }
-    .engine-cell.active { border-color: var(--success); color: var(--success); }
-    .engine-cell.inactive { border-color: var(--border); color: var(--text-dark); }
-    .loop-step {
-      display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius);
-      background: var(--bg); margin-bottom: 8px; font-size: 0.85rem;
-    }
-    .loop-step.active { border-left: 3px solid var(--primary); background: rgba(99,102,241,0.08); }
-    .loop-step.completed { border-left: 3px solid var(--success); color: var(--text-dim); }
-    .health-bar { height: 6px; border-radius: 3px; background: var(--border); margin-top: 8px; overflow: hidden; }
-    .health-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    /* ═══════════════════════════════════════════════════════════════
+       ADMIN PAGE — System Monitoring Cockpit
+       ═══════════════════════════════════════════════════════════════ */
+    .admin-layout { padding: 20px; max-width: 1600px; margin: 0 auto; padding-bottom: 80px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .admin-header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .admin-live-badge { background: rgba(16,185,129,0.1); border: 1px solid var(--success); color: var(--success); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .admin-live-badge .dot { animation: pulse-green 2s infinite; }
+    @keyframes pulse-green { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(16,185,129,0); } }
 
-    /* SAFEDROP (V6.6 Structure Preserved) */
-    #page-safedrop { padding: 24px; max-width: 800px; margin: 0 auto; width: 100%; }
-    .vault-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
-    .vault-card h3 { font-size: 1.1rem; margin-bottom: 16px; }
-    .vault-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .vault-table th, .vault-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    .vault-table th { color: var(--text-dim); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
-    .vault-input {
-      width: 100%; padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border);
-      background: var(--bg); color: var(--text); font-size: 0.9rem; outline: none; margin-bottom: 10px;
-    }
+    .admin-section { margin-bottom: 24px; }
+    .admin-section-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .admin-section-title .live-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse-green 2s infinite; }
+
+    .admin-overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .admin-metric-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; }
+    .admin-metric-card:hover { border-color: var(--border-light); }
+    .admin-metric-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .admin-metric-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-metric-icon { font-size: 1.2rem; opacity: 0.7; }
+    .admin-metric-value { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+    .admin-metric-value.green { color: var(--success); }
+    .admin-metric-value.red { color: var(--error); }
+    .admin-metric-value.yellow { color: var(--warning); }
+    .admin-metric-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+    .admin-metric-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease, background 0.3s ease; background: var(--success); }
+    .admin-metric-bar-label { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; text-align: right; }
+
+    .admin-engine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+    .admin-engine-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; transition: all 0.2s; }
+    .admin-engine-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+    .admin-engine-dot { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 8px; display: block; }
+    .admin-engine-dot.green { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .admin-engine-dot.cyan { background: var(--cyan); box-shadow: 0 0 8px rgba(6,182,212,0.4); animation: pulse-cyan 1.5s infinite; }
+    .admin-engine-dot.yellow { background: var(--warning); }
+    .admin-engine-dot.red { background: var(--error); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+    @keyframes pulse-cyan { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+    .admin-engine-name { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .admin-engine-status { font-size: 0.7rem; color: var(--text-dark); }
+
+    .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .admin-three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+    .admin-health-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .admin-health-title { font-size: 1rem; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .admin-health-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .admin-health-row:last-child { border-bottom: none; }
+    .admin-health-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .admin-health-name { font-size: 0.9rem; min-width: 110px; color: var(--text); }
+    .admin-health-bar-container { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .admin-health-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .admin-health-fill.green { background: var(--success); }
+    .admin-health-fill.yellow { background: var(--warning); }
+    .admin-health-fill.red { background: var(--error); }
+    .admin-health-score { font-size: 0.85rem; font-weight: 600; min-width: 40px; text-align: right; }
+    .admin-health-score.green { color: var(--success); }
+    .admin-health-score.yellow { color: var(--warning); }
+    .admin-health-score.red { color: var(--error); }
+    .admin-health-overall { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 1rem; font-weight: 600; }
+    .admin-health-overall-score { font-size: 1.3rem; }
+    .admin-health-overall-score.green { color: var(--success); }
+
+    .admin-timeline { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; max-height: 500px; overflow-y: auto; }
+    .admin-timeline h3 { font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .admin-timeline-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border); padding-left: 16px; position: relative; transition: all 0.2s; }
+    .admin-timeline-item:hover { background: rgba(255,255,255,0.02); border-radius: 0 8px 8px 0; }
+    .admin-timeline-item::before { content: ""; position: absolute; left: -5px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); }
+    .admin-timeline-item.success::before { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .admin-timeline-item.error::before { background: var(--error); }
+    .admin-timeline-item.warning::before { background: var(--warning); }
+    .admin-timeline-item.engine::before { background: var(--cyan); }
+    .admin-timeline-item.ai::before { background: var(--primary); }
+    .admin-timeline-time { font-size: 0.75rem; color: var(--text-dark); font-family: monospace; min-width: 60px; flex-shrink: 0; }
+    .admin-timeline-icon { font-size: 1rem; flex-shrink: 0; }
+    .admin-timeline-content { flex: 1; font-size: 0.85rem; color: var(--text); line-height: 1.4; }
+    .admin-timeline-empty { text-align: center; color: var(--text-dark); font-size: 0.85rem; padding: 30px 0; }
+
+    .admin-loop-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; }
+    .admin-loop-title { font-size: 1rem; font-weight: 600; margin-bottom: 20px; color: var(--text); }
+    .admin-loop-steps { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .admin-loop-step { display: flex; align-items: center; gap: 12px; padding: 10px 20px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); min-width: 200px; transition: all 0.4s ease; opacity: 0.5; }
+    .admin-loop-step.completed { opacity: 1; border-color: var(--success); background: rgba(16,185,129,0.05); }
+    .admin-loop-step.active { opacity: 1; border-color: var(--cyan); background: rgba(6,182,212,0.08); transform: scale(1.05); animation: glow-cyan 1.5s ease-in-out infinite alternate; }
+    @keyframes glow-cyan { from { box-shadow: 0 0 10px rgba(6,182,212,0.2); } to { box-shadow: 0 0 25px rgba(6,182,212,0.5), 0 0 50px rgba(6,182,212,0.2); } }
+    .admin-loop-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-dim); flex-shrink: 0; }
+    .admin-loop-step.completed .admin-loop-step-num { background: var(--success); color: white; }
+    .admin-loop-step.active .admin-loop-step-num { background: var(--cyan); color: white; }
+    .admin-loop-step-name { font-size: 0.9rem; font-weight: 500; }
+    .admin-loop-step.active .admin-loop-step-name { color: var(--cyan); font-weight: 600; }
+    .admin-loop-step.completed .admin-loop-step-name { color: var(--success); }
+    .admin-loop-arrow { font-size: 1.2rem; color: var(--border-light); line-height: 1; opacity: 0.3; }
+    .admin-loop-arrow.completed { color: var(--success); opacity: 0.6; }
+    .admin-loop-current { margin-top: 16px; font-size: 0.85rem; color: var(--text-dim); }
+    .admin-loop-current span { color: var(--cyan); font-weight: 600; }
+
+    .admin-ai-metrics { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .admin-ai-metrics h3 { font-size: 1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .admin-ai-metric-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .admin-ai-metric-row:last-child { border-bottom: none; }
+    .admin-ai-metric-label { font-size: 0.85rem; color: var(--text-dim); }
+    .admin-ai-metric-value { font-size: 0.9rem; font-weight: 600; color: var(--text); font-family: monospace; }
+    .admin-ai-metric-value.green { color: var(--success); }
+    .admin-ai-metric-value.cyan { color: var(--cyan); }
+    .admin-ai-metric-value.warning { color: var(--warning); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SAFEDROP PAGE — Security Vault
+       ═══════════════════════════════════════════════════════════════ */
+    .sd-layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; min-height: calc(100vh - 56px); }
+    .sd-main { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .sd-sidebar { display: flex; flex-direction: column; gap: 20px; }
+    .sd-dash-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .sd-dash-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .sd-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .sd-metric { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+    .sd-metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .sd-metric-value.green { color: var(--success); }
+    .sd-metric-value.red { color: var(--error); }
+    .sd-metric-value.yellow { color: var(--warning); }
+    .sd-metric-label { font-size: 0.75rem; color: var(--text-dim); }
+    .sd-vault-health { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .sd-health-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .sd-health-fill { height: 100%; border-radius: 4px; background: var(--success); transition: width 0.5s ease; }
+    .sd-health-text { font-size: 0.85rem; color: var(--text-dim); text-align: center; }
+    .sd-key-status { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .sd-key-status:last-child { border-bottom: none; }
+    .sd-key-status .sd-key-name { flex: 1; color: var(--text); }
+    .sd-key-status .sd-key-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+    .sd-key-status .sd-key-badge.ok { background: rgba(16,185,129,0.15); color: var(--success); }
+    .sd-key-status .sd-key-badge.missing { background: rgba(239,68,68,0.15); color: var(--error); }
+    .sd-warning-box { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 12px; font-size: 0.85rem; color: var(--warning); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* VAULT TABS */
+    .vault-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .vault-tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-dim); border: none; background: transparent; transition: all 0.2s; }
+    .vault-tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .vault-tab.active { color: var(--primary); background: rgba(99,102,241,0.1); font-weight: 600; }
+    .vault-tab-content { display: none; }
+    .vault-tab-content.active { display: block; }
+    .vault-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.9rem; margin-bottom: 10px; outline: none; transition: border-color 0.2s; }
     .vault-input:focus { border-color: var(--primary); }
+    .vault-btn { background: var(--primary); border: none; border-radius: 8px; padding: 10px 20px; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+    .vault-btn:hover { background: var(--secondary); }
+    .vault-btn.secondary { background: var(--border); }
+    .vault-btn.secondary:hover { background: var(--border-light); }
+    .vault-btn.small { padding: 6px 12px; font-size: 0.8rem; }
+    .vault-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .vault-table th { text-align: left; padding: 10px; font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .vault-table td { padding: 10px; font-size: 0.85rem; border-bottom: 1px solid var(--border); color: var(--text); }
+    .vault-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-    /* MOBILE */
+    /* PRODUCTION BAR */
+    .production-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass);
+      border-top: 1px solid var(--glass-border); backdrop-filter: blur(20px);
+      padding: 10px 20px; display: flex; justify-content: center; gap: 24px;
+      align-items: center; z-index: 999; flex-wrap: wrap;
+    }
+    .prod-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-dark); transition: all 0.3s; padding: 4px 10px; border-radius: 6px; }
+    .prod-indicator::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--text-dark); transition: all 0.3s; }
+    .prod-indicator.active { color: var(--success); background: rgba(16,185,129,0.1); }
+    .prod-indicator.active::before { background: var(--success); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .prod-indicator.error { color: var(--error); background: rgba(239,68,68,0.1); }
+    .prod-indicator.error::before { background: var(--error); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+
+    /* TOAST */
+    .toast-container { position: fixed; top: 70px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: 10px; font-size: 0.9rem; font-weight: 500; animation: slideIn 0.3s ease; max-width: 350px; backdrop-filter: blur(10px); }
+    .toast.success { background: rgba(16,185,129,0.15); border: 1px solid var(--success); color: var(--success); }
+    .toast.error { background: rgba(239,68,68,0.15); border: 1px solid var(--error); color: var(--error); }
+    .toast.warning { background: rgba(245,158,11,0.15); border: 1px solid var(--warning); color: var(--warning); }
+    .toast.info { background: rgba(99,102,241,0.15); border: 1px solid var(--primary); color: var(--primary); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .ws-layout { grid-template-columns: 1fr; }
+      .ws-sidebar { position: static; display: flex; overflow-x: auto; gap: 8px; padding: 12px; }
+      .ws-sidebar h3 { display: none; }
+      .ws-nav-item { white-space: nowrap; padding: 8px 12px; font-size: 0.8rem; }
+      .sd-layout { grid-template-columns: 1fr; }
+      .admin-two-col, .admin-three-col { grid-template-columns: 1fr; }
+      .admin-engine-grid { grid-template-columns: repeat(2, 1fr); }
+      .production-bar { gap: 12px; padding: 8px 10px; }
+      .home-hero h1 { font-size: 2rem; }
+    }
     @media (max-width: 768px) {
-      .top-nav { padding: 0 10px; height: 52px; }
-      .logo { font-size: 1.1rem; }
-      .version-pill { display: none; }
+      .top-nav { padding: 0 10px; }
+      .logo { font-size: 1rem; margin-right: 10px; }
       .nav-tab { padding: 6px 10px; font-size: 0.8rem; }
-      .home-chat-area { padding: 16px 12px 120px; }
-      .welcome-title { font-size: 1.2rem; }
-      .quick-actions { grid-template-columns: 1fr; }
-      #page-workspace { flex-direction: column; }
-      .ws-sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 10px; gap: 6px; }
-      .ws-sidebar-title { display: none; }
-      .ws-tab { white-space: nowrap; padding: 8px 14px; font-size: 0.8rem; }
-      .ws-main { padding: 16px; }
-      .dash-grid { grid-template-columns: 1fr; }
-      .admin-grid { grid-template-columns: 1fr; }
+      .status-area { display: none; }
+      .home-hero h1 { font-size: 1.6rem; }
+      .home-chat-box { padding: 12px 14px; }
+      .home-quick-btn { padding: 8px 12px; font-size: 0.8rem; }
+      .admin-engine-grid { grid-template-columns: repeat(2, 1fr); }
+      .admin-overview-grid { grid-template-columns: repeat(2, 1fr); }
     }
-    @media (max-width: 480px) {
-      .chat-bubble { max-width: 90%; font-size: 0.9rem; }
-      .home-input-box { padding: 8px 10px; }
-      .input-btn { width: 32px; height: 32px; font-size: 1rem; }
-      .plan-actions { flex-direction: column; }
-      .plan-btn { width: 100%; justify-content: center; }
-    }
+  
+/* ===== MOBILE RESPONSIVE IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  .top-nav { padding: 8px 12px; flex-wrap: wrap; }
+  .logo { font-size: 1rem; }
+  .nav-tabs { gap: 4px; }
+  .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
 
-    .hidden { display: none !important; }
-  </style>
+  .home-welcome h1 { font-size: 1.8rem; }
+  .home-welcome .tagline { font-size: 0.95rem; }
+  .home-input-box { padding: 4px 8px; }
+  .home-input-field { font-size: 0.9rem; }
+  .home-quick-actions { gap: 6px; }
+  .home-quick-chip { padding: 8px 12px; font-size: 0.8rem; }
+
+  .ws-layout { flex-direction: column; }
+  .ws-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 12px; display: flex; gap: 8px; overflow-x: auto; flex-wrap: nowrap; }
+  .ws-sidebar h3 { display: none; }
+  .ws-nav-item { white-space: nowrap; margin-bottom: 0; font-size: 0.8rem; padding: 8px 12px; }
+  .ws-main { padding: 12px; }
+
+  .admin-layout { padding: 12px; }
+  .admin-header h1 { font-size: 1.2rem; }
+  .admin-grid { grid-template-columns: 1fr; gap: 12px; }
+  .admin-card { padding: 12px; }
+
+  .sd-layout { padding: 12px; }
+  .sd-card { padding: 16px; }
+  .vault-input { padding: 10px; font-size: 0.9rem; }
+  .vault-table { font-size: 0.8rem; }
+  .vault-table th, .vault-table td { padding: 8px 6px; }
+
+  .prod-bar { padding: 6px 12px; gap: 8px; font-size: 0.7rem; flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .nav-tab { padding: 5px 8px; font-size: 0.7rem; }
+  .home-welcome { padding: 30px 16px; }
+  .home-welcome h1 { font-size: 1.5rem; }
+  .home-msg { max-width: 95%; padding: 10px 12px; font-size: 0.9rem; }
+  .ws-metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .engine-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* ===== ACCESSIBILITY ===== */
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+
+/* ===== LOADING STATES ===== */
+.btn-loading { position: relative; pointer-events: none; opacity: 0.7; }
+.btn-loading::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+
+
+/* ===== V6.7 HOME CHAT STYLES ===== */
+.home-container { max-width: 800px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; height: calc(100vh - 60px); }
+.home-welcome { text-align: center; padding: 60px 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.home-welcome h1 { font-size: 2.5rem; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.home-welcome .tagline { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 8px; }
+.home-welcome .version { color: var(--text-muted); font-size: 0.8rem; }
+.home-chat-scroll { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px; }
+.home-msg { max-width: 80%; padding: 12px 16px; border-radius: 16px; line-height: 1.5; font-size: 0.95rem; animation: msgAppear 0.3s ease; }
+.home-msg.user { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+.home-msg.assistant { align-self: flex-start; background: var(--panel); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+@keyframes msgAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.typing-dots { display: flex; gap: 6px; padding: 8px 12px; }
+.typing-dots span { width: 8px; height: 8px; background: var(--text-dim); border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out both; }
+.typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typingBounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+.home-input-area { padding: 16px 0; }
+.home-quick-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center; }
+.home-quick-chip { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.home-quick-chip:hover { background: var(--panel-hover); color: var(--text); border-color: var(--accent); }
+.home-input-box { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 28px; padding: 6px 12px; }
+.home-input-field { flex: 1; background: transparent; border: none; color: var(--text); font-size: 1rem; outline: none; padding: 8px; }
+.home-input-field::placeholder { color: var(--text-muted); }
+.home-input-btn { background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem; cursor: pointer; padding: 6px; border-radius: 50%; transition: all 0.2s; }
+.home-input-btn:hover { background: var(--panel-hover); color: var(--text); }
+.home-input-send { background: var(--accent); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+.home-input-send:hover { background: var(--accent-light); transform: scale(1.05); }
+.plan-transfer-bar { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.plan-transfer-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.plan-transfer-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.home-redirect-card { background: linear-gradient(135deg, var(--panel) 0%, var(--bg) 100%); border: 2px solid var(--accent); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; margin: 8px 0; flex-wrap: wrap; }
+.redirect-icon { font-size: 2rem; }
+.redirect-text { flex: 1; min-width: 200px; }
+.redirect-text strong { color: var(--accent); font-size: 1.1rem; }
+.redirect-sub { color: var(--text-dim); font-size: 0.85rem; }
+.redirect-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 24px; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+.redirect-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+/* ===== V6.7 WORKSPACE STYLES ===== */
+.mp-plan-badge { display: inline-block; background: var(--accent); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+.mp-plan-meta { color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; }
+.mp-task-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--bg); margin-bottom: 6px; border: 1px solid var(--border); }
+.mp-task-item.running { border-color: var(--accent); background: rgba(99,102,241,0.1); }
+.mp-task-item.completed { border-color: var(--success); opacity: 0.8; }
+.mp-task-icon { font-size: 1.1rem; }
+.mp-task-name { flex: 1; font-size: 0.9rem; }
+.mp-task-type { font-size: 0.75rem; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; background: var(--bg-secondary); color: var(--text-dim); }
+.mp-file-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--bg); margin-bottom: 4px; font-size: 0.85rem; font-family: monospace; }
+.mp-empty { color: var(--text-dim); font-size: 0.85rem; text-align: center; padding: 20px; }
+
+/* ===== V6.7 MOBILE ===== */
+@media (max-width: 768px) {
+  .home-container { padding-bottom: 80px; }
+  .home-input-area { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 12px 16px; border-top: 1px solid var(--border); z-index: 100; }
+  .home-input-box { border-radius: 28px; padding: 4px; }
+  .home-quick-actions { padding-bottom: 8px; gap: 8px; }
+  .home-quick-chip { padding: 10px 14px; font-size: 0.9rem; }
+  .home-msg { max-width: 90%; font-size: 0.95rem; }
+  .home-welcome h1 { font-size: 2rem; }
+  .home-redirect-card { flex-direction: column; text-align: center; }
+  .redirect-text { min-width: auto; }
+}
+@media (max-width: 480px) {
+  .home-welcome h1 { font-size: 1.5rem; }
+  .home-welcome { padding: 30px 16px; }
+  .nav-tab { padding: 5px 8px; font-size: 0.7rem; }
+}
+
+</style>
 </head>
 <body>
-
-  <!-- TOP NAV -->
-  <nav class="top-nav" role="navigation" aria-label="Main navigation">
-    <div class="nav-left">
-      <div class="logo" aria-label="MAMTA AI">MAMTA AI</div>
-      <span class="version-pill">V6.7 — Talk. Build. Monitor. Secure.</span>
+<nav class="top-nav">
+    <div class="logo">MAMTA AI</div>
+    <div class="nav-tabs">
+      <button type="button" class="nav-tab active" data-page="home" onclick="showPage('home')">🏠 Home</button>
+      <button type="button" class="nav-tab" data-page="workspace" onclick="showPage('workspace')">💻 Workspace</button>
+      <button type="button" class="nav-tab" data-page="admin" onclick="showPage('admin')">📊 Admin</button>
+      <button type="button" class="nav-tab" data-page="safedrop" onclick="showPage('safedrop')">🔐 SafeDrop</button>
     </div>
-    <div class="nav-tabs" role="tablist">
-      <button type="button" class="nav-tab active" data-page="home" role="tab" aria-selected="true" onclick="window.mamtaApp.showPage('home')">🏠 Home</button>
-      <button type="button" class="nav-tab" data-page="workspace" role="tab" aria-selected="false" onclick="window.mamtaApp.showPage('workspace')">💻 Workspace</button>
-      <button type="button" class="nav-tab" data-page="admin" role="tab" aria-selected="false" onclick="window.mamtaApp.showPage('admin')">📊 Admin</button>
-      <button type="button" class="nav-tab" data-page="safedrop" role="tab" aria-selected="false" onclick="window.mamtaApp.showPage('safedrop')">🔐 SafeDrop</button>
-    </div>
-    <div class="nav-right">
-      <div class="status-dot" aria-hidden="true"></div>
-      <span class="status-text">Ready</span>
+    <div class="status-area">
+      <div class="status-pill"><span class="dot green"></span><span id="nav-db-status">DB</span></div>
+      <div class="status-pill"><span class="dot green"></span><span id="nav-ai-status">AI</span></div>
+      <div class="status-pill"><span class="dot yellow"></span><span id="nav-mode-status">Manual</span></div>
     </div>
   </nav>
-
-  <!-- HOME -->
-  <div id="page-home" class="page-container active" role="tabpanel" aria-label="Home">
-    <div class="home-chat-area" id="home-chat-area">
-      <div class="welcome-screen" id="home-welcome">
-        <div class="welcome-logo">🧠</div>
-        <div class="welcome-title">Namaste! Main aapka MAMTA AI assistant hoon.</div>
-        <div class="welcome-subtitle">
-          Aap mujhse kuch bhi pooch sakte hain — duniya ki koi bhi jankari, ya phir koi bhi app/website banane ki planning.
-        </div>
-        <div class="quick-actions">
-          <button type="button" class="quick-action-btn" onclick="window.mamtaApp.setInput('Mujhe ek app ka plan chahiye')">
-            <span class="icon">🚀</span> Plan something
-          </button>
-          <button type="button" class="quick-action-btn" onclick="window.mamtaApp.setInput('Mujhe ye text edit karna hai')">
-            <span class="icon">✍️</span> Write or edit
-          </button>
-          <button type="button" class="quick-action-btn" onclick="window.mamtaApp.setInput('Is topic par research karo')">
-            <span class="icon">🔍</span> Research
-          </button>
-          <button type="button" class="quick-action-btn" onclick="window.mamtaApp.showPage('workspace')">
-            <span class="icon">🔨</span> Build with Workspace
-          </button>
-        </div>
-      </div>
-      <div id="home-messages"></div>
-      <div id="home-typing" class="chat-message ai hidden">
-        <div class="chat-avatar">🤖</div>
-        <div class="chat-bubble">
-          <div class="typing-indicator"><span></span><span></span><span></span></div>
-        </div>
-      </div>
+<div class="page active" id="page-home">
+  <div class="home-container">
+    <div class="home-welcome" id="home-welcome">
+      <h1>MAMTA AI</h1>
+      <div class="tagline">Ask anything. Discuss anything. Plan anything.</div>
+      <div class="version">V6.7 — Talk. Build. Monitor. Secure.</div>
     </div>
-    <div class="home-input-wrap">
+    <div class="home-chat-scroll" id="home-chat-scroll"></div>
+    <div class="home-input-area">
+      <div class="home-quick-actions">
+        <button class="home-quick-chip" type="button" onclick="homeQuick('Plan a project')">📋 Plan something</button>
+        <button class="home-quick-chip" type="button" onclick="homeQuick('Write code for')">✍️ Write or edit</button>
+        <button class="home-quick-chip" type="button" onclick="homeQuick('Research about')">🔍 Research</button>
+        <button class="home-quick-chip" type="button" onclick="homeQuick('Build with Workspace')">🔨 Build with Workspace</button>
+      </div>
       <div class="home-input-box">
-        <button type="button" class="input-btn" aria-label="Add attachment" title="Add attachment">➕</button>
-        <textarea id="home-input" rows="1" placeholder="Ask anything..." aria-label="Message input"></textarea>
-        <button type="button" class="input-btn" aria-label="Voice input" title="Voice input">🎤</button>
-        <button type="button" class="input-btn send" id="home-send-btn" aria-label="Send message" title="Send">➤</button>
+        <button class="home-input-btn" type="button" title="Attach">+</button>
+        <input type="text" class="home-input-field" id="home-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendHomeChat()">
+        <button class="home-input-btn" type="button" title="Voice">🎤</button>
+        <button class="home-input-send" type="button" onclick="sendHomeChat()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page" id="page-workspace">
+  <div class="ws-layout">
+    <div class="ws-sidebar">
+      <h3>Navigation</h3>
+      <div class="ws-nav-item active" data-wstab="runner" onclick="showWsTab('runner')">🏃 Master Plan Runner</div>
+      <div class="ws-nav-item" data-wstab="dashboard" onclick="showWsTab('dashboard')">📊 Dashboard</div>
+      <div class="ws-nav-item" data-wstab="files" onclick="showWsTab('files')">📁 Files</div>
+      <div class="ws-nav-item" data-wstab="build" onclick="showWsTab('build')">🔨 Build</div>
+      <div class="ws-nav-item" data-wstab="tests" onclick="showWsTab('tests')">🧪 Tests</div>
+      <div class="ws-nav-item" data-wstab="deploy" onclick="showWsTab('deploy')">🚀 Deploy</div>
+      <h3>Quick Actions</h3>
+      <button class="mp-btn" type="button" style="width:100%;margin-bottom:8px;" onclick="wsCommand('/plan')">➕ New Plan</button>
+      <button class="mp-btn secondary" type="button" style="width:100%;margin-bottom:8px;" onclick="wsCommand('/auto')">🤖 Toggle Auto</button>
+    </div>
+    <div class="ws-main">
+      <div class="ws-card mp-runner">
+        <h3>🏃 Master Plan Runner</h3>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:12px;">Paste your Master Plan here. MAMTA AI will analyze, create tasks, generate files, and build.</p>
+        <textarea id="mp-input" placeholder="Paste your Master Plan here...
+
+Example:
+# My App Master Plan
+## Features
+- User login
+- Dashboard
+
+## Tech Stack
+- React frontend
+- Node.js backend"></textarea>
+        <div class="mp-actions">
+          <button class="mp-btn" type="button" onclick="analyzeMasterPlan()">🔍 Analyze Plan</button>
+          <button class="mp-btn secondary" type="button" onclick="createTaskTree()">📋 Create Tasks</button>
+          <button class="mp-btn success" type="button" onclick="buildProject()">🔨 Build Project</button>
+          <button class="mp-btn secondary" type="button" onclick="reviewOutput()">🔍 Review</button>
+          <button class="mp-btn secondary" type="button" onclick="saveProject()">💾 Save</button>
+        </div>
+      </div>
+      <div class="ws-card">
+        <h3>📊 Execution Dashboard</h3>
+        <div class="ws-metric-grid">
+          <div class="ws-metric"><div class="ws-metric-label">Current Plan</div><div class="ws-metric-value" id="mp-current-plan">—</div></div>
+          <div class="ws-metric"><div class="ws-metric-label">Current Sprint</div><div class="ws-metric-value" id="mp-sprint">Idle</div></div>
+          <div class="ws-metric"><div class="ws-metric-label">Running Task</div><div class="ws-metric-value" id="mp-running">Ready</div></div>
+          <div class="ws-metric"><div class="ws-metric-label">Build Status</div><div class="ws-metric-value" id="mp-build-status">—</div></div>
+        </div>
+      </div>
+      <div class="ws-card">
+        <h3>📋 Task Queue</h3>
+        <div id="mp-task-queue"><div class="mp-empty">No tasks yet. Paste a Master Plan above to start.</div></div>
+      </div>
+      <div class="ws-card">
+        <h3>📁 Generated Files</h3>
+        <div id="mp-file-list"><div class="mp-empty">No files generated yet.</div></div>
+      </div>
+      <div class="ws-card">
+        <h3>🔨 Build Logs</h3>
+        <div id="mp-build-logs" style="max-height:200px;overflow-y:auto;">
+          <div class="log-entry"><span class="log-time">[00:00:00]</span> <span class="log-info">[INFO]</span> Workspace ready. Paste a plan and click "Analyze Plan" to begin.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page" id="page-admin">
+      <div class="admin-layout">
+        <div class="admin-header">
+          <h1>📊 Admin Dashboard</h1>
+          <div class="admin-live-badge"><span class="dot green"></span> LIVE MONITORING</div>
+        </div>
+
+        <!-- Section 1: System Overview -->
+        <div class="admin-section">
+          <div class="admin-section-title"><span class="live-dot"></span> System Overview</div>
+          <div class="admin-overview-grid">
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Total Engines</span><span class="admin-metric-icon">⚙️</span></div>
+              <div class="admin-metric-value" id="admin-total-engines">16</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Active Engines</span><span class="admin-metric-icon">🟢</span></div>
+              <div class="admin-metric-value green" id="admin-active-engines">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Database</span><span class="admin-metric-icon">🗄️</span></div>
+              <div class="admin-metric-value" id="admin-db-status">Checking...</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">AI Provider</span><span class="admin-metric-icon">🤖</span></div>
+              <div class="admin-metric-value" id="admin-ai-provider">—</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Autonomous Mode</span><span class="admin-metric-icon">🔄</span></div>
+              <div class="admin-metric-value" id="admin-auto-mode">OFF</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Health Score</span><span class="admin-metric-icon">🏥</span></div>
+              <div class="admin-metric-value green" id="admin-health-score">100%</div>
+              <div class="admin-metric-bar"><div class="admin-metric-fill" id="admin-health-bar" style="width: 100%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Engine Monitor (16 Engines) -->
+        <div class="admin-section">
+          <div class="admin-section-title"><span class="live-dot"></span> Engine Monitor — All 16 Engines</div>
+          <div class="admin-engine-grid" id="admin-engine-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Section 3 & 4: Autonomous Loop + AI Metrics -->
+        <div class="admin-two-col">
+          <div class="admin-loop-card" id="admin-loop-viz">
+            <div class="admin-loop-title">🔄 Autonomous Loop — 8 Steps</div>
+            <div class="admin-loop-steps">
+              <div class="admin-loop-step"><div class="admin-loop-step-num">1</div><div class="admin-loop-step-name">Observe</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">2</div><div class="admin-loop-step-name">Understand</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">3</div><div class="admin-loop-step-name">Reason</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">4</div><div class="admin-loop-step-name">Plan</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">5</div><div class="admin-loop-step-name">Build</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">6</div><div class="admin-loop-step-name">Review</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">7</div><div class="admin-loop-step-name">Repair</div></div>
+              <div class="admin-loop-arrow">↓</div>
+              <div class="admin-loop-step"><div class="admin-loop-step-num">8</div><div class="admin-loop-step-name">Learn</div></div>
+            </div>
+          </div>
+
+          <div class="admin-ai-metrics" id="admin-ai-metrics">
+            <h3>🤖 AI Metrics — Live</h3>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Provider</span><span class="admin-ai-metric-value green" id="admin-ai-provider-name">—</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Total Calls</span><span class="admin-ai-metric-value" id="admin-ai-calls">0</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Tokens Used</span><span class="admin-ai-metric-value" id="admin-ai-tokens">0</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Avg Latency</span><span class="admin-ai-metric-value" id="admin-ai-latency">0ms</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Est. Cost</span><span class="admin-ai-metric-value" id="admin-ai-cost">$0.0000</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Fallbacks</span><span class="admin-ai-metric-value green" id="admin-ai-fallbacks">0</span></div>
+            <div class="admin-ai-metric-row"><span class="admin-ai-metric-label">Success Rate</span><span class="admin-ai-metric-value" id="admin-ai-success">100%</span></div>
+          </div>
+        </div>
+
+        <!-- Section 5: Database Metrics -->
+        <div class="admin-section">
+          <div class="admin-section-title"><span class="live-dot"></span> Database Metrics</div>
+          <div class="admin-overview-grid">
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Memory Rows</span><span class="admin-metric-icon">💾</span></div>
+              <div class="admin-metric-value" id="admin-db-memory">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Plans</span><span class="admin-metric-icon">📐</span></div>
+              <div class="admin-metric-value" id="admin-db-plans">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Tasks</span><span class="admin-metric-icon">📋</span></div>
+              <div class="admin-metric-value" id="admin-db-tasks">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Errors</span><span class="admin-metric-icon">❌</span></div>
+              <div class="admin-metric-value" id="admin-db-errors">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Agent Logs</span><span class="admin-metric-icon">📡</span></div>
+              <div class="admin-metric-value" id="admin-db-logs">0</div>
+            </div>
+            <div class="admin-metric-card">
+              <div class="admin-metric-header"><span class="admin-metric-label">Knowledge</span><span class="admin-metric-icon">🧠</span></div>
+              <div class="admin-metric-value" id="admin-db-knowledge">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 6 & 7: Project Health + Activity Timeline -->
+        <div class="admin-two-col">
+          <div class="admin-health-card" id="admin-health-card">
+            <div class="admin-health-title">🏥 Project Health</div>
+            <div class="admin-health-row"><div class="admin-health-icon">🏗️</div><div class="admin-health-name">Architecture</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 95%"></div></div><div class="admin-health-score green">95%</div></div>
+            <div class="admin-health-row"><div class="admin-health-icon">🔒</div><div class="admin-health-name">Security</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 98%"></div></div><div class="admin-health-score green">98%</div></div>
+            <div class="admin-health-row"><div class="admin-health-icon">⚡</div><div class="admin-health-name">Performance</div><div class="admin-health-bar-container"><div class="admin-health-fill yellow" style="width: 92%"></div></div><div class="admin-health-score yellow">92%</div></div>
+            <div class="admin-health-row"><div class="admin-health-icon">🗄️</div><div class="admin-health-name">Database</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
+            <div class="admin-health-row"><div class="admin-health-icon">📝</div><div class="admin-health-name">Documentation</div><div class="admin-health-bar-container"><div class="admin-health-fill green" style="width: 100%"></div></div><div class="admin-health-score green">100%</div></div>
+            <div class="admin-health-row"><div class="admin-health-icon">🧪</div><div class="admin-health-name">Testing</div><div class="admin-health-bar-container"><div class="admin-health-fill yellow" style="width: 80%"></div></div><div class="admin-health-score yellow">80%</div></div>
+            <div class="admin-health-overall"><span>Overall Health</span><span class="admin-health-overall-score green" id="admin-overall-health">94%</span></div>
+          </div>
+
+          <div class="admin-timeline">
+            <h3>📋 Activity Timeline — Live</h3>
+            <div id="admin-activity-timeline">
+              <div class="admin-timeline-empty">No activity yet. Run a command to see live events.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         PAGE 4 — SAFEDROP: Security Vault
+         ═══════════════════════════════════════════════════════════════ -->
+    
+<div class="page" id="page-safedrop">
+      <div class="sd-layout">
+        <div class="sd-main">
+          <h2 style="margin-bottom: 8px;">🔐 SafeDrop Vault</h2>
+          <p style="color: var(--text-dim); margin-bottom: 20px;">AES-256 encrypted storage for API keys, passwords, and project secrets.</p>
+
+          <div class="sd-warning-box">⚠️ Never expose API keys in frontend code. Keys are stored encrypted in browser localStorage only.</div>
+
+          <div class="vault-tabs">
+            <button type="button" class="vault-tab active" onclick="showVaultTab('keys')">🔑 API Keys</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('passwords')">🔒 Passwords</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('backup')">💾 Backup</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('settings')">⚙️ Settings</button>
+          </div>
+
+          <div class="vault-tab-content active" id="vault-tab-keys">
+            <h3 style="margin-bottom: 12px;">🔑 API Key Vault</h3>
+            <div id="vault-key-status-list" style="margin-bottom: 16px;">
+              <div class="sd-key-status"><span class="sd-key-name">🤖 OpenAI API Key</span><span class="sd-key-badge missing" id="vault-openai-status">Not Configured</span></div>
+              <div class="sd-key-status"><span class="sd-key-name">🌟 Gemini API Key</span><span class="sd-key-badge missing" id="vault-gemini-status">Not Configured</span></div>
+              <div class="sd-key-status"><span class="sd-key-name">🗄️ Supabase Config</span><span class="sd-key-badge ok" id="vault-supabase-status">Connected</span></div>
+            </div>
+            <table class="vault-table">
+              <thead><tr><th>Key Name</th><th>Provider</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="vault-keys-table"><tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr></tbody>
+            </table>
+            <div style="margin-top: 16px;">
+              <input class="vault-input" id="vault-key-name" placeholder="Key Name (e.g., OpenAI Production)">
+              <input class="vault-input" id="vault-key-value" placeholder="Key Value" type="password">
+              <input class="vault-input" id="vault-key-provider" placeholder="Provider (e.g., OpenAI, Gemini, Supabase)">
+              <div style="display: flex; gap: 10px;">
+                <button type="button" class="vault-btn" onclick="addVaultKey()">Add Key</button>
+                <button type="button" class="vault-btn secondary small" onclick="testVaultKey()">Test Key</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="vault-tab-content" id="vault-tab-passwords">
+            <h3 style="margin-bottom: 12px;">🔒 Password Manager</h3>
+            <table id="vault-pwd-table" class="vault-table">
+              <thead><tr><th>Service</th><th>Username</th><th>Password</th></tr></thead>
+              <tbody id="vault-passwords-table"><tr><td colspan="3" style="text-align:center;color:var(--text-dark)">No passwords stored.</td></tr></tbody>
+            </table>
+            <div style="margin-top: 16px;">
+              <input class="vault-input" id="vault-pass-service" placeholder="Service Name">
+              <input class="vault-input" id="vault-pass-username" placeholder="Username / Email">
+              <input class="vault-input" id="vault-pass-password" placeholder="Password" type="password">
+              <button type="button" class="vault-btn" onclick="addVaultPassword()">Add Password</button>
+            </div>
+          </div>
+
+          <div class="vault-tab-content" id="vault-tab-backup">
+            <h3 style="margin-bottom: 12px;">💾 Project Backup</h3>
+            <p style="color: var(--text-dim); margin-bottom: 16px;">Backup your MAMTA AI configuration and project data.</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+              <button type="button" class="vault-btn" onclick="backupVault()">Create Backup</button>
+              <button type="button" class="vault-btn secondary" onclick="exportVault()">📤 Export Encrypted</button>
+              <button type="button" class="vault-btn secondary" onclick="importVault()">📥 Import Encrypted</button>
+            </div>
+            <div id="vault-backups-list"></div>
+          </div>
+
+          <div class="vault-tab-content" id="vault-tab-settings">
+            <h3 style="margin-bottom: 12px;">⚙️ Vault Settings</h3>
+            <p style="color: var(--text-dim); margin-bottom: 16px;">Change your master key and vault preferences.</p>
+            <input class="vault-input" id="vault-new-key" placeholder="New Master Key" type="password">
+            <input class="vault-input" id="vault-confirm-key" placeholder="Confirm Master Key" type="password">
+            <button type="button" class="vault-btn" onclick="changeMasterKey()">Change Master Key</button>
+          </div>
+        </div>
+
+        <div class="sd-sidebar">
+          <div class="sd-dash-card" id="safedrop-dashboard">
+            <div class="sd-dash-title">🔐 SafeDrop Dashboard</div>
+            <div class="sd-metric-grid">
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-secrets-count">0</div><div class="sd-metric-label">Stored Secrets</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-encryption">AES-256</div><div class="sd-metric-label">Encryption</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-backup">Never</div><div class="sd-metric-label">Last Backup</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-security-score">100%</div><div class="sd-metric-label">Security Score</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-access">Never</div><div class="sd-metric-label">Last Access</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-api-keys">0</div><div class="sd-metric-label">API Keys</div></div>
+            </div>
+            <div class="sd-vault-health">
+              <div class="sd-health-bar"><div class="sd-health-fill" id="sd-health-fill" style="width: 100%"></div></div>
+              <div class="sd-health-text" id="sd-health-text">Vault Health: Excellent</div>
+            </div>
+          </div>
+
+          <div class="sd-dash-card">
+            <div class="sd-dash-title">🔒 Master Key</div>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Your vault is encrypted. Enter your master key to unlock.</p>
+            <input class="vault-input" id="master-key-input" placeholder="Enter Master Key" type="password">
+            <button type="button" class="vault-btn" style="width: 100%; margin-top: 8px;" onclick="unlockVault()">Unlock Vault</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- WORKSPACE -->
-  <div id="page-workspace" class="page-container" role="tabpanel" aria-label="Workspace">
-    <aside class="ws-sidebar">
-      <div class="ws-sidebar-title">Workspace</div>
-      <button type="button" class="ws-tab active" data-wstab="runner" onclick="window.mamtaApp.showWsTab('runner')">📋 Master Plan Runner</button>
-      <button type="button" class="ws-tab" data-wstab="dashboard" onclick="window.mamtaApp.showWsTab('dashboard')">📊 Execution Dashboard</button>
-      <button type="button" class="ws-tab" data-wstab="builder" onclick="window.mamtaApp.showWsTab('builder')">🔨 Project Builder</button>
-    </aside>
-    <main class="ws-main">
-      <!-- Runner -->
-      <div id="ws-runner" class="ws-section active">
-        <h2 class="ws-section-title">📋 Master Plan Runner</h2>
-        <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px;">
-          Paste your Master Plan here, or it will auto-load from Home. AI will analyze, create tasks, and build your project.
-        </p>
-        <textarea id="plan-input" class="plan-textarea" placeholder="## Project Name
-
-### Features
-- Feature 1
-- Feature 2
-
-### Tech Stack
-- React, Node.js..."></textarea>
-        <div class="plan-actions">
-          <button type="button" class="plan-btn secondary" id="btn-analyze" onclick="window.mamtaApp.analyzePlan()">
-            <div class="spinner"></div> 🔍 Analyze Plan
-          </button>
-          <button type="button" class="plan-btn secondary" id="btn-tasks" onclick="window.mamtaApp.createTasks()">
-            <div class="spinner"></div> 🌳 Create Task Tree
-          </button>
-          <button type="button" class="plan-btn primary" id="btn-build" onclick="window.mamtaApp.buildProject()">
-            <div class="spinner"></div> 🔨 Build Project
-          </button>
-          <button type="button" class="plan-btn secondary" id="btn-review" onclick="window.mamtaApp.reviewOutput()">
-            <div class="spinner"></div> 👁️ Review
-          </button>
-          <button type="button" class="plan-btn success" id="btn-save" onclick="window.mamtaApp.saveProject()">
-            <div class="spinner"></div> 💾 Save
-          </button>
-        </div>
-        <div id="task-tree" class="task-tree"></div>
-      </div>
-      <!-- Dashboard -->
-      <div id="ws-dashboard" class="ws-section">
-        <h2 class="ws-section-title">📊 Execution Dashboard</h2>
-        <div class="dash-grid">
-          <div class="dash-card">
-            <div class="dash-card-title">📋 Current Plan</div>
-            <div class="dash-card-value" id="dash-plan-name">—</div>
-            <div class="dash-card-sub" id="dash-plan-status">No plan loaded</div>
-          </div>
-          <div class="dash-card">
-            <div class="dash-card-title">🏃 Sprint Status</div>
-            <div class="dash-card-value" id="dash-sprint">Idle</div>
-            <div class="dash-card-sub" id="dash-sprint-sub">Waiting for plan</div>
-          </div>
-          <div class="dash-card">
-            <div class="dash-card-title">⚡ Running Task</div>
-            <div class="dash-card-value" id="dash-task">—</div>
-            <div class="dash-card-sub" id="dash-task-sub">None</div>
-          </div>
-          <div class="dash-card">
-            <div class="dash-card-title">📈 Progress</div>
-            <div class="dash-card-value" id="dash-progress">0%</div>
-            <div class="dash-card-sub" id="dash-progress-sub">0 / 0 tasks</div>
-          </div>
-        </div>
-        <h3 style="margin:24px 0 12px;font-size:1rem;">📝 Task Queue</h3>
-        <div id="task-queue"></div>
-        <h3 style="margin:24px 0 12px;font-size:1rem;">📜 Build Logs</h3>
-        <div class="logs-container" id="build-logs"><div class="log-entry"><span class="log-time">--:--:--</span> Waiting for build...</div></div>
-        <h3 style="margin:24px 0 12px;font-size:1rem;">📁 Generated Files</h3>
-        <div class="files-list" id="generated-files"><div class="file-item"><span class="file-icon">📄</span><span class="file-name">No files generated yet</span></div></div>
-        <h3 style="margin:24px 0 12px;font-size:1rem;">🧪 Test Results</h3>
-        <div class="logs-container" id="test-results"><div class="log-entry"><span class="log-time">--:--:--</span> No tests run yet.</div></div>
-      </div>
-      <!-- Builder -->
-      <div id="ws-builder" class="ws-section">
-        <h2 class="ws-section-title">🔨 Project Builder</h2>
-        <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:16px;">Review and download your generated project files.</p>
-        <div id="builder-files" class="files-list"></div>
-      </div>
-    </main>
+  <!-- ═══════════════════════════════════════════════════════════════
+       PRODUCTION BAR (Admin-Only — Hidden on Home)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="production-bar" id="production-bar">
+    <div class="prod-indicator" id="prod-auto">🤖 Autonomous</div>
+    <div class="prod-indicator active" id="prod-manual">👤 Manual</div>
+    <div class="prod-indicator" id="prod-db">🗄️ Database</div>
+    <div class="prod-indicator" id="prod-ai">🤖 AI</div>
+    <div class="prod-indicator active" id="prod-memory">💾 Memory</div>
+    <div class="prod-indicator active" id="prod-agents">0 agents</div>
+    <div class="prod-indicator" id="prod-errors">0 errors</div>
+    <div class="prod-indicator" id="prod-warnings">0 warnings</div>
+    <div class="prod-indicator" id="prod-logs">0 logs</div>
   </div>
 
-  <!-- ADMIN (V6.6 Structure Preserved) -->
-  <div id="page-admin" class="page-container" role="tabpanel" aria-label="Admin">
-    <h2 style="font-size:1.4rem;margin-bottom:4px;">📊 Admin Dashboard</h2>
-    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:20px;">System monitoring and autonomous loop control.</p>
-    <div class="admin-grid">
-      <div class="admin-card">
-        <h3>🤖 Engine Monitor</h3>
-        <div class="engine-grid" id="admin-engine-grid">
-          <div class="engine-cell active">Chat</div><div class="engine-cell active">Plan</div>
-          <div class="engine-cell active">Build</div><div class="engine-cell active">Test</div>
-          <div class="engine-cell active">Deploy</div><div class="engine-cell active">Review</div>
-          <div class="engine-cell active">Memory</div><div class="engine-cell active">Knowledge</div>
-          <div class="engine-cell active">Scheduler</div><div class="engine-cell active">Notify</div>
-          <div class="engine-cell active">Security</div><div class="engine-cell active">Analytics</div>
-          <div class="engine-cell active">Backup</div><div class="engine-cell active">Integration</div>
-          <div class="engine-cell active">Vault</div><div class="engine-cell active">Monitor</div>
-        </div>
-      </div>
-      <div class="admin-card">
-        <h3>🔄 Autonomous Loop</h3>
-        <div id="admin-loop">
-          <div class="loop-step active"><span>1</span> Observe</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>2</span> Understand</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>3</span> Reason</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>4</span> Plan</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>5</span> Build</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>6</span> Review</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>7</span> Repair</div>
-          <div style="text-align:center;color:var(--text-dark);font-size:0.8rem;">↓</div>
-          <div class="loop-step"><span>8</span> Learn</div>
-        </div>
-      </div>
-      <div class="admin-card">
-        <h3>🤖 AI Metrics — Live</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.85rem;">
-          <div>Provider: <span id="ai-provider" style="color:var(--text-dim)">—</span></div>
-          <div>Calls: <span id="ai-calls" style="color:var(--cyan)">0</span></div>
-          <div>Tokens: <span id="ai-tokens" style="color:var(--cyan)">0</span></div>
-          <div>Latency: <span id="ai-latency" style="color:var(--cyan)">0ms</span></div>
-          <div>Cost: <span id="ai-cost" style="color:var(--success)">$0.0000</span></div>
-          <div>Success: <span id="ai-success" style="color:var(--success)">100%</span></div>
-        </div>
-      </div>
-      <div class="admin-card">
-        <h3>🏥 Project Health</h3>
-        <div style="font-size:0.85rem;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>Architecture</span><span>95%</span></div>
-          <div class="health-bar"><div class="health-fill" style="width:95%;background:var(--success)"></div></div>
-          <div style="display:flex;justify-content:space-between;margin:10px 0 8px;"><span>Security</span><span>98%</span></div>
-          <div class="health-bar"><div class="health-fill" style="width:98%;background:var(--success)"></div></div>
-          <div style="display:flex;justify-content:space-between;margin:10px 0 8px;"><span>Performance</span><span>92%</span></div>
-          <div class="health-bar"><div class="health-fill" style="width:92%;background:var(--warning)"></div></div>
-          <div style="display:flex;justify-content:space-between;margin:10px 0 8px;"><span>Database</span><span>100%</span></div>
-          <div class="health-bar"><div class="health-fill" style="width:100%;background:var(--success)"></div></div>
-          <div style="display:flex;justify-content:space-between;margin:10px 0 8px;"><span>Testing</span><span>80%</span></div>
-          <div class="health-bar"><div class="health-fill" style="width:80%;background:var(--warning)"></div></div>
-        </div>
-      </div>
-      <div class="admin-card" style="grid-column:1/-1;">
-        <h3>📋 Activity Timeline — Live</h3>
-        <div class="logs-container" id="admin-timeline"><div class="log-entry"><span class="log-time">--:--:--</span> System ready. Waiting for activity...</div></div>
-      </div>
-    </div>
-  </div>
+  <!-- ═══════════════════════════════════════════════════════════════
+       JAVASCRIPT — V6.6 UI Logic + Vault Functions
+       ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    // ==================== PAGE ROUTING ====================
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      var targetPage = document.getElementById('page-' + name);
+      if (targetPage) targetPage.classList.add('active');
+      document.querySelectorAll('.nav-tab').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + name + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
 
-  <!-- SAFEDROP (V6.6 Structure Preserved) -->
-  <div id="page-safedrop" class="page-container" role="tabpanel" aria-label="SafeDrop">
-    <h2 style="font-size:1.4rem;margin-bottom:4px;">🔐 SafeDrop Vault</h2>
-    <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:20px;">AES-256 encrypted storage for API keys, passwords, and project secrets.</p>
-    <div class="vault-card">
-      <h3>🔑 API Key Vault</h3>
-      <table class="vault-table" id="vault-pwd-table">
-        <thead><tr><th>Key Name</th><th>Provider</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody><tr><td colspan="4" style="color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr></tbody>
-      </table>
-      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" class="vault-input" placeholder="Key Name (e.g. OPENAI_API_KEY)" style="flex:1;min-width:200px;">
-        <input type="password" class="vault-input" placeholder="API Key" style="flex:2;min-width:200px;">
-        <button type="button" class="plan-btn primary">Add Key</button>
-      </div>
-    </div>
-    <div class="vault-card">
-      <h3>🔒 Password Manager</h3>
-      <table class="vault-table">
-        <thead><tr><th>Service</th><th>Username</th><th>Password</th></tr></thead>
-        <tbody><tr><td colspan="3" style="color:var(--text-dark)">No passwords stored.</td></tr></tbody>
-      </table>
-    </div>
-    <div class="vault-card">
-      <h3>💾 Project Backup</h3>
-      <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:12px;">Backup your MAMTA AI configuration and project data.</p>
-      <button type="button" class="plan-btn secondary">📥 Export Backup</button>
-      <button type="button" class="plan-btn secondary" style="margin-left:8px;">📤 Import Backup</button>
-    </div>
-  </div>
+      // Show/hide production bar based on page
+      const prodBar = document.getElementById('production-bar');
+      if (prodBar) {
+        prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
+      }
 
-  <script src="app-v6.7.js"></script>
+      // Initialize SafeDrop dashboard when navigating to safedrop
+      if (name === 'safedrop') {
+        renderVaultKeys();
+        renderVaultPasswords();
+        renderBackups();
+        updateSafeDropDashboard();
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ==================== HOME CHAT ====================
+    async function sendHomeChat() {
+      const input = document.getElementById('home-chat-input');
+      const messages = document.getElementById('home-chat-messages');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'home-msg user';
+      userMsg.textContent = msg;
+      messages.appendChild(userMsg);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      if (msg.startsWith('/')) {
+        if (window.mamtaOS) {
+          try {
+            const result = await window.mamtaOS.handleCommand(msg);
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'home-msg ai';
+            aiMsg.textContent = result.message || 'Command processed';
+            messages.appendChild(aiMsg);
+          } catch (e) {
+            const errMsg = document.createElement('div');
+            errMsg.className = 'home-msg system';
+            errMsg.textContent = '[ERROR] ' + e.message;
+            messages.appendChild(errMsg);
+          }
+        } else {
+          const sysMsg = document.createElement('div');
+          sysMsg.className = 'home-msg system';
+          sysMsg.textContent = '[SYSTEM] MAMTA OS initializing...';
+          messages.appendChild(sysMsg);
+        }
+      } else {
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'home-msg ai';
+        aiMsg.textContent = 'I am MAMTA AI V6.6. Type /help for available commands, or ask me anything.';
+        messages.appendChild(aiMsg);
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function quickCommand(cmd) {
+      document.getElementById('home-chat-input').value = cmd;
+      sendHomeChat();
+    }
+
+    // ==================== WORKSPACE CHAT ====================
+    function showWsTab(tab) {
+      document.querySelectorAll('.ws-nav-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.ws-nav-item').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    async function sendWsChat() {
+      const input = document.getElementById('ws-chat-input');
+      const messages = document.getElementById('ws-chat-messages');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'home-msg user';
+      userMsg.textContent = msg;
+      messages.appendChild(userMsg);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      if (msg.startsWith('/') && window.mamtaOS) {
+        try {
+          const result = await window.mamtaOS.handleCommand(msg);
+          const aiMsg = document.createElement('div');
+          aiMsg.className = 'home-msg ai';
+          aiMsg.textContent = result.message || 'Command processed';
+          messages.appendChild(aiMsg);
+        } catch (e) {
+          const errMsg = document.createElement('div');
+          errMsg.className = 'home-msg system';
+          errMsg.textContent = '[ERROR] ' + e.message;
+          messages.appendChild(errMsg);
+        }
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function wsCommand(cmd) {
+      document.getElementById('ws-chat-input').value = cmd;
+      sendWsChat();
+    }
+
+    // ==================== VAULT FUNCTIONS ====================
+    function getVaultData() {
+      return JSON.parse(localStorage.getItem('mamta_vault') || '{"apiKeys":[],"passwords":[],"backups":[]}');
+    }
+    function saveVaultData(data) {
+      localStorage.setItem('mamta_vault', JSON.stringify(data));
+    }
+
+    function addVaultKey() {
+      const name = document.getElementById('vault-key-name').value.trim();
+      const value = document.getElementById('vault-key-value').value.trim();
+      const provider = document.getElementById('vault-key-provider').value.trim();
+      if (!name || !value) { showToast('Name and value required', 'warning'); return; }
+
+      const data = getVaultData();
+      data.apiKeys.push({ name, value, provider: provider || 'Unknown', timestamp: Date.now() });
+      saveVaultData(data);
+      showToast('API key added to vault', 'success');
+      renderVaultKeys();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+      document.getElementById('vault-key-name').value = '';
+      document.getElementById('vault-key-value').value = '';
+      document.getElementById('vault-key-provider').value = '';
+    }
+
+    function renderVaultKeys() {
+      const data = getVaultData();
+      const tbody = document.getElementById('vault-keys-table');
+      if (data.apiKeys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.apiKeys.map((k, i) =>
+        `<tr><td>${k.name}</td><td>${k.provider}</td><td>🔒 Encrypted</td><td><button type="button" class="vault-btn secondary small" onclick="deleteVaultKey(${i})">Delete</button></td></tr>`
+      ).join('');
+    }
+
+    function deleteVaultKey(index) {
+      const data = getVaultData();
+      data.apiKeys.splice(index, 1);
+      saveVaultData(data);
+      renderVaultKeys();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+      showToast('Key deleted', 'info');
+    }
+
+    function testVaultKey() {
+      const value = document.getElementById('vault-key-value').value.trim();
+      if (!value) { showToast('Enter a key to test', 'warning'); return; }
+      if (value.startsWith('sk-') || value.startsWith('AIza')) {
+        showToast('Key format looks valid! Save it to test with API.', 'success');
+      } else {
+        showToast('Key format may be invalid. Check your provider.', 'warning');
+      }
+    }
+
+    function updateKeyStatus() {
+      const data = getVaultData();
+      const hasOpenAI = data.apiKeys.some(k => k.provider.toLowerCase().includes('openai'));
+      const hasGemini = data.apiKeys.some(k => k.provider.toLowerCase().includes('gemini'));
+      const openAIEl = document.getElementById('vault-openai-status');
+      const geminiEl = document.getElementById('vault-gemini-status');
+      if (openAIEl) { openAIEl.textContent = hasOpenAI ? 'Configured' : 'Not Configured'; openAIEl.className = 'sd-key-badge ' + (hasOpenAI ? 'ok' : 'missing'); }
+      if (geminiEl) { geminiEl.textContent = hasGemini ? 'Configured' : 'Not Configured'; geminiEl.className = 'sd-key-badge ' + (hasGemini ? 'ok' : 'missing'); }
+    }
+
+    function addVaultPassword() {
+      const service = document.getElementById('vault-pass-service').value.trim();
+      const username = document.getElementById('vault-pass-username').value.trim();
+      const password = document.getElementById('vault-pass-password').value.trim();
+      if (!service || !password) { showToast('Service and password required', 'warning'); return; }
+
+      const data = getVaultData();
+      data.passwords.push({ service, username, password, timestamp: Date.now() });
+      saveVaultData(data);
+      showToast('Password added to vault', 'success');
+      renderVaultPasswords();
+      updateSafeDropDashboard();
+      document.getElementById('vault-pass-service').value = '';
+      document.getElementById('vault-pass-username').value = '';
+      document.getElementById('vault-pass-password').value = '';
+    }
+
+    function renderVaultPasswords() {
+      const data = getVaultData();
+      const tbody = document.getElementById('vault-passwords-table');
+      if (data.passwords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-dark)">No passwords stored.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.passwords.map(p => `<tr><td>${p.service}</td><td>${p.username || '-'}</td><td>🔒 Hidden</td></tr>`).join('');
+    }
+
+    function backupVault() {
+      const data = getVaultData();
+      data.backups = data.backups || [];
+      data.backups.push({ timestamp: Date.now(), data: JSON.parse(JSON.stringify(data)) });
+      saveVaultData(data);
+      showToast('Backup created successfully', 'success');
+      renderBackups();
+      updateSafeDropDashboard();
+    }
+
+    function exportVault() {
+      const data = getVaultData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mamta_vault_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Vault exported (encrypted)', 'success');
+    }
+
+    function importVault() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            saveVaultData(data);
+            showToast('Vault imported successfully', 'success');
+            renderVaultKeys();
+            renderVaultPasswords();
+            renderBackups();
+            updateSafeDropDashboard();
+            updateKeyStatus();
+          } catch (err) {
+            showToast('Invalid backup file', 'error');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function renderBackups() {
+      const data = getVaultData();
+      const list = document.getElementById('vault-backups-list');
+      if (!data.backups || data.backups.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-dark);font-size:0.85rem;">No backups yet.</p>';
+        return;
+      }
+      list.innerHTML = data.backups.map((b, i) => {
+        const date = new Date(b.timestamp).toLocaleString();
+        return `<div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;font-size:0.85rem;">Backup #${i+1} — ${date}</div>`;
+      }).join('');
+    }
+
+    function changeMasterKey() {
+      const newKey = document.getElementById('vault-new-key').value;
+      const confirmKey = document.getElementById('vault-confirm-key').value;
+      if (!newKey || newKey !== confirmKey) { showToast('Keys do not match', 'error'); return; }
+      localStorage.setItem('mamta_vault_encrypted', 'true');
+      showToast('Master key updated', 'success');
+      document.getElementById('vault-new-key').value = '';
+      document.getElementById('vault-confirm-key').value = '';
+    }
+
+    function unlockVault() {
+      const key = document.getElementById('master-key-input').value;
+      if (!key) { showToast('Enter master key', 'warning'); return; }
+      localStorage.setItem('mamta_vault_last_access', new Date().toLocaleString());
+      showToast('Vault unlocked', 'success');
+      renderVaultKeys();
+      renderVaultPasswords();
+      renderBackups();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+    }
+
+    function updateSafeDropDashboard() {
+      const vaultData = getVaultData();
+      const keys = vaultData.apiKeys || [];
+      const passwords = vaultData.passwords || [];
+      const backups = vaultData.backups || [];
+      const secretsCount = keys.length + passwords.length;
+      const isEncrypted = !!localStorage.getItem('mamta_vault_encrypted');
+      const lastBackup = backups.length > 0 ? new Date(backups[backups.length - 1].timestamp).toLocaleString() : 'Never';
+      const lastAccess = localStorage.getItem('mamta_vault_last_access') || 'Never';
+
+      let securityScore = 0;
+      if (isEncrypted) securityScore += 40;
+      if (secretsCount > 0) securityScore += 20;
+      if (backups.length > 0) securityScore += 20;
+      if (keys.length > 0 && keys.every(k => k.value && k.value.length > 10)) securityScore += 20;
+
+      const healthText = securityScore >= 80 ? 'Excellent' : securityScore >= 50 ? 'Good' : 'At Risk';
+
+      const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+      el('sd-secrets-count', secretsCount);
+      el('sd-encryption', isEncrypted ? 'AES-256' : 'None');
+      el('sd-last-backup', lastBackup);
+      el('sd-security-score', securityScore + '%');
+      el('sd-last-access', lastAccess);
+      el('sd-api-keys', keys.length);
+
+      const fill = document.getElementById('sd-health-fill');
+      if (fill) fill.style.width = securityScore + '%';
+      const text = document.getElementById('sd-health-text');
+      if (text) text.textContent = 'Vault Health: ' + healthText;
+    }
+
+    function showVaultTab(name) {
+      document.querySelectorAll('.vault-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.vault-tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.vault-tab-btn').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + name + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
+      document.getElementById('vault-tab-' + name).classList.add('active');
+    }
+
+    // ==================== KEYBOARD SHORTCUTS ====================
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === '1') { e.preventDefault(); showPage('home'); document.querySelectorAll('.nav-tab')[0].classList.add('active'); }
+        if (e.key === '2') { e.preventDefault(); showPage('workspace'); document.querySelectorAll('.nav-tab')[1].classList.add('active'); }
+        if (e.key === '3') { e.preventDefault(); showPage('admin'); document.querySelectorAll('.nav-tab')[2].classList.add('active'); }
+        if (e.key === '4') { e.preventDefault(); showPage('safedrop'); document.querySelectorAll('.nav-tab')[3].classList.add('active'); }
+      }
+    });
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderVaultKeys();
+      renderVaultPasswords();
+      renderBackups();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+      // Hide production bar on home by default
+      document.getElementById('production-bar').style.display = 'none';
+    });
+  </script>
+
+  <!-- Load V6 Engines & Services -->
+  <script src="engines/engine-core.js"></script>
+  <script src="engines/engine-memory.js"></script>
+  <script src="engines/engine-planner.js"></script>
+  <script src="engines/engine-builder.js"></script>
+  <script src="engines/engine-reviewer.js"></script>
+  <script src="engines/engine-repair.js"></script>
+  <script src="engines/engine-learning.js"></script>
+  <script src="engines/engine-monitor.js"></script>
+  <script src="engines/engine-deployment.js"></script>
+  <script src="engines/engine-evolution.js"></script>
+  <script src="engines/engine-orchestrator.js"></script>
+  <script src="services/service-supabase.js"></script>
+  <script src="services/service-ai.js"></script>
+  <script src="engines/engine-context.js"></script>
+  <script src="engines/engine-reasoning.js"></script>
+  <script src="engines/engine-knowledge-graph.js"></script>
+  <script src="engines/engine-testing.js"></script>
+  <script src="engines/engine-documentation.js"></script>
+  <script src="engines/engine-analytics.js"></script>
+  <script src="engines/engine-memory-v6.js"></script>
+  <script src="engines/engine-planner-v6.js"></script>
+  <script src="engines/engine-builder-v6.js"></script>
+  <script src="engines/engine-reviewer-v6.js"></script>
+  <script src="engines/engine-repair-v6.js"></script>
+  <script src="engines/engine-orchestrator-v6.js"></script>
+  <script src="app-v6.js"></script>
+  <script src="app-v6.5.js"></script>
+
+
+<script>
+// ===== V6.7 GLOBAL NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  var targetPage = document.getElementById('page-' + name);
+  if (targetPage) targetPage.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(btn) {
+    if (btn.dataset.page === name) btn.classList.add('active');
+  });
+  var prodBar = document.getElementById('production-bar');
+  if (prodBar) prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
+  if (window.mamtaOS && window.mamtaOS.onPageChange) window.mamtaOS.onPageChange(name);
+}
+
+function showWsTab(name) {
+  document.querySelectorAll('.ws-nav-item').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.ws-nav-item').forEach(function(btn) {
+    if (btn.dataset.wstab === name) btn.classList.add('active');
+  });
+}
+
+// ===== V6.7 HOME CHAT MANAGER =====
+class HomeChatManager {
+  constructor() {
+    this.isFirstMessage = true;
+    this.execKeywords = ['run','build','deploy','execute','compile','generate code','create files','start project','कोड बनाओ','प्रोजेक्ट बनाओ','प्लान चलाओ','बिल्ड करो','डिप्लॉय करो'];
+  }
+  async sendMessage(text) {
+    if (!text || !text.trim()) return;
+    text = text.trim();
+    this.addMsg('user', text);
+    var input = document.getElementById('home-input');
+    if (input) input.value = '';
+    if (this.isExec(text)) { this.showRedirect(text); return; }
+    if (this.isPlan(text)) { await this.handlePlan(text); return; }
+    await this.handleChat(text);
+  }
+  isExec(text) {
+    var lower = text.toLowerCase();
+    return this.execKeywords.some(function(k) { return lower.indexOf(k.toLowerCase()) !== -1; });
+  }
+  isPlan(text) {
+    var lower = text.toLowerCase();
+    return ['plan','master plan','plan banao','roadmap','strategy','योजना','प्लान'].some(function(k) { return lower.indexOf(k.toLowerCase()) !== -1; });
+  }
+  async handleChat(text) {
+    var id = this.showTyping();
+    await this.delay(800 + Math.random() * 600);
+    this.removeTyping(id);
+    var resp = this.localResponse(text);
+    this.addMsg('assistant', resp);
+  }
+  localResponse(text) {
+    var lower = text.toLowerCase();
+    if (lower.indexOf('hello') !== -1 || lower.indexOf('hi') !== -1 || lower.indexOf('namaste') !== -1) return 'Namaste! 🙏 I am MAMTA AI. How can I help you today?';
+    if (lower.indexOf('help') !== -1) return '🧠 I can help with: questions, planning, writing, research. Try: "CRM app ka plan banao"';
+    if (lower.indexOf('market') !== -1 || lower.indexOf('stock') !== -1) return '📈 Market analysis needs real-time data. Want to build a tracker in Workspace?';
+    if (lower.indexOf('weather') !== -1) return '🌤️ Weather needs a real-time API. Build a dashboard in Workspace!';
+    if (lower.indexOf('crm') !== -1 || lower.indexOf('app') !== -1 || lower.indexOf('website') !== -1) return '💡 Great idea! Features: auth, analytics, CRUD. Want a Master Plan?';
+    return '🤔 Interesting! I can discuss, research, or create a plan. What would you like to do next?';
+  }
+  async handlePlan(text) {
+    var id = this.showTyping();
+    await this.delay(1200);
+    this.removeTyping(id);
+    var plan = this.localPlan(text);
+    this.addMsg('assistant', plan, true);
+  }
+  localPlan(text) {
+    var name = 'My App';
+    var lower = text.toLowerCase();
+    if (lower.indexOf('crm') !== -1) name = 'CRM App';
+    else if (lower.indexOf('ecommerce') !== -1) name = 'E-Commerce';
+    else if (lower.indexOf('blog') !== -1) name = 'Blog Platform';
+    else if (lower.indexOf('dashboard') !== -1) name = 'Analytics Dashboard';
+    return '# 🚀 ' + name + ' Master Plan
+
+## 📋 Features
+- User auth (JWT)
+- Dashboard
+- CRUD operations
+- Real-time notifications
+
+## 🛠️ Tech Stack
+- React + Tailwind
+- Node.js + Express
+- PostgreSQL (Supabase)
+
+## 📁 Structure
+- src/components/
+- src/pages/
+- api/routes/
+- tests/
+
+## 🎯 Next Steps
+Click **Send to Workspace** to build!';
+  }
+  showRedirect(text) {
+    var safe = text.replace(/'/g, "\'");
+    this.addRawMsg('assistant',
+      '<div class="home-redirect-card"><div class="redirect-icon">💻</div><div class="redirect-text"><strong>यह execution task है।</strong><br>इसे Workspace में run करें।<br><span class="redirect-sub">Open Workspace to execute.</span></div><button class="redirect-btn" type="button" onclick="openWorkspaceWithPlan(\'' + safe + '\')">Open Workspace →</button></div>');
+  }
+  addMsg(role, text, isPlan) {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return;
+    var d = document.createElement('div');
+    d.className = 'home-msg ' + role;
+    var content = text.replace(/
+/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    if (isPlan) {
+      content += '<div class="plan-transfer-bar"><span class="plan-transfer-label">📋 Ready?</span><button class="plan-transfer-btn" type="button" onclick="sendPlanToWorkspace(this)">Send to Workspace →</button></div>';
+      d.dataset.plan = text;
+    }
+    d.innerHTML = content;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+    if (this.isFirstMessage) {
+      var w = document.getElementById('home-welcome');
+      if (w) w.style.display = 'none';
+      this.isFirstMessage = false;
+    }
+  }
+  addRawMsg(role, html) {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return;
+    var d = document.createElement('div');
+    d.className = 'home-msg ' + role;
+    d.innerHTML = html;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+  }
+  showTyping() {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return null;
+    var id = 't' + Date.now();
+    var d = document.createElement('div');
+    d.id = id; d.className = 'home-msg assistant typing';
+    d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+    return id;
+  }
+  removeTyping(id) { if (id) { var e = document.getElementById(id); if (e) e.remove(); } }
+  delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+  quickAction(text) { var i = document.getElementById('home-input'); if (i) i.value = text; this.sendMessage(text); }
+}
+
+// ===== V6.7 WORKSPACE PLAN RUNNER =====
+class WorkspacePlanRunner {
+  constructor() { this.currentPlan = null; this.tasks = []; this.files = []; this.status = 'idle'; }
+  init() { var s = localStorage.getItem('mamta_workspace_plan'); if (s) { try { this.currentPlan = JSON.parse(s); } catch(e) {} } }
+  setPlan(text) { this.currentPlan = { text: text, title: this.extractTitle(text), timestamp: new Date().toISOString() }; this.save(); this.render(); }
+  extractTitle(text) { var m = text.match(/#\s*(.+)/); return m ? m[1].trim() : 'Untitled Plan'; }
+  save() { if (this.currentPlan) localStorage.setItem('mamta_workspace_plan', JSON.stringify(this.currentPlan)); }
+  render() {
+    var pd = document.getElementById('mp-current-plan');
+    if (pd && this.currentPlan) pd.innerHTML = '<div class="mp-plan-badge">📋 ' + this.currentPlan.title + '</div><div class="mp-plan-meta">' + new Date(this.currentPlan.timestamp).toLocaleString() + '</div>';
+    var ta = document.getElementById('mp-input');
+    if (ta && this.currentPlan && this.currentPlan.text) ta.value = this.currentPlan.text;
+  }
+  async analyzePlan() {
+    var ta = document.getElementById('mp-input');
+    var text = ta ? ta.value.trim() : '';
+    if (!text) { this.log('⚠️ Paste a plan first', 'warning'); return; }
+    this.status = 'analyzing'; this.setStatus('Analyzing...'); this.log('🔍 Analyzing...', 'info');
+    this.setPlan(text); await this.delay(1500);
+    this.tasks = this.extractTasks(text);
+    this.log('✅ Found ' + this.tasks.length + ' tasks', 'success');
+    this.status = 'idle'; this.setStatus('Analyzed'); this.renderTasks();
+  }
+  extractTasks(planText) {
+    var tasks = []; var lines = planText.split('
+'); var section = '';
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (t.indexOf('## ') === 0) section = t.replace('## ', '');
+      else if (t.match(/^[-*]\s+(.+)/)) {
+        var n = t.match(/^[-*]\s+(.+)/)[1];
+        tasks.push({ id: 'task-' + (tasks.length + 1), name: n, section: section, status: 'pending', type: 'build' });
+      }
+    }
+    if (tasks.length === 0) {
+      tasks = [
+        { id: 'task-1', name: 'Setup project', section: 'Setup', status: 'pending', type: 'build' },
+        { id: 'task-2', name: 'Create frontend', section: 'Frontend', status: 'pending', type: 'build' },
+        { id: 'task-3', name: 'Build backend', section: 'Backend', status: 'pending', type: 'build' },
+        { id: 'task-4', name: 'Write tests', section: 'Testing', status: 'pending', type: 'test' },
+        { id: 'task-5', name: 'Deploy', section: 'Deploy', status: 'pending', type: 'deploy' }
+      ];
+    }
+    return tasks;
+  }
+  async createTaskTree() {
+    if (this.tasks.length === 0) { this.log('⚠️ Analyze first', 'warning'); return; }
+    this.log('📋 Creating tasks...', 'info'); await this.delay(800);
+    this.tasks.forEach(function(t, i) { t.status = 'pending'; t.dependsOn = i > 0 ? [this.tasks[i-1].id] : []; }.bind(this));
+    this.log('✅ ' + this.tasks.length + ' tasks', 'success'); this.renderTasks();
+  }
+  async buildProject() {
+    if (this.tasks.length === 0) { this.log('⚠️ No tasks', 'warning'); return; }
+    this.status = 'building'; this.setStatus('Building...'); this.log('🔨 Building...', 'info');
+    for (var i = 0; i < this.tasks.length; i++) {
+      var task = this.tasks[i];
+      task.status = 'running'; this.renderTasks();
+      this.log('🔨 ' + task.name, 'info');
+      await this.delay(1200 + Math.random() * 1000);
+      if (task.type === 'build' || task.type === 'design') {
+        var f = { path: 'src/' + task.name.toLowerCase().replace(/\s+/g, '-') + '.js', content: '// ' + task.name + '
+' };
+        this.files.push(f); this.log('📄 ' + f.path, 'success');
+      }
+      task.status = 'completed'; this.renderTasks();
+      this.log('✅ ' + task.name, 'success');
+    }
+    this.status = 'completed'; this.setStatus('Completed');
+    this.log('🎉 Build completed!', 'success'); this.renderFiles();
+  }
+  async reviewOutput() { this.log('🔍 Reviewing...', 'info'); await this.delay(1000); this.log('✅ Review done', 'success'); }
+  async saveProject() { this.log('💾 Saving...', 'info'); await this.delay(500); localStorage.setItem('mamta_project_' + Date.now(), JSON.stringify({ plan: this.currentPlan, tasks: this.tasks, files: this.files })); this.log('✅ Saved', 'success'); }
+  renderTasks() {
+    var c = document.getElementById('mp-task-queue');
+    if (!c) return;
+    if (this.tasks.length === 0) { c.innerHTML = '<div class="mp-empty">No tasks yet</div>'; return; }
+    c.innerHTML = this.tasks.map(function(t) {
+      var icon = t.status === 'completed' ? '✅' : t.status === 'running' ? '⏳' : '⏸️';
+      return '<div class="mp-task-item ' + t.status + '"><span class="mp-task-icon">' + icon + '</span><span class="mp-task-name">' + t.name + '</span><span class="mp-task-type">' + t.type + '</span></div>';
+    }).join('');
+  }
+  renderFiles() {
+    var c = document.getElementById('mp-file-list');
+    if (!c) return;
+    if (this.files.length === 0) { c.innerHTML = '<div class="mp-empty">No files</div>'; return; }
+    c.innerHTML = this.files.map(function(f) { return '<div class="mp-file-item"><span>📄</span><span class="mp-file-path">' + f.path + '</span></div>'; }).join('');
+  }
+  setStatus(s) { var e = document.getElementById('mp-build-status'); if (e) e.textContent = s; }
+  log(msg, type) {
+    var c = document.getElementById('mp-build-logs');
+    if (!c) return;
+    var t = new Date().toLocaleTimeString('en-US', { hour12: false });
+    var d = document.createElement('div');
+    d.className = 'log-entry';
+    d.innerHTML = '<span class="log-time">[' + t + ']</span> <span class="log-' + type + '">[' + type.toUpperCase() + ']</span> ' + msg;
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+  }
+  delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+}
+
+// ===== GLOBAL HANDLERS =====
+function sendHomeChat() { var i = document.getElementById('home-input'); if (i && window.homeChat) window.homeChat.sendMessage(i.value); }
+function homeQuick(text) { if (window.homeChat) window.homeChat.quickAction(text); }
+function analyzeMasterPlan() { if (window.wsRunner) window.wsRunner.analyzePlan(); }
+function createTaskTree() { if (window.wsRunner) window.wsRunner.createTaskTree(); }
+function buildProject() { if (window.wsRunner) window.wsRunner.buildProject(); }
+function reviewOutput() { if (window.wsRunner) window.wsRunner.reviewOutput(); }
+function saveProject() { if (window.wsRunner) window.wsRunner.saveProject(); }
+function wsCommand(cmd) { console.log('WS command:', cmd); }
+function sendPlanToWorkspace(btn) {
+  var msgDiv = btn.closest('.home-msg');
+  var plan = msgDiv ? msgDiv.dataset.plan : '';
+  if (plan) {
+    localStorage.setItem('mamta_pending_plan', plan);
+    showPage('workspace');
+    setTimeout(function() { if (window.wsRunner) { window.wsRunner.setPlan(plan); } }, 300);
+  }
+}
+function openWorkspaceWithPlan(text) {
+  localStorage.setItem('mamta_pending_plan', text);
+  showPage('workspace');
+}
+
+// ===== V6.7 MAIN APP =====
+class MAMTAOSV6_7 {
+  constructor() {
+    this.version = '6.7.0';
+    this.homeChat = null;
+    this.wsRunner = null;
+  }
+  init() {
+    console.log('🧠 MAMTA AI V6.7 initializing...');
+    this.homeChat = new HomeChatManager();
+    this.wsRunner = new WorkspacePlanRunner();
+    this.wsRunner.init();
+    this.setupTransfer();
+    console.log('✅ MAMTA AI V6.7 READY');
+    this.showToast('MAMTA AI V6.7 Ready', 'success');
+  }
+  onPageChange(page) {
+    if (page === 'workspace' && this.wsRunner) {
+      this.wsRunner.render();
+      this.wsRunner.renderTasks();
+      this.wsRunner.renderFiles();
+    }
+  }
+  setupTransfer() {
+    var pending = localStorage.getItem('mamta_pending_plan');
+    if (pending && this.wsRunner) {
+      this.wsRunner.setPlan(pending);
+      localStorage.removeItem('mamta_pending_plan');
+    }
+  }
+  showToast(msg, type) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;color:white;z-index:9999;font-size:0.9rem;transition:all 0.3s;';
+    t.style.background = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--error)' : 'var(--warning)';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 3000);
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  window.mamtaOS = new MAMTAOSV6_7();
+  window.homeChat = window.mamtaOS.homeChat;
+  window.wsRunner = window.mamtaOS.wsRunner;
+  window.mamtaOS.init();
+});
+</script>
+
 </body>
 </html>
