@@ -1,152 +1,67 @@
 <svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Neon Purple to Cyan Gradient -->
-    <linearGradient id="mamtaCoreGrad" x1="10%" y1="10%" x2="90%" y2="90%">
-      <stop offset="0%" stop-color="#C084FC" />
-      <stop offset="50%" stop-color="#8B5CF6" />
+    <!-- Main purple gradient for M -->
+    <linearGradient id="mGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A855F7" />
+      <stop offset="50%" stop-color="#7C3AED" />
       <stop offset="100%" stop-color="#06B6D4" />
     </linearGradient>
 
-    <!-- Golden Sovereign Gradient -->
-    <linearGradient id="sovereignGoldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#F59E0B" />
-      <stop offset="50%" stop-color="#EC4899" />
-      <stop offset="100%" stop-color="#8B5CF6" />
+    <!-- Outer ring gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#4F46E5" />
     </linearGradient>
 
-    <!-- Chrome Metal Border -->
-    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
-      <stop offset="30%" stop-color="#94A3B8" stop-opacity="0.4" />
-      <stop offset="70%" stop-color="#475569" stop-opacity="0.5" />
-      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.8" />
-    </linearGradient>
-
-    <!-- Glow Filters -->
-    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="8" result="blur" />
+    <!-- Soft glow filter -->
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
       <feMerge>
         <feMergeNode in="blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
 
-    <filter id="intenseGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="15" result="blur" />
-      <feComponentTransfer in="blur" result="boost">
-        <feFuncA type="linear" slope="1.5" />
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode in="boost" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-
-    <!-- Animation Keyframes (CSS inside SVG) -->
+    <!-- CSS Animations -->
     <style>
-      .rotate-cw { animation: rotateCW 40s linear infinite; transform-origin: 250px 250px; }
-      .rotate-ccw { animation: rotateCCW 30s linear infinite; transform-origin: 250px 250px; }
-      .pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
-      .pulse-star { animation: pulseStar 2s ease-in-out infinite; }
+      .spin-slow { animation: spinSlow 20s linear infinite; transform-origin: 250px 250px; }
+      .pulse-soft { animation: pulseSoft 3s ease-in-out infinite; }
 
-      @keyframes rotateCW {
+      @keyframes spinSlow {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
       }
-      @keyframes rotateCCW {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(-360deg); }
-      }
-      @keyframes pulseGlow {
-        0%, 100% { opacity: 0.08; }
-        50% { opacity: 0.15; }
-      }
-      @keyframes pulseStar {
-        0%, 100% { opacity: 0.8; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.1); }
+      @keyframes pulseSoft {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
       }
     </style>
   </defs>
 
-  <!-- Ambient Underglow -->
-  <circle cx="250" cy="250" r="160" fill="url(#mamtaCoreGrad)" opacity="0.08" class="pulse-glow" />
-
-  <!-- Outer Sovereign Ring (Clockwise) -->
-  <g class="rotate-cw">
-    <circle cx="250" cy="250" r="210" stroke="url(#sovereignGoldGrad)" stroke-width="1.5" 
-            stroke-dasharray="4 8 16 8" opacity="0.35" fill="none" />
+  <!-- Outer purple ring (thin, animated) -->
+  <g class="spin-slow">
+    <circle cx="250" cy="250" r="195" stroke="url(#ringGrad)" stroke-width="2" 
+            fill="none" opacity="0.8" />
   </g>
 
-  <!-- Inner Tech Ring (Counter-Clockwise) -->
-  <g class="rotate-ccw">
-    <circle cx="250" cy="250" r="195" stroke="url(#mamtaCoreGrad)" stroke-width="1" 
-            stroke-dasharray="200 40 80 40" opacity="0.5" fill="none" />
-  </g>
+  <!-- Subtle inner ring -->
+  <circle cx="250" cy="250" r="170" stroke="url(#ringGrad)" stroke-width="0.5" 
+          fill="none" opacity="0.3" />
 
-  <!-- Hexagonal Shield -->
-  <polygon points="250,50 423,150 423,350 250,450 77,350 77,150" 
-           stroke="url(#chromeGrad)" stroke-width="3.5" stroke-linejoin="round" 
-           opacity="0.25" fill="none" />
+  <!-- M Monogram -->
+  <!-- Left vertical bar -->
+  <rect x="175" y="160" width="28" height="170" rx="4" fill="url(#mGrad)" opacity="0.95" />
 
-  <!-- Glowing Node Vertices -->
-  <g opacity="0.6">
-    <circle cx="250" cy="50" r="4" fill="#C084FC" />
-    <circle cx="423" cy="150" r="4" fill="#06B6D4" />
-    <circle cx="423" cy="350" r="4" fill="#8B5CF6" />
-    <circle cx="250" cy="450" r="4" fill="#C084FC" />
-    <circle cx="77" cy="350" r="4" fill="#06B6D4" />
-    <circle cx="77" cy="150" r="4" fill="#8B5CF6" />
-  </g>
+  <!-- Right vertical bar -->
+  <rect x="297" y="160" width="28" height="170" rx="4" fill="url(#mGrad)" opacity="0.95" />
 
-  <!-- Circuit Lines -->
-  <g opacity="0.2" stroke="url(#mamtaCoreGrad)" stroke-width="1" stroke-linecap="round">
-    <line x1="250" y1="50" x2="250" y2="120" />
-    <line x1="423" y1="150" x2="350" y2="190" />
-    <line x1="423" y1="350" x2="350" y2="310" />
-    <line x1="250" y1="450" x2="250" y2="380" />
-    <line x1="77" y1="350" x2="150" y2="310" />
-    <line x1="77" y1="150" x2="150" y2="190" />
-  </g>
+  <!-- Top connecting bar (creates the "M" shape) -->
+  <path d="M175 160 L249 230 L323 160 L323 190 L249 260 L175 190 Z" fill="url(#mGrad)" opacity="0.95" />
 
-  <!-- Inner Segment Ring -->
-  <circle cx="250" cy="250" r="140" stroke="url(#chromeGrad)" stroke-width="1.5" 
-          stroke-dasharray="10 30" opacity="0.4" fill="none" />
+  <!-- Center diamond cutout (negative space) -->
+  <polygon points="249,210 275,235 249,260 223,235" fill="#0F0A1A" opacity="0.9" />
 
-  <!-- Core Shield -->
-  <polygon points="250,110 371,180 371,320 250,390 129,320 129,180" 
-           fill="#0C0A15" fill-opacity="0.85" stroke="url(#mamtaCoreGrad)" 
-           stroke-width="2.5" filter="url(#neonGlow)" />
+  <!-- Glow dot at center -->
+  <circle cx="249" cy="235" r="5" fill="#00F0FF" class="pulse-soft" filter="url(#softGlow)" />
 
-  <!-- Sovereign Monogram "M" - Left Pillar -->
-  <path d="M 170,330 L 170,170 C 170,165 175,160 180,160 L 195,160 C 200,160 205,165 205,170 L 205,330" 
-        fill="url(#mamtaCoreGrad)" opacity="0.9" />
-
-  <!-- Right Pillar -->
-  <path d="M 295,330 L 295,170 C 295,165 300,160 305,160 L 320,160 C 325,160 330,165 330,170 L 330,330" 
-        fill="url(#mamtaCoreGrad)" opacity="0.9" />
-
-  <!-- Converging V-Joint -->
-  <path d="M 205,170 L 243,260 C 246,267 254,267 257,260 L 295,170 L 275,170 L 250,228 L 225,170 Z" 
-        fill="url(#sovereignGoldGrad)" opacity="0.95" />
-
-  <!-- Neural Intersection Points -->
-  <g filter="url(#neonGlow)">
-    <circle cx="187" cy="165" r="5" fill="#FFFFFF" />
-    <circle cx="312" cy="165" r="5" fill="#FFFFFF" />
-    <circle cx="250" cy="232" r="6" fill="#00F0FF" />
-    <circle cx="187" cy="330" r="4.5" fill="#8B5CF6" />
-    <circle cx="312" cy="330" r="4.5" fill="#06B6D4" />
-  </g>
-
-  <!-- Core Intelligence Star -->
-  <g filter="url(#intenseGlow)" class="pulse-star">
-    <path d="M 250,232 L 253,245 L 266,248 L 253,251 L 250,264 L 247,251 L 234,248 L 247,245 Z" 
-          fill="#FFFFFF" />
-  </g>
-
-  <!-- Technical Calibration Grid -->
-  <path d="M 200,410 L 300,410" stroke="url(#chromeGrad)" stroke-width="1.5" opacity="0.3" />
-  <line x1="200" y1="406" x2="200" y2="414" stroke="#8B5CF6" stroke-width="1.5" opacity="0.4" />
-  <line x1="250" y1="406" x2="250" y2="414" stroke="#FFFFFF" stroke-width="1.5" opacity="0.6" />
-  <line x1="300" y1="406" x2="300" y2="414" stroke="#06B6D4" stroke-width="1.5" opacity="0.4" />
 </svg>
