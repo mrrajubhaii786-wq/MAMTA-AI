@@ -328,7 +328,70 @@
       .admin-engine-grid { grid-template-columns: repeat(2, 1fr); }
       .admin-overview-grid { grid-template-columns: repeat(2, 1fr); }
     }
-  </style>
+  
+/* ===== MOBILE RESPONSIVE IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  .top-nav { padding: 8px 12px; flex-wrap: wrap; }
+  .logo { font-size: 1rem; }
+  .nav-tabs { gap: 4px; }
+  .nav-tab { padding: 6px 10px; font-size: 0.75rem; }
+
+  .home-welcome h1 { font-size: 1.8rem; }
+  .home-welcome .tagline { font-size: 0.95rem; }
+  .home-input-box { padding: 4px 8px; }
+  .home-input-field { font-size: 0.9rem; }
+  .home-quick-actions { gap: 6px; }
+  .home-quick-chip { padding: 8px 12px; font-size: 0.8rem; }
+
+  .ws-layout { flex-direction: column; }
+  .ws-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 12px; display: flex; gap: 8px; overflow-x: auto; flex-wrap: nowrap; }
+  .ws-sidebar h3 { display: none; }
+  .ws-nav-item { white-space: nowrap; margin-bottom: 0; font-size: 0.8rem; padding: 8px 12px; }
+  .ws-main { padding: 12px; }
+
+  .admin-layout { padding: 12px; }
+  .admin-header h1 { font-size: 1.2rem; }
+  .admin-grid { grid-template-columns: 1fr; gap: 12px; }
+  .admin-card { padding: 12px; }
+
+  .sd-layout { padding: 12px; }
+  .sd-card { padding: 16px; }
+  .vault-input { padding: 10px; font-size: 0.9rem; }
+  .vault-table { font-size: 0.8rem; }
+  .vault-table th, .vault-table td { padding: 8px 6px; }
+
+  .prod-bar { padding: 6px 12px; gap: 8px; font-size: 0.7rem; flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .nav-tab { padding: 5px 8px; font-size: 0.7rem; }
+  .home-welcome { padding: 30px 16px; }
+  .home-welcome h1 { font-size: 1.5rem; }
+  .home-msg { max-width: 95%; padding: 10px 12px; font-size: 0.9rem; }
+  .ws-metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .engine-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* ===== ACCESSIBILITY ===== */
+*:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+
+/* ===== LOADING STATES ===== */
+.btn-loading { position: relative; pointer-events: none; opacity: 0.7; }
+.btn-loading::after { content: ''; position: absolute; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+</style>
 </head>
 <body>
   <!-- ═══════════════════════════════════════════════════════════════
@@ -337,10 +400,10 @@
   <nav class="top-nav">
     <div class="logo">MAMTA AI</div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
-      <button class="nav-tab" onclick="showPage('workspace')">💻 Workspace</button>
-      <button class="nav-tab" onclick="showPage('admin')">📊 Admin</button>
-      <button class="nav-tab" onclick="showPage('safedrop')">🔐 SafeDrop</button>
+      <button type="button" class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
+      <button type="button" class="nav-tab" onclick="showPage('workspace')">💻 Workspace</button>
+      <button type="button" class="nav-tab" onclick="showPage('admin')">📊 Admin</button>
+      <button type="button" class="nav-tab" onclick="showPage('safedrop')">🔐 SafeDrop</button>
     </div>
     <div class="status-area">
       <div class="status-pill"><span class="dot green"></span><span id="nav-db-status">DB</span></div>
@@ -372,15 +435,15 @@
         <div class="home-chat-area">
           <div class="home-chat-box">
             <input type="text" class="home-chat-input" id="home-chat-input" placeholder="Ask anything or type a command..." onkeydown="if(event.key==='Enter')sendHomeChat()">
-            <button class="home-chat-send" onclick="sendHomeChat()">➤</button>
+            <button type="button" class="home-chat-send" onclick="sendHomeChat()">➤</button>
           </div>
         </div>
 
         <div class="home-quick-actions">
-          <button class="home-quick-btn" onclick="quickCommand('/plan Build a website')">📋 Plan a Project</button>
-          <button class="home-quick-btn" onclick="quickCommand('/build MyApp')">🔨 Build an App</button>
-          <button class="home-quick-btn" onclick="quickCommand('/review function hello() {}')">🔍 Review Code</button>
-          <button class="home-quick-btn" onclick="quickCommand('/heal')">🔧 Fix Error</button>
+          <button type="button" class="home-quick-btn" onclick="quickCommand('/plan Build a website')">📋 Plan a Project</button>
+          <button type="button" class="home-quick-btn" onclick="quickCommand('/build MyApp')">🔨 Build an App</button>
+          <button type="button" class="home-quick-btn" onclick="quickCommand('/review function hello() {}')">🔍 Review Code</button>
+          <button type="button" class="home-quick-btn" onclick="quickCommand('/heal')">🔧 Fix Error</button>
         </div>
 
         <div class="home-bottom-status">
@@ -408,10 +471,10 @@
           <div class="ws-nav-item" onclick="showWsTab('tasks')">📋 Tasks</div>
 
           <h3 style="margin-top: 24px;">⚡ Quick Actions</h3>
-          <button class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/plan')">➕ New Plan</button>
-          <button class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/build')">➕ New Build</button>
-          <button class="vault-btn secondary" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/auto')">🤖 Toggle Auto</button>
-          <button class="vault-btn secondary" style="width: 100%;" onclick="wsCommand('/sync')">🔄 Sync DB</button>
+          <button type="button" class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/plan')">➕ New Plan</button>
+          <button type="button" class="vault-btn" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/build')">➕ New Build</button>
+          <button type="button" class="vault-btn secondary" style="width: 100%; margin-bottom: 8px;" onclick="wsCommand('/auto')">🤖 Toggle Auto</button>
+          <button type="button" class="vault-btn secondary" style="width: 100%;" onclick="wsCommand('/sync')">🔄 Sync DB</button>
         </div>
 
         <div class="ws-main">
@@ -454,7 +517,7 @@
             </div>
             <div class="ws-chat-input-area">
               <input type="text" class="ws-chat-input" id="ws-chat-input" placeholder="Type /help for commands..." onkeydown="if(event.key==='Enter')sendWsChat()">
-              <button class="ws-chat-send" onclick="sendWsChat()">Send</button>
+              <button type="button" class="ws-chat-send" onclick="sendWsChat()">Send</button>
             </div>
           </div>
 
@@ -630,10 +693,10 @@ Use /build to start a new project build.</div>
           <div class="sd-warning-box">⚠️ Never expose API keys in frontend code. Keys are stored encrypted in browser localStorage only.</div>
 
           <div class="vault-tabs">
-            <button class="vault-tab active" onclick="showVaultTab('keys')">🔑 API Keys</button>
-            <button class="vault-tab" onclick="showVaultTab('passwords')">🔒 Passwords</button>
-            <button class="vault-tab" onclick="showVaultTab('backup')">💾 Backup</button>
-            <button class="vault-tab" onclick="showVaultTab('settings')">⚙️ Settings</button>
+            <button type="button" class="vault-tab active" onclick="showVaultTab('keys')">🔑 API Keys</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('passwords')">🔒 Passwords</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('backup')">💾 Backup</button>
+            <button type="button" class="vault-tab" onclick="showVaultTab('settings')">⚙️ Settings</button>
           </div>
 
           <div class="vault-tab-content active" id="vault-tab-keys">
@@ -652,15 +715,15 @@ Use /build to start a new project build.</div>
               <input class="vault-input" id="vault-key-value" placeholder="Key Value" type="password">
               <input class="vault-input" id="vault-key-provider" placeholder="Provider (e.g., OpenAI, Gemini, Supabase)">
               <div style="display: flex; gap: 10px;">
-                <button class="vault-btn" onclick="addVaultKey()">Add Key</button>
-                <button class="vault-btn secondary small" onclick="testVaultKey()">Test Key</button>
+                <button type="button" class="vault-btn" onclick="addVaultKey()">Add Key</button>
+                <button type="button" class="vault-btn secondary small" onclick="testVaultKey()">Test Key</button>
               </div>
             </div>
           </div>
 
           <div class="vault-tab-content" id="vault-tab-passwords">
             <h3 style="margin-bottom: 12px;">🔒 Password Manager</h3>
-            <table class="vault-table">
+            <table id="vault-pwd-table" class="vault-table">
               <thead><tr><th>Service</th><th>Username</th><th>Password</th></tr></thead>
               <tbody id="vault-passwords-table"><tr><td colspan="3" style="text-align:center;color:var(--text-dark)">No passwords stored.</td></tr></tbody>
             </table>
@@ -668,7 +731,7 @@ Use /build to start a new project build.</div>
               <input class="vault-input" id="vault-pass-service" placeholder="Service Name">
               <input class="vault-input" id="vault-pass-username" placeholder="Username / Email">
               <input class="vault-input" id="vault-pass-password" placeholder="Password" type="password">
-              <button class="vault-btn" onclick="addVaultPassword()">Add Password</button>
+              <button type="button" class="vault-btn" onclick="addVaultPassword()">Add Password</button>
             </div>
           </div>
 
@@ -676,9 +739,9 @@ Use /build to start a new project build.</div>
             <h3 style="margin-bottom: 12px;">💾 Project Backup</h3>
             <p style="color: var(--text-dim); margin-bottom: 16px;">Backup your MAMTA AI configuration and project data.</p>
             <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-              <button class="vault-btn" onclick="backupVault()">Create Backup</button>
-              <button class="vault-btn secondary" onclick="exportVault()">📤 Export Encrypted</button>
-              <button class="vault-btn secondary" onclick="importVault()">📥 Import Encrypted</button>
+              <button type="button" class="vault-btn" onclick="backupVault()">Create Backup</button>
+              <button type="button" class="vault-btn secondary" onclick="exportVault()">📤 Export Encrypted</button>
+              <button type="button" class="vault-btn secondary" onclick="importVault()">📥 Import Encrypted</button>
             </div>
             <div id="vault-backups-list"></div>
           </div>
@@ -688,7 +751,7 @@ Use /build to start a new project build.</div>
             <p style="color: var(--text-dim); margin-bottom: 16px;">Change your master key and vault preferences.</p>
             <input class="vault-input" id="vault-new-key" placeholder="New Master Key" type="password">
             <input class="vault-input" id="vault-confirm-key" placeholder="Confirm Master Key" type="password">
-            <button class="vault-btn" onclick="changeMasterKey()">Change Master Key</button>
+            <button type="button" class="vault-btn" onclick="changeMasterKey()">Change Master Key</button>
           </div>
         </div>
 
@@ -713,7 +776,7 @@ Use /build to start a new project build.</div>
             <div class="sd-dash-title">🔒 Master Key</div>
             <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Your vault is encrypted. Enter your master key to unlock.</p>
             <input class="vault-input" id="master-key-input" placeholder="Enter Master Key" type="password">
-            <button class="vault-btn" style="width: 100%; margin-top: 8px;" onclick="unlockVault()">Unlock Vault</button>
+            <button type="button" class="vault-btn" style="width: 100%; margin-top: 8px;" onclick="unlockVault()">Unlock Vault</button>
           </div>
         </div>
       </div>
@@ -902,7 +965,7 @@ Use /build to start a new project build.</div>
         return;
       }
       tbody.innerHTML = data.apiKeys.map((k, i) =>
-        `<tr><td>${k.name}</td><td>${k.provider}</td><td>🔒 Encrypted</td><td><button class="vault-btn secondary small" onclick="deleteVaultKey(${i})">Delete</button></td></tr>`
+        `<tr><td>${k.name}</td><td>${k.provider}</td><td>🔒 Encrypted</td><td><button type="button" class="vault-btn secondary small" onclick="deleteVaultKey(${i})">Delete</button></td></tr>`
       ).join('');
     }
 
