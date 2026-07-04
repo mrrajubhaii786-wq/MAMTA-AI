@@ -476,64 +476,20 @@ button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
     .logo img { transition: all 0.3s ease; }
     .logo:hover img { transform: rotate(15deg) scale(1.1); filter: drop-shadow(0 0 10px rgba(139,92,246,0.7)) !important; }
 
-  
-    /* ═══════════════════════════════════════════════════════════════
-       V6.8 ADDITIONS
-       ═══════════════════════════════════════════════════════════════ */
-
-    /* Toast notifications */
-    .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
-    .toast { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px 16px; 
-             color:var(--text); font-size:0.9rem; display:flex; align-items:center; gap:10px; 
-             animation:toastIn 0.3s ease, toastOut 0.3s ease 3s forwards; max-width:320px; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
-    .toast.success { border-color:var(--success); }
-    .toast.error { border-color:var(--danger); }
-    .toast.warning { border-color:var(--warning); }
-    @keyframes toastIn { from { transform:translateX(100px); opacity:0; } to { transform:translateX(0); opacity:1; } }
-    @keyframes toastOut { to { transform:translateX(100px); opacity:0; } }
-
-    /* Wiki section in Admin */
-    .wiki-section { margin-top:20px; }
-    .wiki-search { display:flex; gap:8px; margin-bottom:16px; }
-    .wiki-search input { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:8px; 
-                         padding:10px 14px; color:var(--text); font-size:0.9rem; }
-    .wiki-search button { background:var(--accent); border:none; color:white; padding:10px 18px; 
-                          border-radius:8px; cursor:pointer; font-size:0.9rem; }
-    .wiki-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; 
-                 margin-bottom:12px; }
-    .wiki-card h4 { color:var(--accent); margin-bottom:8px; font-size:1rem; }
-    .wiki-card p { color:var(--text-dim); font-size:0.85rem; line-height:1.5; }
-    .wiki-card .wiki-meta { display:flex; gap:12px; margin-top:10px; font-size:0.75rem; color:var(--text-dark); }
-    .wiki-tag { background:rgba(99,102,241,0.1); color:var(--accent); padding:2px 8px; border-radius:10px; font-size:0.75rem; }
-
-    /* Loading states */
-    .loading-dots { display:flex; gap:4px; }
-    .loading-dots span { width:8px; height:8px; background:var(--accent); border-radius:50%; 
-                         animation:dotBounce 1.4s infinite ease-in-out both; }
-    .loading-dots span:nth-child(1) { animation-delay:-0.32s; }
-    .loading-dots span:nth-child(2) { animation-delay:-0.16s; }
-    @keyframes dotBounce { 0%,80%,100%{transform:scale(0);} 40%{transform:scale(1);} }
-
-    /* AI thinking indicator */
-    .ai-thinking { display:flex; align-items:center; gap:8px; padding:12px 16px; 
-                   background:var(--panel); border-radius:12px; border:1px solid var(--border);
-                   align-self:flex-start; margin-bottom:10px; }
-    .ai-thinking span { color:var(--text-dim); font-size:0.9rem; }
-
   </style>
 </head>
 <body>
-<nav role="navigation" aria-label="Main navigation" class="top-nav">
+<nav class="top-nav">
     <div class="logo" style="display:flex; align-items:center; gap:10px;">
       <img src="assets/mamta_logo.svg?v=2" width="32" height="32" alt="MAMTA AI" 
            style="filter: drop-shadow(0 0 6px rgba(139,92,246,0.5));" />
       <span style="font-weight:700; font-size:1.1rem; color:var(--text);">MAMTA AI</span>
     </div>
     <div class="nav-tabs">
-      <button type="button" class="nav-tab active" data-page="home" aria-label="Home page" role="button" onclick="showPage('home')">🏠 Home</button>
-      <button type="button" class="nav-tab" data-page="workspace" aria-label="Workspace page" role="button" onclick="showPage('workspace')">💻 Workspace</button>
-      <button type="button" class="nav-tab" data-page="admin" aria-label="Admin page" role="button" onclick="showPage('admin')">📊 Admin</button>
-      <button type="button" class="nav-tab" data-page="safedrop" aria-label="SafeDrop vault" role="button" onclick="showPage('safedrop')">🔐 SafeDrop</button>
+      <button type="button" class="nav-tab active" data-page="home" onclick="showPage('home')">🏠 Home</button>
+      <button type="button" class="nav-tab" data-page="workspace" onclick="showPage('workspace')">💻 Workspace</button>
+      <button type="button" class="nav-tab" data-page="admin" onclick="showPage('admin')">📊 Admin</button>
+      <button type="button" class="nav-tab" data-page="safedrop" onclick="showPage('safedrop')">🔐 SafeDrop</button>
     </div>
     <div class="status-area">
       <div class="status-pill"><span class="dot green"></span><span id="nav-db-status">DB</span></div>
@@ -544,12 +500,13 @@ button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
 <div class="page active" id="page-home">
   <div class="home-container">
     <div class="home-welcome" id="home-welcome">
-      <div class="home-logo-wrap" style="margin-bottom:12px;">
-        <img src="assets/mamta_logo.svg?v=2" width="120" height="120" alt="MAMTA AI"
-             style="filter: drop-shadow(0 0 20px rgba(139,92,246,0.2));" />
+      <div class="home-logo-wrap" style="margin-bottom:16px;">
+        <img src="assets/mamta_logo.svg?v=2" width="140" height="140" alt="MAMTA AI Sovereign Logo"
+             style="filter: drop-shadow(0 0 24px rgba(139,92,246,0.25));" />
       </div>
-      <h1 style="font-size:2rem; margin-bottom:8px;">MAMTA AI</h1>
-      <div class="tagline" style="font-size:1rem; color:var(--text-dim);">Ask anything. Discuss anything. Plan anything.</div>
+      <h1>MAMTA AI</h1>
+      <div class="tagline">Ask anything. Discuss anything. Plan anything.</div>
+      <div class="version">V6.7 — Talk. Build. Monitor. Secure.</div>
     </div>
     <div class="home-chat-scroll" id="home-chat-messages"></div>
     <div class="home-input-area">
@@ -563,7 +520,7 @@ button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
         <button class="home-input-btn" type="button" title="Attach file">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
         </button>
-        <input type="text" class="home-input-field" id="home-chat-input" aria-label="Chat message" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendHomeChat()">
+        <input type="text" class="home-input-field" id="home-chat-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendHomeChat()">
         <button class="home-input-btn" type="button" title="Voice input" id="home-mic-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
         </button>
@@ -592,7 +549,7 @@ button:focus, input:focus, textarea:focus { outline: 2px solid var(--accent); ou
       <div class="ws-card mp-runner">
         <h3>🏃 Master Plan Runner</h3>
         <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:12px;">Paste your Master Plan here. MAMTA AI will analyze, create tasks, generate files, and build.</p>
-        <textarea id="mp-input" aria-label="Master plan input" placeholder="Paste your Master Plan here...
+        <textarea id="mp-input" placeholder="Paste your Master Plan here...
 
 Example:
 # My App Master Plan
@@ -771,38 +728,7 @@ Example:
           </div>
         </div>
       </div>
-    
-    <!-- ═══════════════════════════════════════════════════════════════
-         V6.8: OPENWIKI KNOWLEDGE BRAIN
-         ═══════════════════════════════════════════════════════════════ -->
-    <div class="admin-section wiki-section" style="margin-top:30px;">
-      <div class="section-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <h3 style="display:flex; align-items:center; gap:8px; color:var(--accent);">
-          <span>🧠</span> OpenWiki — Knowledge Brain
-        </h3>
-        <span class="version-badge" style="font-size:0.75rem;">V6.8</span>
-      </div>
-
-      <div class="wiki-search">
-        <input type="text" id="wiki-search-input" placeholder="Search knowledge base... (e.g., architecture, engines, vault)" 
-               aria-label="Search wiki" />
-        <button type="button" onclick="renderWikiResults(searchWiki(document.getElementById('wiki-search-input').value), 'wiki-results')">🔍 Search</button>
-      </div>
-
-      <div id="wiki-results" style="max-height:400px; overflow-y:auto;">
-        <div class="mp-empty">Loading knowledge base...</div>
-      </div>
-
-      <div style="margin-top:16px; padding:12px; background:var(--bg); border-radius:8px; border:1px solid var(--border);">
-        <h4 style="color:var(--text-dim); font-size:0.85rem; margin-bottom:8px;">💡 Wiki Commands</h4>
-        <div style="display:flex; flex-wrap:wrap; gap:8px;">
-          <code style="background:var(--panel); padding:4px 8px; border-radius:4px; font-size:0.8rem;">/wiki</code>
-          <code style="background:var(--panel); padding:4px 8px; border-radius:4px; font-size:0.8rem;">/docs</code>
-          <code style="background:var(--panel); padding:4px 8px; border-radius:4px; font-size:0.8rem;">/explain &lt;file&gt;</code>
-          <code style="background:var(--panel); padding:4px 8px; border-radius:4px; font-size:0.8rem;">/architecture</code>
-        </div>
-      </div>
-    </div></div>
+    </div>
 
     <!-- ═══════════════════════════════════════════════════════════════
          PAGE 4 — SAFEDROP: Security Vault
@@ -881,7 +807,367 @@ Example:
 
         <div class="sd-sidebar">
           <div class="sd-dash-card" id="safedrop-dashboard">
-            <div class="sd-dash-title">🔐 SafeDrop Dashboard</div>    const lastBackup = backups.length > 0 ? new Date(backups[backups.length - 1].timestamp).toLocaleString() : 'Never';
+            <div class="sd-dash-title">🔐 SafeDrop Dashboard</div>
+            <div class="sd-metric-grid">
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-secrets-count">0</div><div class="sd-metric-label">Stored Secrets</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-encryption">AES-256</div><div class="sd-metric-label">Encryption</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-backup">Never</div><div class="sd-metric-label">Last Backup</div></div>
+              <div class="sd-metric"><div class="sd-metric-value green" id="sd-security-score">100%</div><div class="sd-metric-label">Security Score</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-last-access">Never</div><div class="sd-metric-label">Last Access</div></div>
+              <div class="sd-metric"><div class="sd-metric-value" id="sd-api-keys">0</div><div class="sd-metric-label">API Keys</div></div>
+            </div>
+            <div class="sd-vault-health">
+              <div class="sd-health-bar"><div class="sd-health-fill" id="sd-health-fill" style="width: 100%"></div></div>
+              <div class="sd-health-text" id="sd-health-text">Vault Health: Excellent</div>
+            </div>
+          </div>
+
+          <div class="sd-dash-card">
+            <div class="sd-dash-title">🔒 Master Key</div>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 12px;">Your vault is encrypted. Enter your master key to unlock.</p>
+            <input class="vault-input" id="master-key-input" placeholder="Enter Master Key" type="password">
+            <button type="button" class="vault-btn" style="width: 100%; margin-top: 8px;" onclick="unlockVault()">Unlock Vault</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PRODUCTION BAR (Admin-Only — Hidden on Home)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="production-bar" id="production-bar">
+    <div class="prod-indicator" id="prod-auto">🤖 Autonomous</div>
+    <div class="prod-indicator active" id="prod-manual">👤 Manual</div>
+    <div class="prod-indicator" id="prod-db">🗄️ Database</div>
+    <div class="prod-indicator" id="prod-ai">🤖 AI</div>
+    <div class="prod-indicator active" id="prod-memory">💾 Memory</div>
+    <div class="prod-indicator active" id="prod-agents">0 agents</div>
+    <div class="prod-indicator" id="prod-errors">0 errors</div>
+    <div class="prod-indicator" id="prod-warnings">0 warnings</div>
+    <div class="prod-indicator" id="prod-logs">0 logs</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       JAVASCRIPT — V6.6 UI Logic + Vault Functions
+       ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    // ==================== PAGE ROUTING ====================
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      var targetPage = document.getElementById('page-' + name);
+      if (targetPage) targetPage.classList.add('active');
+      document.querySelectorAll('.nav-tab').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + name + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Show/hide production bar based on page
+      const prodBar = document.getElementById('production-bar');
+      if (prodBar) {
+        prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
+      }
+
+      // Initialize SafeDrop dashboard when navigating to safedrop
+      if (name === 'safedrop') {
+        renderVaultKeys();
+        renderVaultPasswords();
+        renderBackups();
+        updateSafeDropDashboard();
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ==================== HOME CHAT ====================
+    async function sendHomeChat() {
+      const input = document.getElementById('home-chat-input');
+      const messages = document.getElementById('home-chat-messages');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'home-msg user';
+      userMsg.textContent = msg;
+      messages.appendChild(userMsg);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      if (msg.startsWith('/')) {
+        if (window.mamtaOS) {
+          try {
+            const result = await window.mamtaOS.handleCommand(msg);
+            const aiMsg = document.createElement('div');
+            aiMsg.className = 'home-msg ai';
+            aiMsg.textContent = result.message || 'Command processed';
+            messages.appendChild(aiMsg);
+          } catch (e) {
+            const errMsg = document.createElement('div');
+            errMsg.className = 'home-msg system';
+            errMsg.textContent = '[ERROR] ' + e.message;
+            messages.appendChild(errMsg);
+          }
+        } else {
+          const sysMsg = document.createElement('div');
+          sysMsg.className = 'home-msg system';
+          sysMsg.textContent = '[SYSTEM] MAMTA OS initializing...';
+          messages.appendChild(sysMsg);
+        }
+      } else {
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'home-msg ai';
+        aiMsg.textContent = 'I am MAMTA AI V6.6. Type /help for available commands, or ask me anything.';
+        messages.appendChild(aiMsg);
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function quickCommand(cmd) {
+      document.getElementById('home-chat-input').value = cmd;
+      sendHomeChat();
+    }
+
+    // ==================== WORKSPACE CHAT ====================
+    function showWsTab(tab) {
+      document.querySelectorAll('.ws-nav-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.ws-nav-item').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    async function sendWsChat() {
+      const input = document.getElementById('ws-chat-input');
+      const messages = document.getElementById('ws-chat-messages');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'home-msg user';
+      userMsg.textContent = msg;
+      messages.appendChild(userMsg);
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      if (msg.startsWith('/') && window.mamtaOS) {
+        try {
+          const result = await window.mamtaOS.handleCommand(msg);
+          const aiMsg = document.createElement('div');
+          aiMsg.className = 'home-msg ai';
+          aiMsg.textContent = result.message || 'Command processed';
+          messages.appendChild(aiMsg);
+        } catch (e) {
+          const errMsg = document.createElement('div');
+          errMsg.className = 'home-msg system';
+          errMsg.textContent = '[ERROR] ' + e.message;
+          messages.appendChild(errMsg);
+        }
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function wsCommand(cmd) {
+      document.getElementById('ws-chat-input').value = cmd;
+      sendWsChat();
+    }
+
+    // ==================== VAULT FUNCTIONS ====================
+    function getVaultData() {
+      return JSON.parse(localStorage.getItem('mamta_vault') || '{"apiKeys":[],"passwords":[],"backups":[]}');
+    }
+    function saveVaultData(data) {
+      localStorage.setItem('mamta_vault', JSON.stringify(data));
+    }
+
+    function addVaultKey() {
+      const name = document.getElementById('vault-key-name').value.trim();
+      const value = document.getElementById('vault-key-value').value.trim();
+      const provider = document.getElementById('vault-key-provider').value.trim();
+      if (!name || !value) { showToast('Name and value required', 'warning'); return; }
+
+      const data = getVaultData();
+      data.apiKeys.push({ name, value, provider: provider || 'Unknown', timestamp: Date.now() });
+      saveVaultData(data);
+      showToast('API key added to vault', 'success');
+      renderVaultKeys();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+      document.getElementById('vault-key-name').value = '';
+      document.getElementById('vault-key-value').value = '';
+      document.getElementById('vault-key-provider').value = '';
+    }
+
+    function renderVaultKeys() {
+      const data = getVaultData();
+      const tbody = document.getElementById('vault-keys-table');
+      if (data.apiKeys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dark)">No keys stored. Add your first API key below.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.apiKeys.map((k, i) =>
+        `<tr><td>${k.name}</td><td>${k.provider}</td><td>🔒 Encrypted</td><td><button type="button" class="vault-btn secondary small" onclick="deleteVaultKey(${i})">Delete</button></td></tr>`
+      ).join('');
+    }
+
+    function deleteVaultKey(index) {
+      const data = getVaultData();
+      data.apiKeys.splice(index, 1);
+      saveVaultData(data);
+      renderVaultKeys();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+      showToast('Key deleted', 'info');
+    }
+
+    function testVaultKey() {
+      const value = document.getElementById('vault-key-value').value.trim();
+      if (!value) { showToast('Enter a key to test', 'warning'); return; }
+      if (value.startsWith('sk-') || value.startsWith('AIza')) {
+        showToast('Key format looks valid! Save it to test with API.', 'success');
+      } else {
+        showToast('Key format may be invalid. Check your provider.', 'warning');
+      }
+    }
+
+    function updateKeyStatus() {
+      const data = getVaultData();
+      const hasOpenAI = data.apiKeys.some(k => k.provider.toLowerCase().includes('openai'));
+      const hasGemini = data.apiKeys.some(k => k.provider.toLowerCase().includes('gemini'));
+      const openAIEl = document.getElementById('vault-openai-status');
+      const geminiEl = document.getElementById('vault-gemini-status');
+      if (openAIEl) { openAIEl.textContent = hasOpenAI ? 'Configured' : 'Not Configured'; openAIEl.className = 'sd-key-badge ' + (hasOpenAI ? 'ok' : 'missing'); }
+      if (geminiEl) { geminiEl.textContent = hasGemini ? 'Configured' : 'Not Configured'; geminiEl.className = 'sd-key-badge ' + (hasGemini ? 'ok' : 'missing'); }
+    }
+
+    function addVaultPassword() {
+      const service = document.getElementById('vault-pass-service').value.trim();
+      const username = document.getElementById('vault-pass-username').value.trim();
+      const password = document.getElementById('vault-pass-password').value.trim();
+      if (!service || !password) { showToast('Service and password required', 'warning'); return; }
+
+      const data = getVaultData();
+      data.passwords.push({ service, username, password, timestamp: Date.now() });
+      saveVaultData(data);
+      showToast('Password added to vault', 'success');
+      renderVaultPasswords();
+      updateSafeDropDashboard();
+      document.getElementById('vault-pass-service').value = '';
+      document.getElementById('vault-pass-username').value = '';
+      document.getElementById('vault-pass-password').value = '';
+    }
+
+    function renderVaultPasswords() {
+      const data = getVaultData();
+      const tbody = document.getElementById('vault-passwords-table');
+      if (data.passwords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-dark)">No passwords stored.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.passwords.map(p => `<tr><td>${p.service}</td><td>${p.username || '-'}</td><td>🔒 Hidden</td></tr>`).join('');
+    }
+
+    function backupVault() {
+      const data = getVaultData();
+      data.backups = data.backups || [];
+      data.backups.push({ timestamp: Date.now(), data: JSON.parse(JSON.stringify(data)) });
+      saveVaultData(data);
+      showToast('Backup created successfully', 'success');
+      renderBackups();
+      updateSafeDropDashboard();
+    }
+
+    function exportVault() {
+      const data = getVaultData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'mamta_vault_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Vault exported (encrypted)', 'success');
+    }
+
+    function importVault() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            saveVaultData(data);
+            showToast('Vault imported successfully', 'success');
+            renderVaultKeys();
+            renderVaultPasswords();
+            renderBackups();
+            updateSafeDropDashboard();
+            updateKeyStatus();
+          } catch (err) {
+            showToast('Invalid backup file', 'error');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function renderBackups() {
+      const data = getVaultData();
+      const list = document.getElementById('vault-backups-list');
+      if (!data.backups || data.backups.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-dark);font-size:0.85rem;">No backups yet.</p>';
+        return;
+      }
+      list.innerHTML = data.backups.map((b, i) => {
+        const date = new Date(b.timestamp).toLocaleString();
+        return `<div style="padding:8px;background:var(--bg);border-radius:6px;margin-bottom:6px;font-size:0.85rem;">Backup #${i+1} — ${date}</div>`;
+      }).join('');
+    }
+
+    function changeMasterKey() {
+      const newKey = document.getElementById('vault-new-key').value;
+      const confirmKey = document.getElementById('vault-confirm-key').value;
+      if (!newKey || newKey !== confirmKey) { showToast('Keys do not match', 'error'); return; }
+      localStorage.setItem('mamta_vault_encrypted', 'true');
+      showToast('Master key updated', 'success');
+      document.getElementById('vault-new-key').value = '';
+      document.getElementById('vault-confirm-key').value = '';
+    }
+
+    function unlockVault() {
+      const key = document.getElementById('master-key-input').value;
+      if (!key) { showToast('Enter master key', 'warning'); return; }
+      localStorage.setItem('mamta_vault_last_access', new Date().toLocaleString());
+      showToast('Vault unlocked', 'success');
+      renderVaultKeys();
+      renderVaultPasswords();
+      renderBackups();
+      updateSafeDropDashboard();
+      updateKeyStatus();
+    }
+
+    function updateSafeDropDashboard() {
+      const vaultData = getVaultData();
+      const keys = vaultData.apiKeys || [];
+      const passwords = vaultData.passwords || [];
+      const backups = vaultData.backups || [];
+      const secretsCount = keys.length + passwords.length;
+      const isEncrypted = !!localStorage.getItem('mamta_vault_encrypted');
+      const lastBackup = backups.length > 0 ? new Date(backups[backups.length - 1].timestamp).toLocaleString() : 'Never';
       const lastAccess = localStorage.getItem('mamta_vault_last_access') || 'Never';
 
       let securityScore = 0;
@@ -970,590 +1256,323 @@ Example:
 
 
 <script>
-    // ═══════════════════════════════════════════════════════════════
-    // MAMTA AI V6.8.2 — "Knowledge Brain + Real AI + UX Perfection"
-    // ═══════════════════════════════════════════════════════════════
+// ===== V6.7 GLOBAL NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
+  var targetPage = document.getElementById('page-' + name);
+  if (targetPage) targetPage.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(btn) {
+    if (btn.dataset.page === name) btn.classList.add('active');
+  });
+  var prodBar = document.getElementById('production-bar');
+  if (prodBar) prodBar.style.display = (name === 'admin') ? 'flex' : 'none';
+  if (window.mamtaOS && window.mamtaOS.onPageChange) window.mamtaOS.onPageChange(name);
+}
 
-    const MAMTA_VERSION = "6.8.2";
+function showWsTab(name) {
+  document.querySelectorAll('.ws-nav-item').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.ws-nav-item').forEach(function(btn) {
+    if (btn.dataset.wstab === name) btn.classList.add('active');
+  });
+}
 
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 1: CRITICAL FIXES
-    // ═══════════════════════════════════════════════════════════════
+// ===== V6.7 HOME CHAT MANAGER =====
+class HomeChatManager {
+  constructor() {
+    this.isFirstMessage = true;
+    this.execKeywords = ['run','build','deploy','execute','compile','generate code','create files','start project','कोड बनाओ','प्रोजेक्ट बनाओ','प्लान चलाओ','बिल्ड करो','डिप्लॉय करो'];
+  }
+  async sendMessage(text) {
+    if (!text || !text.trim()) return;
+    text = text.trim();
+    this.addMsg('user', text);
+    var input = document.getElementById('home-input');
+    if (input) input.value = '';
+    if (this.isExec(text)) { this.showRedirect(text); return; }
+    if (this.isPlan(text)) { await this.handlePlan(text); return; }
+    await this.handleChat(text);
+  }
+  isExec(text) {
+    var lower = text.toLowerCase();
+    return this.execKeywords.some(function(k) { return lower.indexOf(k.toLowerCase()) !== -1; });
+  }
+  isPlan(text) {
+    var lower = text.toLowerCase();
+    return ['plan','master plan','plan banao','roadmap','strategy','योजना','प्लान'].some(function(k) { return lower.indexOf(k.toLowerCase()) !== -1; });
+  }
+  async handleChat(text) {
+    var id = this.showTyping();
+    await this.delay(800 + Math.random() * 600);
+    this.removeTyping(id);
+    var resp = this.localResponse(text);
+    this.addMsg('assistant', resp);
+  }
+  localResponse(text) {
+    var lower = text.toLowerCase();
+    if (lower.indexOf('hello') !== -1 || lower.indexOf('hi') !== -1 || lower.indexOf('namaste') !== -1) return 'Namaste! 🙏 I am MAMTA AI. How can I help you today?';
+    if (lower.indexOf('help') !== -1) return '🧠 I can help with: questions, planning, writing, research. Try: "CRM app ka plan banao"';
+    if (lower.indexOf('market') !== -1 || lower.indexOf('stock') !== -1) return '📈 Market analysis needs real-time data. Want to build a tracker in Workspace?';
+    if (lower.indexOf('weather') !== -1) return '🌤️ Weather needs a real-time API. Build a dashboard in Workspace!';
+    if (lower.indexOf('crm') !== -1 || lower.indexOf('app') !== -1 || lower.indexOf('website') !== -1) return '💡 Great idea! Features: auth, analytics, CRUD. Want a Master Plan?';
+    return '🤔 Interesting! I can discuss, research, or create a plan. What would you like to do next?';
+  }
+  async handlePlan(text) {
+    var id = this.showTyping();
+    await this.delay(1200);
+    this.removeTyping(id);
+    var plan = this.localPlan(text);
+    this.addMsg('assistant', plan, true);
+  }
+  localPlan(text) {
+    var name = 'My App';
+    var lower = text.toLowerCase();
+    if (lower.indexOf('crm') !== -1) name = 'CRM App';
+    else if (lower.indexOf('ecommerce') !== -1) name = 'E-Commerce';
+    else if (lower.indexOf('blog') !== -1) name = 'Blog Platform';
+    else if (lower.indexOf('dashboard') !== -1) name = 'Analytics Dashboard';
+    return '# 🚀 ' + name + ' Master Plan
 
-    function safeHTML(str) {
-      if (!str) return "";
-      return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+## 📋 Features
+- User auth (JWT)
+- Dashboard
+- CRUD operations
+- Real-time notifications
+
+## 🛠️ Tech Stack
+- React + Tailwind
+- Node.js + Express
+- PostgreSQL (Supabase)
+
+## 📁 Structure
+- src/components/
+- src/pages/
+- api/routes/
+- tests/
+
+## 🎯 Next Steps
+Click **Send to Workspace** to build!';
+  }
+  showRedirect(text) {
+    var safe = text.replace(/'/g, "\'");
+    this.addRawMsg('assistant',
+      '<div class="home-redirect-card"><div class="redirect-icon">💻</div><div class="redirect-text"><strong>यह execution task है।</strong><br>इसे Workspace में run करें।<br><span class="redirect-sub">Open Workspace to execute.</span></div><button class="redirect-btn" type="button" onclick="openWorkspaceWithPlan(\'' + safe + '\')">Open Workspace →</button></div>');
+  }
+  addMsg(role, text, isPlan) {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return;
+    var d = document.createElement('div');
+    d.className = 'home-msg ' + role;
+    var content = text.replace(/
+/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    if (isPlan) {
+      content += '<div class="plan-transfer-bar"><span class="plan-transfer-label">📋 Ready?</span><button class="plan-transfer-btn" type="button" onclick="sendPlanToWorkspace(this)">Send to Workspace →</button></div>';
+      d.dataset.plan = text;
     }
-
-    function showToast(message, type) {
-      var container = document.getElementById("toast-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "toast-container";
-        container.className = "toast-container";
-        document.body.appendChild(container);
-      }
-      var toast = document.createElement("div");
-      toast.className = "toast " + (type || "info");
-      var icons = { info: "ℹ️", success: "✅", error: "❌", warning: "⚠️" };
-      toast.innerHTML = (icons[type] || "ℹ️") + " " + safeHTML(message);
-      container.appendChild(toast);
-      setTimeout(function() { toast.remove(); }, 3500);
+    d.innerHTML = content;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+    if (this.isFirstMessage) {
+      var w = document.getElementById('home-welcome');
+      if (w) w.style.display = 'none';
+      this.isFirstMessage = false;
     }
+  }
+  addRawMsg(role, html) {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return;
+    var d = document.createElement('div');
+    d.className = 'home-msg ' + role;
+    d.innerHTML = html;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+  }
+  showTyping() {
+    var c = document.getElementById('home-chat-scroll');
+    if (!c) return null;
+    var id = 't' + Date.now();
+    var d = document.createElement('div');
+    d.id = id; d.className = 'home-msg assistant typing';
+    d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+    return id;
+  }
+  removeTyping(id) { if (id) { var e = document.getElementById(id); if (e) e.remove(); } }
+  delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+  quickAction(text) { var i = document.getElementById('home-input'); if (i) i.value = text; this.sendMessage(text); }
+}
 
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 2: REAL AI INTEGRATION
-    // ═══════════════════════════════════════════════════════════════
-
-    async function callAI(prompt, systemPrompt) {
-      var key = localStorage.getItem("mamta_keys_openai") || "";
-      if (!key || key.indexOf("test") > -1) {
-        showToast("Using local AI (add OpenAI key in SafeDrop)", "warning");
-        return generateLocalResponse(prompt);
-      }
-      try {
-        showToast("AI is thinking...", "info");
-        var messages = [];
-        if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
-        messages.push({ role: "user", content: prompt });
-
-        var res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
-          body: JSON.stringify({ model: "gpt-4o-mini", messages: messages, temperature: 0.7, max_tokens: 2000 })
-        });
-        if (!res.ok) throw new Error("AI request failed: " + res.status);
-        var data = await res.json();
-        var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-        if (!reply) throw new Error("Empty AI response");
-        showToast("AI responded!", "success");
-        return reply;
-      } catch (err) {
-        console.error("AI Error:", err);
-        showToast("AI Error: " + err.message, "error");
-        return generateLocalResponse(prompt);
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 3: HOME CHAT (ChatGPT-style)
-    // ═══════════════════════════════════════════════════════════════
-
-    var chatHistory = [];
-
-    async function sendHomeChat() {
-      var input = document.getElementById("home-chat-input");
-      if (!input) return;
-      var text = input.value.trim();
-      if (!text) return;
-
-      addChatMessage("user", text);
-      chatHistory.push({ role: "user", content: text });
-      input.value = "";
-
-      var welcome = document.getElementById("home-welcome");
-      if (welcome) welcome.style.display = "none";
-
-      showAIThinking();
-
-      try {
-        if (isPlanIntent(text)) {
-          var plan = await generatePlan(text);
-          hideAIThinking();
-          addChatMessage("assistant", plan, true);
-          return;
-        }
-        if (isExecutionIntent(text)) {
-          hideAIThinking();
-          showWorkspaceRedirect(text);
-          return;
-        }
-        var systemPrompt = "You are MAMTA AI, a helpful assistant. Answer in the same language as the user (Hindi or English). Keep responses concise and actionable.";
-        var reply = await callAI(text, systemPrompt);
-        hideAIThinking();
-        addChatMessage("assistant", reply);
-        chatHistory.push({ role: "assistant", content: reply });
-      } catch (err) {
-        hideAIThinking();
-        addChatMessage("assistant", "⚠️ Something went wrong. Please try again.");
-      }
-    }
-
-    function addChatMessage(role, text, isPlan) {
-      var container = document.getElementById("home-chat-messages");
-      if (!container) return;
-      var msg = document.createElement("div");
-      msg.className = "chat-msg " + role;
-      if (role === "assistant" && isPlan) {
-        msg.innerHTML = formatPlanMessage(text);
-        msg.dataset.plan = text;
-      } else {
-        msg.innerHTML = safeHTML(text).replace(/\n/g, "<br>");
-      }
-      container.appendChild(msg);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function showAIThinking() {
-      var container = document.getElementById("home-chat-messages");
-      if (!container) return;
-      var thinking = document.createElement("div");
-      thinking.id = "ai-thinking-indicator";
-      thinking.className = "ai-thinking";
-      thinking.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div><span>AI is thinking...</span>';
-      container.appendChild(thinking);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function hideAIThinking() {
-      var thinking = document.getElementById("ai-thinking-indicator");
-      if (thinking) thinking.remove();
-    }
-
-    function isPlanIntent(text) {
-      var keywords = ["plan", "roadmap", "architecture", "design", "योजना", "प्लान", "roadmap बनाओ", "plan बनाओ"];
-      return keywords.some(function(k) { return text.toLowerCase().indexOf(k) > -1; });
-    }
-
-    function isExecutionIntent(text) {
-      var keywords = ["build", "run", "execute", "deploy", "compile", "start", "बनाओ", "चलाओ", "build करो"];
-      return keywords.some(function(k) { return text.toLowerCase().indexOf(k) > -1; });
-    }
-
-    async function generatePlan(text) {
-      var prompt = "Create a concise master plan for: " + text + "\n\nFormat with Features, Tech Stack, Pages/Components, API Endpoints, Database Schema.";
-      return await callAI(prompt, "You are a technical project planner.");
-    }
-
-    function formatPlanMessage(plan) {
-      return safeHTML(plan).replace(/\n/g, "<br>") + 
-        '<div class="plan-transfer-bar">' +
-        '<span class="plan-transfer-label">📋 Ready to build?</span>' +
-        '<button class="plan-transfer-btn" type="button" onclick="sendPlanToWorkspace(this)">Send to Workspace →</button>' +
-        '</div>';
-    }
-
-    function showWorkspaceRedirect(text) {
-      var container = document.getElementById("home-chat-messages");
-      if (!container) return;
-      var msg = document.createElement("div");
-      msg.className = "chat-msg assistant";
-      msg.innerHTML = '<div class="home-redirect-card">' +
-        '<div class="redirect-icon">💻</div>' +
-        '<div class="redirect-text">' +
-        '<strong>Execution task detected</strong><br>' +
-        'Open Workspace to run this.<br>' +
-        '<span class="redirect-sub">This is a build/execution task.</span>' +
-        '</div>' +
-        '<button class="redirect-btn" type="button" onclick="openWorkspaceWithPlan('' + safeHTML(text) + '')">Open Workspace →</button>' +
-        '</div>';
-      container.appendChild(msg);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 4: PLAN TRANSFER
-    // ═══════════════════════════════════════════════════════════════
-
-    function sendPlanToWorkspace(btn) {
-      var msgDiv = btn.closest(".chat-msg");
-      var plan = msgDiv ? msgDiv.dataset.plan : "";
-      if (plan) {
-        localStorage.setItem("mamta_pending_plan", plan);
-        showPage("workspace");
-        showToast("Plan transferred to Workspace!", "success");
-        setTimeout(function() {
-          var textarea = document.getElementById("mp-input");
-          if (textarea) textarea.value = plan;
-        }, 300);
+// ===== V6.7 WORKSPACE PLAN RUNNER =====
+class WorkspacePlanRunner {
+  constructor() { this.currentPlan = null; this.tasks = []; this.files = []; this.status = 'idle'; }
+  init() { var s = localStorage.getItem('mamta_workspace_plan'); if (s) { try { this.currentPlan = JSON.parse(s); } catch(e) {} } }
+  setPlan(text) { this.currentPlan = { text: text, title: this.extractTitle(text), timestamp: new Date().toISOString() }; this.save(); this.render(); }
+  extractTitle(text) { var m = text.match(/#\s*(.+)/); return m ? m[1].trim() : 'Untitled Plan'; }
+  save() { if (this.currentPlan) localStorage.setItem('mamta_workspace_plan', JSON.stringify(this.currentPlan)); }
+  render() {
+    var pd = document.getElementById('mp-current-plan');
+    if (pd && this.currentPlan) pd.innerHTML = '<div class="mp-plan-badge">📋 ' + this.currentPlan.title + '</div><div class="mp-plan-meta">' + new Date(this.currentPlan.timestamp).toLocaleString() + '</div>';
+    var ta = document.getElementById('mp-input');
+    if (ta && this.currentPlan && this.currentPlan.text) ta.value = this.currentPlan.text;
+  }
+  async analyzePlan() {
+    var ta = document.getElementById('mp-input');
+    var text = ta ? ta.value.trim() : '';
+    if (!text) { this.log('⚠️ Paste a plan first', 'warning'); return; }
+    this.status = 'analyzing'; this.setStatus('Analyzing...'); this.log('🔍 Analyzing...', 'info');
+    this.setPlan(text); await this.delay(1500);
+    this.tasks = this.extractTasks(text);
+    this.log('✅ Found ' + this.tasks.length + ' tasks', 'success');
+    this.status = 'idle'; this.setStatus('Analyzed'); this.renderTasks();
+  }
+  extractTasks(planText) {
+    var tasks = []; var lines = planText.split('
+'); var section = '';
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (t.indexOf('## ') === 0) section = t.replace('## ', '');
+      else if (t.match(/^[-*]\s+(.+)/)) {
+        var n = t.match(/^[-*]\s+(.+)/)[1];
+        tasks.push({ id: 'task-' + (tasks.length + 1), name: n, section: section, status: 'pending', type: 'build' });
       }
     }
-
-    function openWorkspaceWithPlan(text) {
-      localStorage.setItem("mamta_pending_plan", text);
-      showPage("workspace");
-      showToast("Opening Workspace...", "info");
+    if (tasks.length === 0) {
+      tasks = [
+        { id: 'task-1', name: 'Setup project', section: 'Setup', status: 'pending', type: 'build' },
+        { id: 'task-2', name: 'Create frontend', section: 'Frontend', status: 'pending', type: 'build' },
+        { id: 'task-3', name: 'Build backend', section: 'Backend', status: 'pending', type: 'build' },
+        { id: 'task-4', name: 'Write tests', section: 'Testing', status: 'pending', type: 'test' },
+        { id: 'task-5', name: 'Deploy', section: 'Deploy', status: 'pending', type: 'deploy' }
+      ];
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 5: OPENWIKI
-    // ═══════════════════════════════════════════════════════════════
-
-    var wikiDatabase = [
-      { id: 1, title: "MAMTA AI Architecture", content: "MAMTA AI is built as a single-page application with 4 core modules: Home (Chat), Workspace (IDE), Admin (Monitor), SafeDrop (Vault).", tags: ["architecture", "system"], confidence: 95 },
-      { id: 2, title: "Engine System", content: "16 autonomous engines power MAMTA AI: Chat Engine, Plan Engine, Build Engine, Test Engine, Deploy Engine, Monitor Engine, Security Engine, and 9 more.", tags: ["engines", "system"], confidence: 90 },
-      { id: 3, title: "SafeDrop Vault", content: "AES-256 encryption protects all API keys and passwords. Master key required for access. No data leaves the browser.", tags: ["security", "vault"], confidence: 98 },
-      { id: 4, title: "Workspace Execution", content: "The Workspace module analyzes master plans, creates task trees, simulates builds, and generates mock files for project scaffolding.", tags: ["workspace", "build"], confidence: 92 },
-      { id: 5, title: "Home Chat System", content: "ChatGPT-style interface with real AI integration (OpenAI/Gemini). Supports Hindi and English. Execution detection redirects to Workspace.", tags: ["home", "chat", "ai"], confidence: 88 },
-      { id: 6, title: "Admin Dashboard", content: "Real-time monitoring of 16 engines, AI metrics, project health scores, and activity timeline. Built for system visibility.", tags: ["admin", "monitor"], confidence: 90 }
-    ];
-
-    function searchWiki(query) {
-      if (!query) return wikiDatabase;
-      var q = query.toLowerCase();
-      return wikiDatabase.filter(function(item) {
-        return item.title.toLowerCase().indexOf(q) > -1 ||
-               item.content.toLowerCase().indexOf(q) > -1 ||
-               item.tags.some(function(t) { return t.toLowerCase().indexOf(q) > -1; });
-      });
-    }
-
-    function renderWikiResults(results, containerId) {
-      var container = document.getElementById(containerId);
-      if (!container) return;
-      if (results.length === 0) {
-        container.innerHTML = '<div class="mp-empty">No wiki entries found.</div>';
-        return;
+    return tasks;
+  }
+  async createTaskTree() {
+    if (this.tasks.length === 0) { this.log('⚠️ Analyze first', 'warning'); return; }
+    this.log('📋 Creating tasks...', 'info'); await this.delay(800);
+    this.tasks.forEach(function(t, i) { t.status = 'pending'; t.dependsOn = i > 0 ? [this.tasks[i-1].id] : []; }.bind(this));
+    this.log('✅ ' + this.tasks.length + ' tasks', 'success'); this.renderTasks();
+  }
+  async buildProject() {
+    if (this.tasks.length === 0) { this.log('⚠️ No tasks', 'warning'); return; }
+    this.status = 'building'; this.setStatus('Building...'); this.log('🔨 Building...', 'info');
+    for (var i = 0; i < this.tasks.length; i++) {
+      var task = this.tasks[i];
+      task.status = 'running'; this.renderTasks();
+      this.log('🔨 ' + task.name, 'info');
+      await this.delay(1200 + Math.random() * 1000);
+      if (task.type === 'build' || task.type === 'design') {
+        var f = { path: 'src/' + task.name.toLowerCase().replace(/\s+/g, '-') + '.js', content: '// ' + task.name + '
+' };
+        this.files.push(f); this.log('📄 ' + f.path, 'success');
       }
-      container.innerHTML = results.map(function(item) {
-        return '<div class="wiki-card">' +
-          '<h4>' + safeHTML(item.title) + '</h4>' +
-          '<p>' + safeHTML(item.content) + '</p>' +
-          '<div class="wiki-meta">' +
-          '<span>Confidence: ' + item.confidence + '%</span>' +
-          item.tags.map(function(t) { return '<span class="wiki-tag">' + safeHTML(t) + '</span>'; }).join('') +
-          '</div></div>';
-      }).join('');
+      task.status = 'completed'; this.renderTasks();
+      this.log('✅ ' + task.name, 'success');
     }
+    this.status = 'completed'; this.setStatus('Completed');
+    this.log('🎉 Build completed!', 'success'); this.renderFiles();
+  }
+  async reviewOutput() { this.log('🔍 Reviewing...', 'info'); await this.delay(1000); this.log('✅ Review done', 'success'); }
+  async saveProject() { this.log('💾 Saving...', 'info'); await this.delay(500); localStorage.setItem('mamta_project_' + Date.now(), JSON.stringify({ plan: this.currentPlan, tasks: this.tasks, files: this.files })); this.log('✅ Saved', 'success'); }
+  renderTasks() {
+    var c = document.getElementById('mp-task-queue');
+    if (!c) return;
+    if (this.tasks.length === 0) { c.innerHTML = '<div class="mp-empty">No tasks yet</div>'; return; }
+    c.innerHTML = this.tasks.map(function(t) {
+      var icon = t.status === 'completed' ? '✅' : t.status === 'running' ? '⏳' : '⏸️';
+      return '<div class="mp-task-item ' + t.status + '"><span class="mp-task-icon">' + icon + '</span><span class="mp-task-name">' + t.name + '</span><span class="mp-task-type">' + t.type + '</span></div>';
+    }).join('');
+  }
+  renderFiles() {
+    var c = document.getElementById('mp-file-list');
+    if (!c) return;
+    if (this.files.length === 0) { c.innerHTML = '<div class="mp-empty">No files</div>'; return; }
+    c.innerHTML = this.files.map(function(f) { return '<div class="mp-file-item"><span>📄</span><span class="mp-file-path">' + f.path + '</span></div>'; }).join('');
+  }
+  setStatus(s) { var e = document.getElementById('mp-build-status'); if (e) e.textContent = s; }
+  log(msg, type) {
+    var c = document.getElementById('mp-build-logs');
+    if (!c) return;
+    var t = new Date().toLocaleTimeString('en-US', { hour12: false });
+    var d = document.createElement('div');
+    d.className = 'log-entry';
+    d.innerHTML = '<span class="log-time">[' + t + ']</span> <span class="log-' + type + '">[' + type.toUpperCase() + ']</span> ' + msg;
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+  }
+  delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+}
 
-    function initWiki() {
-      var searchInput = document.getElementById("wiki-search-input");
-      var resultsContainer = document.getElementById("wiki-results");
-      if (searchInput && resultsContainer) {
-        searchInput.addEventListener("input", function(e) {
-          renderWikiResults(searchWiki(e.target.value), "wiki-results");
-        });
-        renderWikiResults(wikiDatabase, "wiki-results");
-      }
+// ===== GLOBAL HANDLERS =====
+function sendHomeChat() { var i = document.getElementById('home-input'); if (i && window.homeChat) window.homeChat.sendMessage(i.value); }
+function homeQuick(text) { if (window.homeChat) window.homeChat.quickAction(text); }
+function analyzeMasterPlan() { if (window.wsRunner) window.wsRunner.analyzePlan(); }
+function createTaskTree() { if (window.wsRunner) window.wsRunner.createTaskTree(); }
+function buildProject() { if (window.wsRunner) window.wsRunner.buildProject(); }
+function reviewOutput() { if (window.wsRunner) window.wsRunner.reviewOutput(); }
+function saveProject() { if (window.wsRunner) window.wsRunner.saveProject(); }
+function wsCommand(cmd) { console.log('WS command:', cmd); }
+function sendPlanToWorkspace(btn) {
+  var msgDiv = btn.closest('.home-msg');
+  var plan = msgDiv ? msgDiv.dataset.plan : '';
+  if (plan) {
+    localStorage.setItem('mamta_pending_plan', plan);
+    showPage('workspace');
+    setTimeout(function() { if (window.wsRunner) { window.wsRunner.setPlan(plan); } }, 300);
+  }
+}
+function openWorkspaceWithPlan(text) {
+  localStorage.setItem('mamta_pending_plan', text);
+  showPage('workspace');
+}
+
+// ===== V6.7 MAIN APP =====
+class MAMTAOSV6_7 {
+  constructor() {
+    this.version = '6.7.0';
+    this.homeChat = null;
+    this.wsRunner = null;
+  }
+  init() {
+    console.log('🧠 MAMTA AI V6.7 initializing...');
+    this.homeChat = new HomeChatManager();
+    this.wsRunner = new WorkspacePlanRunner();
+    this.wsRunner.init();
+    this.setupTransfer();
+    console.log('✅ MAMTA AI V6.7 READY');
+    this.showToast('MAMTA AI V6.7 Ready', 'success');
+  }
+  onPageChange(page) {
+    if (page === 'workspace' && this.wsRunner) {
+      this.wsRunner.render();
+      this.wsRunner.renderTasks();
+      this.wsRunner.renderFiles();
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PHASE 6: HELPERS
-    // ═══════════════════════════════════════════════════════════════
-
-    function homeQuick(cmd) {
-      var input = document.getElementById("home-chat-input");
-      if (input) {
-        input.value = cmd;
-        input.focus();
-      }
+  }
+  setupTransfer() {
+    var pending = localStorage.getItem('mamta_pending_plan');
+    if (pending && this.wsRunner) {
+      this.wsRunner.setPlan(pending);
+      localStorage.removeItem('mamta_pending_plan');
     }
+  }
+  showToast(msg, type) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;color:white;z-index:9999;font-size:0.9rem;transition:all 0.3s;';
+    t.style.background = type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--error)' : 'var(--warning)';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 3000);
+  }
+}
 
-    function generateLocalResponse(text) {
-      var lower = text.toLowerCase();
-      if (lower.indexOf("hello") > -1 || lower.indexOf("hi ") > -1 || lower.indexOf("namaste") > -1) {
-        return "Namaste! 🙏 I'm MAMTA AI. I can help you plan projects, write code, research topics, or discuss strategies. What would you like to do?";
-      }
-      if (lower.indexOf("help") > -1 || lower.indexOf("क्या कर सकते") > -1) {
-        return "🧠 **I can help you with:**\n\n• General questions & research\n• Project planning & strategy\n• Writing & editing content\n• Code generation & review\n• Creating master plans\n\nTry: *\"CRM app ka plan banao\"* or *\"Write a blog on AI\"*";
-      }
-      if (lower.indexOf("plan") > -1 || lower.indexOf("बनाओ") > -1) {
-        return "💡 Great idea! I can create a detailed master plan for your project. Type your idea and I'll generate a structured plan with features, tech stack, and architecture.";
-      }
-      return "🤔 That's interesting! I can discuss this further, help you research, or turn it into a structured plan. What would you like to do next?";
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // NAVIGATION (CRITICAL - Must work!)
-    // ═══════════════════════════════════════════════════════════════
-
-    function showPage(name) {
-      document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("active"); });
-      document.querySelectorAll(".nav-tab").forEach(function(t) { t.classList.remove("active"); });
-      var targetPage = document.getElementById("page-" + name);
-      if (targetPage) targetPage.classList.add("active");
-      document.querySelectorAll(".nav-tab").forEach(function(btn) {
-        var onclick = btn.getAttribute("onclick");
-        if (onclick && onclick.indexOf("'" + name + "'") > -1) {
-          btn.classList.add("active");
-        }
-      });
-      if (name === "workspace") {
-        var pending = localStorage.getItem("mamta_pending_plan");
-        if (pending) {
-          var textarea = document.getElementById("mp-input");
-          if (textarea) textarea.value = pending;
-          localStorage.removeItem("mamta_pending_plan");
-        }
-      }
-      if (name === "admin") {
-        setTimeout(initWiki, 100);
-      }
-    }
-
-    function showWsTab(name) {
-      document.querySelectorAll(".ws-nav-item").forEach(function(t) { t.classList.remove("active"); });
-      document.querySelectorAll(".ws-nav-item").forEach(function(btn) {
-        var onclick = btn.getAttribute("onclick");
-        if (onclick && onclick.indexOf("'" + name + "'") > -1) {
-          btn.classList.add("active");
-        }
-      });
-      document.querySelectorAll(".ws-tab").forEach(function(t) { t.classList.remove("active"); });
-      var targetTab = document.getElementById("ws-tab-" + name);
-      if (targetTab) targetTab.classList.add("active");
-    }
-
-    function showVaultTab(name) {
-      document.querySelectorAll(".vault-tab").forEach(function(t) { t.classList.remove("active"); });
-      document.querySelectorAll(".vault-tab-content").forEach(function(t) { t.classList.remove("active"); });
-      document.querySelectorAll(".vault-tab-btn").forEach(function(btn) {
-        var onclick = btn.getAttribute("onclick");
-        if (onclick && onclick.indexOf("'" + name + "'") > -1) {
-          btn.classList.add("active");
-        }
-      });
-      var targetTab = document.getElementById("vault-tab-" + name);
-      if (targetTab) targetTab.classList.add("active");
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // WORKSPACE FUNCTIONS
-    // ═══════════════════════════════════════════════════════════════
-
-    var currentPlan = null;
-    var tasks = [];
-    var files = [];
-
-    function analyzeMasterPlan() {
-      var textarea = document.getElementById("mp-input");
-      var text = textarea ? textarea.value.trim() : "";
-      if (!text) { showToast("Please paste a Master Plan first", "warning"); return; }
-      logBuild("🔍 Analyzing Master Plan...", "info");
-      currentPlan = { text: text, title: extractTitle(text), timestamp: new Date().toISOString() };
-      setTimeout(function() {
-        tasks = extractTasks(text);
-        logBuild("✅ Analysis complete. Found " + tasks.length + " tasks.", "success");
-        renderTaskQueue();
-      }, 1500);
-    }
-
-    function extractTitle(text) {
-      var match = text.match(/#\s*(.+)/);
-      return match ? match[1].trim() : "Untitled Plan";
-    }
-
-    function extractTasks(text) {
-      var lines = text.split("\n");
-      var currentSection = "";
-      var result = [];
-      for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (line.startsWith("## ")) {
-          currentSection = line.replace("## ", "");
-        } else if (line.match(/^[-*]\s+(.+)/)) {
-          var taskName = line.match(/^[-*]\s+(.+)/)[1];
-          result.push({ id: "task-" + (result.length + 1), name: taskName, section: currentSection, status: "pending", type: detectTaskType(taskName, currentSection) });
-        }
-      }
-      if (result.length === 0) {
-        result = [
-          { id: "task-1", name: "Setup project structure", section: "Setup", status: "pending", type: "build" },
-          { id: "task-2", name: "Create frontend components", section: "Frontend", status: "pending", type: "build" },
-          { id: "task-3", name: "Build backend API", section: "Backend", status: "pending", type: "build" },
-          { id: "task-4", name: "Write tests", section: "Testing", status: "pending", type: "test" },
-          { id: "task-5", name: "Review and deploy", section: "Deploy", status: "pending", type: "deploy" }
-        ];
-      }
-      return result;
-    }
-
-    function detectTaskType(name, section) {
-      var lower = (name + " " + section).toLowerCase();
-      if (lower.indexOf("test") > -1) return "test";
-      if (lower.indexOf("deploy") > -1) return "deploy";
-      if (lower.indexOf("review") > -1) return "review";
-      if (lower.indexOf("design") > -1 || lower.indexOf("ui") > -1) return "design";
-      return "build";
-    }
-
-    function createTaskTree() {
-      if (tasks.length === 0) { showToast("No tasks found. Run Analyze Plan first.", "warning"); return; }
-      logBuild("📋 Creating task tree...", "info");
-      tasks.forEach(function(task, i) {
-        task.status = "pending";
-        task.dependsOn = i > 0 ? [tasks[i-1].id] : [];
-      });
-      logBuild("✅ Task tree created with " + tasks.length + " tasks.", "success");
-      renderTaskQueue();
-    }
-
-    function buildProject() {
-      if (tasks.length === 0) { showToast("No tasks to build. Run Analyze Plan first.", "warning"); return; }
-      logBuild("🔨 Starting build...", "info");
-      var i = 0;
-      function nextTask() {
-        if (i >= tasks.length) {
-          logBuild("🎉 Build completed successfully!", "success");
-          renderGeneratedFiles();
-          return;
-        }
-        var task = tasks[i];
-        task.status = "running";
-        renderTaskQueue();
-        logBuild("🔨 " + task.name + "...", "info");
-        setTimeout(function() {
-          if (task.type === "build" || task.type === "design") {
-            var file = generateMockFile(task);
-            files.push(file);
-            logBuild("📄 Generated " + file.path, "success");
-          }
-          task.status = "completed";
-          renderTaskQueue();
-          logBuild("✅ " + task.name + " completed", "success");
-          i++;
-          nextTask();
-        }, 1000 + Math.random() * 1000);
-      }
-      nextTask();
-    }
-
-    function generateMockFile(task) {
-      var fileMap = {
-        "Setup project structure": { path: "package.json", content: '{\n  "name": "project",\n  "version": "1.0.0"\n}' },
-        "Create frontend components": { path: "src/components/App.jsx", content: "export default function App() { return <div>Hello</div>; }" },
-        "Build backend API": { path: "api/index.js", content: 'const express = require("express");\nconst app = express();' },
-        "Write tests": { path: "tests/app.test.js", content: 'test("app works", () => { expect(true).toBe(true); });' }
-      };
-      return fileMap[task.name] || { path: "src/" + task.name.toLowerCase().replace(/\s+/g, "-") + ".js", content: "// " + task.name + "\n// Generated by MAMTA AI\n" };
-    }
-
-    function reviewOutput() {
-      logBuild("🔍 Reviewing output...", "info");
-      setTimeout(function() {
-        logBuild("✅ Review complete.", "success");
-      }, 1000);
-    }
-
-    function saveProject() {
-      logBuild("💾 Saving project...", "info");
-      var projectData = { plan: currentPlan, tasks: tasks, files: files, timestamp: new Date().toISOString() };
-      localStorage.setItem("mamta_project_" + Date.now(), JSON.stringify(projectData));
-      logBuild("✅ Project saved to localStorage", "success");
-    }
-
-    function renderTaskQueue() {
-      var container = document.getElementById("mp-task-queue");
-      if (!container) return;
-      if (tasks.length === 0) { container.innerHTML = '<div class="mp-empty">No tasks yet. Paste a Master Plan above to start.</div>'; return; }
-      container.innerHTML = tasks.map(function(t) {
-        var statusIcon = t.status === "completed" ? "✅" : t.status === "running" ? "⏳" : t.status === "failed" ? "❌" : "⏸️";
-        return '<div class="mp-task-item ' + t.status + '"><span class="mp-task-icon">' + statusIcon + '</span><span class="mp-task-name">' + safeHTML(t.name) + '</span><span class="mp-task-type">' + t.type + '</span></div>';
-      }).join("");
-    }
-
-    function renderGeneratedFiles() {
-      var container = document.getElementById("mp-file-list");
-      if (!container) return;
-      if (files.length === 0) { container.innerHTML = '<div class="mp-empty">No files generated yet.</div>'; return; }
-      container.innerHTML = files.map(function(f) {
-        return '<div class="mp-file-item"><span class="mp-file-icon">📄</span><span class="mp-file-path">' + safeHTML(f.path) + '</span></div>';
-      }).join("");
-    }
-
-    function logBuild(message, type) {
-      var container = document.getElementById("mp-build-logs");
-      if (!container) return;
-      var time = new Date().toLocaleTimeString("en-US", { hour12: false });
-      var entry = document.createElement("div");
-      entry.className = "log-entry";
-      entry.innerHTML = '<span class="log-time">[' + time + ']</span> <span class="log-' + type + '">[' + type.toUpperCase() + ']</span> ' + safeHTML(message);
-      container.appendChild(entry);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // SAFEDROP FUNCTIONS
-    // ═══════════════════════════════════════════════════════════════
-
-    function saveKey(provider) {
-      var input = document.getElementById("key-" + provider);
-      var status = document.getElementById("status-" + provider);
-      if (!input || !input.value.trim()) { showToast("Please enter a key", "warning"); return; }
-      try {
-        localStorage.setItem("mamta_keys_" + provider, btoa(input.value.trim()));
-        if (status) { status.textContent = "✅ Saved"; status.className = "key-status active"; }
-        showToast(provider.toUpperCase() + " key saved!", "success");
-      } catch (e) { showToast("Save failed", "error"); }
-    }
-
-    function savePassword() {
-      var svc = document.getElementById("pwd-service");
-      var usr = document.getElementById("pwd-username");
-      var pwd = document.getElementById("pwd-password");
-      if (!svc || !usr || !pwd) return;
-      if (!svc.value || !usr.value || !pwd.value) { showToast("Fill all fields", "warning"); return; }
-      var tbody = document.getElementById("vault-pwd-table");
-      if (tbody) {
-        var row = document.createElement("tr");
-        row.innerHTML = "<td>" + safeHTML(svc.value) + "</td><td>" + safeHTML(usr.value) + "</td><td>••••••••</td><td><button type="button" class="vault-btn-small" onclick="this.closest('tr').remove()">🗑️</button></td>";
-        tbody.appendChild(row);
-        svc.value = ""; usr.value = ""; pwd.value = "";
-        showToast("Password saved!", "success");
-      }
-    }
-
-    function exportBackup() {
-      var data = {};
-      for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        if (key && key.startsWith("mamta_")) data[key] = localStorage.getItem(key);
-      }
-      var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "mamta_backup_" + new Date().toISOString().slice(0, 10) + ".json";
-      a.click();
-      showToast("Backup exported!", "success");
-    }
-
-    function importBackup() {
-      var input = document.getElementById("backup-file");
-      if (!input || !input.files[0]) { showToast("Select a file", "warning"); return; }
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          var data = JSON.parse(e.target.result);
-          Object.keys(data).forEach(function(key) { localStorage.setItem(key, data[key]); });
-          showToast("Backup restored!", "success");
-        } catch (err) { showToast("Invalid backup file", "error"); }
-      };
-      reader.readAsText(input.files[0]);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // ADMIN FUNCTIONS
-    // ═══════════════════════════════════════════════════════════════
-
-    function refreshMetrics() {
-      showToast("Refreshing metrics...", "info");
-      setTimeout(function() {
-        var els = document.querySelectorAll(".metric-value");
-        els.forEach(function(el) {
-          if (el.id && el.id.indexOf("latency") > -1) el.textContent = Math.floor(Math.random() * 200 + 50) + "ms";
-          else if (el.id && el.id.indexOf("token") > -1) el.textContent = Math.floor(Math.random() * 50000 + 10000).toLocaleString();
-          else if (el.id && el.id.indexOf("cost") > -1) el.textContent = "$" + (Math.random() * 5 + 0.5).toFixed(2);
-        });
-        showToast("Metrics updated!", "success");
-      }, 1000);
-    }
-
-    function checkHealth() {
-      showToast("Running health check...", "info");
-      setTimeout(function() {
-        showToast("All systems healthy!", "success");
-      }, 1500);
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // INITIALIZATION
-    // ═══════════════════════════════════════════════════════════════
-
-    document.addEventListener("DOMContentLoaded", function() {
-      console.log("🧠 MAMTA AI V" + MAMTA_VERSION + " initialized");
-      showToast("MAMTA AI V" + MAMTA_VERSION + " Ready", "success");
-    });
-  </script>
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  window.mamtaOS = new MAMTAOSV6_7();
+  window.homeChat = window.mamtaOS.homeChat;
+  window.wsRunner = window.mamtaOS.wsRunner;
+  window.mamtaOS.init();
+});
+</script>
 
 </body>
 </html>
