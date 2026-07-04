@@ -4,38 +4,33 @@
   <meta charset="utf-8">
   <title>MAMTA AI V6.7</title>
   <script>
-    // GitHub Pages SPA redirect fix
-    // Redirects /workspace, /admin, /safedrop back to index.html with hash
-    var path = window.location.pathname;
-    var repo = '/MAMTA-AI';
+    // ============================================
+    // GITHUB PAGES SPA ROUTING FIX
+    // Redirects ALL paths back to index.html
+    // ============================================
 
-    // Remove repo prefix if present
-    if (path.indexOf(repo) === 0) {
-      path = path.substring(repo.length);
-    }
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search || '';
 
-    // Map paths to hash routes
-    var hashRoute = '';
-    if (path === '/workspace' || path.startsWith('/workspace/')) {
-      hashRoute = '#/workspace';
-    } else if (path === '/admin' || path.startsWith('/admin/')) {
-      hashRoute = '#/admin';
-    } else if (path === '/safedrop' || path.startsWith('/safedrop/')) {
-      hashRoute = '#/safedrop';
-    } else if (path === '/' || path === '/index.html') {
-      hashRoute = '#/home';
-    } else {
-      hashRoute = '#/home';
-    }
+      var pageName = 'home';
+      var pathParts = path.split('/').filter(function(p) { return p.length > 0; });
+      var lastPart = pathParts[pathParts.length - 1];
 
-    // Preserve query string
-    var search = window.location.search;
+      if (lastPart === 'workspace' || lastPart === 'admin' || lastPart === 'safedrop') {
+        pageName = lastPart;
+      }
 
-    // Redirect to index.html with hash
-    window.location.replace(window.location.origin + repo + '/' + hashRoute + search);
+      var redirectUrl = window.location.origin + '/MAMTA-AI/index.html#' + pageName + search;
+      window.location.replace(redirectUrl);
+    })();
   </script>
 </head>
-<body>
-  <p>Redirecting to MAMTA AI...</p>
+<body style="background:#0a0e1a; color:#94a3b8; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+  <div style="text-align:center;">
+    <div style="font-size:3rem; margin-bottom:16px;">🧠</div>
+    <h2 style="color:#f1f5f9; margin-bottom:8px;">MAMTA AI</h2>
+    <p>Redirecting...</p>
+  </div>
 </body>
 </html>
