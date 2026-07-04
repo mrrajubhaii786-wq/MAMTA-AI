@@ -29,24 +29,20 @@ class HomeChatManager {
     if (!text || !text.trim()) return;
     text = text.trim();
 
-    // Add user message
     this.addMessage('user', text);
     const input = document.getElementById('home-input');
     if (input) input.value = '';
 
-    // Check for execution intent
     if (this.isExecutionCommand(text)) {
       this.showWorkspaceRedirect(text);
       return;
     }
 
-    // Check for plan generation intent
     if (this.isPlanIntent(text)) {
       await this.handlePlanGeneration(text);
       return;
     }
 
-    // Normal general chat response
     await this.handleGeneralChat(text);
   }
 
@@ -70,7 +66,7 @@ class HomeChatManager {
     const typingId = this.showTyping();
 
     let response = null;
-    if (this.os.aiService && this.os.aiService.hasKey && this.os.aiService.hasKey()) {
+    if (this.os && this.os.aiService && typeof this.os.aiService.hasKey === 'function' && this.os.aiService.hasKey()) {
       try {
         response = await this.os.aiService.chat([
           { role: 'system', content: 'You are MAMTA AI, a helpful assistant. Answer in the same language as the user (Hindi or English). Keep responses concise and actionable.' },
@@ -89,7 +85,7 @@ class HomeChatManager {
 
     this.addMessage('assistant', response);
 
-    if (this.os.engines && this.os.engines.memory) {
+    if (this.os && this.os.engines && this.os.engines.memory) {
       try {
         await this.os.engines.memory.storeConversation('home-chat', [
           { role: 'user', content: text, timestamp: new Date().toISOString() },
@@ -125,7 +121,7 @@ class HomeChatManager {
     const typingId = this.showTyping();
 
     let plan = '';
-    if (this.os.aiService && this.os.aiService.hasKey && this.os.aiService.hasKey()) {
+    if (this.os && this.os.aiService && typeof this.os.aiService.hasKey === 'function' && this.os.aiService.hasKey()) {
       try {
         plan = await this.os.aiService.chat([
           { role: 'system', content: 'You are a technical project planner. Create a concise master plan with: Features, Tech Stack, Pages/Components, API Endpoints, Database Schema. Respond in the same language as the user.' },
@@ -273,7 +269,6 @@ class WorkspacePlanRunner {
     if (saved) {
       try {
         this.currentPlan = JSON.parse(saved);
-        this.renderPlan();
       } catch (e) {}
     }
   }
@@ -568,6 +563,15 @@ class MAMTAOSV6_7 extends MAMTAOSV6_6 {
     return true;
   }
 
+  // Called by the global showPage function when page changes
+  onPageChange(page) {
+    if (page === 'workspace' && this.wsRunner) {
+      this.wsRunner.renderPlan();
+      this.wsRunner.renderTaskQueue();
+      this.wsRunner.renderGeneratedFiles();
+    }
+  }
+
   setupV67EventListeners() {
     window.sendHomeChat = () => {
       const input = document.getElementById('home-input');
@@ -603,7 +607,10 @@ class MAMTAOSV6_7 extends MAMTAOSV6_6 {
       const plan = msgDiv ? msgDiv.dataset.plan : '';
       if (plan) {
         localStorage.setItem('mamta_pending_plan', plan);
-        this.showPage('workspace');
+        // Use the global showPage function
+        if (typeof showPage === 'function') {
+          showPage('workspace');
+        }
         setTimeout(() => {
           if (this.wsRunner) {
             this.wsRunner.setPlan(plan);
@@ -615,7 +622,9 @@ class MAMTAOSV6_7 extends MAMTAOSV6_6 {
 
     window.openWorkspaceWithPlan = (text) => {
       localStorage.setItem('mamta_pending_plan', text);
-      this.showPage('workspace');
+      if (typeof showPage === 'function') {
+        showPage('workspace');
+      }
     };
   }
 
@@ -624,26 +633,6 @@ class MAMTAOSV6_7 extends MAMTAOSV6_6 {
     if (pending && this.wsRunner) {
       this.wsRunner.setPlan(pending);
       localStorage.removeItem('mamta_pending_plan');
-    }
-  }
-
-  showPage(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const target = document.getElementById('page-' + page);
-    if (target) target.classList.add('active');
-
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    const navBtns = document.querySelectorAll('.nav-tab');
-    navBtns.forEach(btn => {
-      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + page + "'")) {
-        btn.classList.add('active');
-      }
-    });
-
-    if (page === 'workspace' && this.wsRunner) {
-      this.wsRunner.renderPlan();
-      this.wsRunner.renderTaskQueue();
-      this.wsRunner.renderGeneratedFiles();
     }
   }
 
