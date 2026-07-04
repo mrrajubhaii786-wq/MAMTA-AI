@@ -743,8 +743,13 @@ Use /build to start a new project build.</div>
     function showPage(name) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-' + name).classList.add('active');
-      event.target.classList.add('active');
+      var targetPage = document.getElementById('page-' + name);
+      if (targetPage) targetPage.classList.add('active');
+      document.querySelectorAll('.nav-tab').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + name + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
 
       // Show/hide production bar based on page
       const prodBar = document.getElementById('production-bar');
@@ -821,7 +826,11 @@ Use /build to start a new project build.</div>
     // ==================== WORKSPACE CHAT ====================
     function showWsTab(tab) {
       document.querySelectorAll('.ws-nav-item').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.ws-nav-item').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
     }
 
     async function sendWsChat() {
@@ -1073,7 +1082,11 @@ Use /build to start a new project build.</div>
     function showVaultTab(name) {
       document.querySelectorAll('.vault-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.vault-tab-content').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('.vault-tab-btn').forEach(function(btn) {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf("'" + name + "'") !== -1) {
+          btn.classList.add('active');
+        }
+      });
       document.getElementById('vault-tab-' + name).classList.add('active');
     }
 
